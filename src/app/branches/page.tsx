@@ -12,19 +12,26 @@ const images = [
 
 const conthrax = "font-['Conthrax',_sans-serif]";
 
-// ─── GSAP BACKGROUND (UNTOUCHED) ───
+// ─── OPTIMIZED GSAP BACKGROUND (BUTTERY SMOOTH) ───
 const CubeBackground = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
+    
     let ctxGSAP = gsap.context(() => {
       let particles: any[] = [];
       let width = window.innerWidth, height = window.innerHeight;
       const mouse = { x: width / 2, y: height / 2 };
-      const resize = () => { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; init(); };
+      
+      const resize = () => { 
+        width = canvas.width = window.innerWidth; 
+        height = canvas.height = window.innerHeight; 
+        init(); 
+      };
+
       class Particle {
         x: number; y: number; size: number; baseSize: number; vx: number; vy: number;
         constructor() {
@@ -34,34 +41,64 @@ const CubeBackground = () => {
         }
         update() {
           this.x += this.vx; this.y += this.vy;
-          if (this.x < 0 || this.x > width) this.vx *= -1; if (this.y < 0 || this.y > height) this.vy *= -1;
-          const dx = mouse.x - this.x, dy = mouse.y - this.y, dist = Math.sqrt(dx * dx + dy * dy);
-          this.size = dist < 150 ? gsap.utils.interpolate(this.size, this.baseSize * 3, 0.1) : gsap.utils.interpolate(this.size, this.baseSize, 0.05);
+          if (this.x < 0 || this.x > width) this.vx *= -1; 
+          if (this.y < 0 || this.y > height) this.vy *= -1;
+          
+          const dx = mouse.x - this.x, dy = mouse.y - this.y;
+          const distSq = dx * dx + dy * dy;
+          
+          if (distSq < 22500) { // 150 squared
+            this.size = gsap.utils.interpolate(this.size, this.baseSize * 3, 0.1);
+          } else {
+            this.size = gsap.utils.interpolate(this.size, this.baseSize, 0.05);
+          }
         }
         draw() {
-          if (!ctx) return; ctx.fillStyle = "rgba(0, 247, 255, 0.8)"; ctx.shadowBlur = 12; ctx.shadowColor = "#00f7ff";
-          ctx.fillRect(this.x, this.y, this.size, this.size); ctx.shadowBlur = 0;
+          if (!ctx) return; 
+          ctx.fillStyle = "rgba(0, 247, 255, 0.8)"; 
+          ctx.fillRect(this.x, this.y, this.size, this.size);
         }
       }
-      const init = () => { particles = []; const count = Math.floor((width * height) / 9000); for (let i = 0; i < count; i++) particles.push(new Particle()); };
+
+      const init = () => { 
+        particles = []; 
+        const count = Math.floor((width * height) / 9500); 
+        for (let i = 0; i < count; i++) particles.push(new Particle()); 
+      };
+
       const animate = () => {
         ctx.clearRect(0, 0, width, height);
-        particles.forEach((p, i) => {
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
           p.update(); p.draw();
           for (let j = i + 1; j < particles.length; j++) {
-            const dx = p.x - particles[j].x, dy = p.y - particles[j].y, dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < 120) { ctx.beginPath(); ctx.strokeStyle = `rgba(0, 247, 255, ${0.25 * (1 - dist / 120)})`; ctx.lineWidth = 0.8; ctx.moveTo(p.x, p.y); ctx.lineTo(particles[j].x, particles[j].y); ctx.stroke(); }
+            const p2 = particles[j];
+            const dx = p.x - p2.x, dy = p.y - p2.y;
+            const distSq = dx * dx + dy * dy;
+            if (distSq < 14400) { // 120 squared
+              ctx.beginPath(); 
+              ctx.strokeStyle = `rgba(0, 247, 255, ${0.25 * (1 - Math.sqrt(distSq) / 120)})`; 
+              ctx.lineWidth = 0.8; 
+              ctx.moveTo(p.x, p.y); 
+              ctx.lineTo(p2.x, p2.y); 
+              ctx.stroke(); 
+            }
           }
-        });
+        }
         requestAnimationFrame(animate);
       };
-      const handleMouseMove = (e: MouseEvent) => { gsap.to(mouse, { x: e.clientX, y: e.clientY, duration: 0.6, ease: "power2.out" }); };
-      window.addEventListener("resize", resize); window.addEventListener("mousemove", handleMouseMove);
+
+      const handleMouseMove = (e: MouseEvent) => { 
+        gsap.to(mouse, { x: e.clientX, y: e.clientY, duration: 0.6, ease: "power2.out" }); 
+      };
+
+      window.addEventListener("resize", resize); 
+      window.addEventListener("mousemove", handleMouseMove, { passive: true });
       resize(); animate();
     });
     return () => ctxGSAP.revert();
   }, []);
-  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none" style={{ zIndex: 1 }} />;
+  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none" style={{ zIndex: 1, transform: 'translateZ(0)' }} />;
 };
 
 const branches = [
@@ -111,29 +148,28 @@ export default function BranchesPage() {
   return (
     <div className="flex flex-col w-full bg-black text-white selection:bg-cyan-500/30 overflow-x-hidden relative min-h-screen">
       <SharedHeader />
-
-      {/* ─── BACKGROUND LAYERS ─── */}
       <CubeBackground />
       <div className="fixed inset-0 bg-[radial-gradient(circle_at_50%_50%,#0ea5e90a_0%,transparent_70%)] pointer-events-none z-[2]" />
 
       <main className="relative z-10 flex flex-col items-center w-full">
-        {/* ─── HERO SECTION ─── */}
+        {/* HERO SECTION */}
         <section className="w-full flex flex-col items-center px-0 md:px-6 pt-24 md:pt-32 lg:pt-40">
           <div className="relative w-[92%] md:w-full h-[40vh] md:aspect-[21/7] md:max-h-[500px] md:rounded-[40px] overflow-hidden border border-cyan-500/20 bg-black shadow-2xl">
             <motion.img 
-              initial={{ scale: 1.1, opacity: 0 }}
+              initial={{ scale: 1.05, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 1.5 }}
+              transition={{ duration: 1.2, ease: "easeOut" }}
               src={images[0]} 
-              className="absolute inset-0 size-full object-cover brightness-[0.3]" 
+              className="absolute inset-0 size-full object-cover brightness-[0.25]" 
               alt="KIIT Library" 
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
             
             <div className="relative z-10 flex flex-col items-center justify-center text-center p-6 h-full">
               <motion.h1 
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
                 className={`${conthrax} text-3xl sm:text-5xl md:text-7xl tracking-widest text-white uppercase font-black`}
               >
                 Our <span className="text-cyan-400 drop-shadow-[0_0_15px_#00f7ff]">Branches</span>
@@ -141,25 +177,26 @@ export default function BranchesPage() {
               <motion.div 
                 initial={{ width: 0 }}
                 animate={{ width: "120px" }}
+                transition={{ duration: 0.8, delay: 0.5 }}
                 className="h-1 bg-cyan-500 mt-6 shadow-[0_0_10px_#00f7ff] md:w-[200px]"
               />
             </div>
           </div>
         </section>
 
-        {/* ─── INTRO DESCRIPTION ─── */}
+        {/* INTRO DESCRIPTION */}
         <section className="w-full max-w-4xl text-center px-6 py-12 md:py-16 space-y-4">
           <p className="text-sm md:text-lg text-white/50 leading-relaxed font-light tracking-wide mx-auto max-w-2xl">
             Explore the strategic divisions of <span className={`${conthrax} text-white text-[12px] md:text-base font-black uppercase`}>K-1000</span>. Each wing is a specialized ecosystem designed to accelerate your growth across specific domains.
           </p>
         </section>
 
-        {/* ─── BRANCHES GRID ─── */}
+        {/* BRANCHES GRID */}
         <section className="w-full max-w-7xl px-6 md:px-10 py-6 md:py-12">
           <motion.div 
             initial="hidden"
             whileInView="show"
-            viewport={{ once: true }}
+            viewport={{ once: true, margin: "-100px" }}
             variants={{
               hidden: { opacity: 0 },
               show: { opacity: 1, transition: { staggerChildren: 0.1 } }
@@ -183,7 +220,7 @@ export default function BranchesPage() {
                   {branch.title}
                 </h3>
                 
-                <p className="text-white/40 text-xs md:text-sm leading-relaxed mb-8 flex-grow font-light">
+                <p className="text-white/60 text-xs md:text-xl leading-relaxed mb-8 flex-grow font-light">
                   {branch.desc}
                 </p>
 
