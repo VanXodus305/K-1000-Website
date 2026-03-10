@@ -171,29 +171,53 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* FOUNDER SECTION */}
-<section className="w-full px-6 md:px-20 py-16 md:py-24 flex flex-col items-center border-t border-white/5">
-  <div className="w-full max-w-[1400px] grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
-    {/* FOUNDER IMAGE */}
-    <img
-      src="/about/Founder.png"
-      className="w-full h-auto object-contain brightness-90 shadow-2xl rounded-2xl md:rounded-[32px]"
-      alt="Founder"
-    />
+{/* FOUNDER SECTION */}
+<section className="w-full px-4 md:px-20 py-12 md:py-24 flex flex-col items-center border-t border-white/5">
+  <div className="w-full max-w-[1400px]">
+    {/* SINGLE UNIFIED OPAQUE CONTAINER */}
+    <div className="relative overflow-hidden p-6 md:p-16 rounded-[32px] md:rounded-[60px] border border-white/10 bg-[#0a0a0c]/60 backdrop-blur-xl shadow-[0_0_50px_rgba(0,0,0,0.4)]">
+      
+      {/* Background Decorative Element (Optional - maintains the K-1000 vibe) */}
+      <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2" />
 
-    {/* OPAQUE CONTAINER LAYER */}
-    <div className="p-8 md:p-12 rounded-3xl border border-white/10 bg-[#0a0a0c]/80 backdrop-blur-md shadow-[0_0_30px_rgba(0,0,0,0.5)]">
-      <div className="space-y-6">
-        <h2 className={`${conthrax} text-2xl md:text-5xl text-white uppercase leading-tight tracking-wider font-black`}>
-          OUR <span className="text-cyan-400">FOUNDER</span>
-        </h2>
-        <div className="w-20 h-1 bg-cyan-400 shadow-[0_0_10px_#00f7ff]" />
-        <span className={`${conthrax} text-cyan-400 block text-sm md:text-lg tracking-widest uppercase font-bold`}>
-          Prof. Dr. Achyuta Samanta
-        </span>
-        <p className="text-sm md:text-lg text-white/70 leading-relaxed font-light tracking-wide text-justify">
-          Prof. Dr. Achyuta Samanta's life story reads like a powerful saga of grit, determination, and social responsibility. Born and brought up in poverty in a remote village in Odisha, he was dealt a cruel blow at the tender age of four when he lost his father, after which his life became a struggle for food and education for 15 long years. However, he persevered, and at the age of 22, joined teaching. At 25, he embarked on a journey that would change his own life, and the lives of thousands of people. With just Rs 5000 in his pocket, he started KIIT (Kalinga Institute of Industrial Technology) and KISS (Kalinga Institute of Social Sciences) in two rented houses.
-        </p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-20 items-center relative z-10">
+        
+        {/* FOUNDER IMAGE - Integrated into the block */}
+        <div className="relative group">
+          <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/20 to-transparent rounded-2xl md:rounded-[40px] blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
+          <img
+            src="/about/Founder.png"
+            className="relative w-full h-auto max-h-[500px] md:max-h-none object-contain brightness-95 rounded-2xl md:rounded-[40px] transition-transform duration-700 group-hover:scale-[1.02]"
+            alt="Founder"
+          />
+        </div>
+
+        {/* TEXT CONTENT */}
+        <div className="flex flex-col space-y-5 md:space-y-8">
+          <div className="space-y-3">
+            <h2 className={`${conthrax} text-2xl md:text-6xl text-white uppercase leading-tight tracking-tighter font-black`}>
+              OUR <span className="text-cyan-400 drop-shadow-[0_0_15px_rgba(0,247,255,0.3)]">FOUNDER</span>
+            </h2>
+            <div className="w-16 md:w-24 h-1 bg-cyan-400 shadow-[0_0_15px_#00f7ff]" />
+          </div>
+
+          <div className="space-y-4 md:space-y-6">
+            <span className={`${conthrax} text-cyan-400 block text-xs md:text-xl tracking-[0.2em] uppercase font-black`}>
+              Prof. Dr. Achyuta Samanta
+            </span>
+            <p className="text-[11px] md:text-lg text-white/60 leading-relaxed font-normal text-justify md:text-left">
+              Prof. Dr. Achyuta Samanta's life story reads like a powerful saga of grit, determination, and social responsibility. Born and brought up in poverty in a remote village in Odisha, he was dealt a cruel blow at the tender age of four when he lost his father, after which his life became a struggle for food and education for 15 long years. 
+              <br /><br />
+              However, he persevered, and at the age of 22, joined teaching. At 25, he embarked on a journey that would change his own life, and the lives of thousands of people. With just Rs 5000 in his pocket, he started KIIT and KISS in two rented houses.
+            </p>
+          </div>
+
+          {/* Mobile-only status indicator to match your terminal theme */}
+          <div className="flex md:hidden items-center gap-2 pt-4 border-t border-white/5">
+             <div className="w-1 h-1 rounded-full bg-cyan-500 animate-pulse" />
+             <span className="text-[7px] text-white/30 tracking-[0.3em] uppercase">Visionary Leadership Established</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>

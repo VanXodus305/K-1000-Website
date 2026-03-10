@@ -131,49 +131,45 @@ export default function UnifiedPortal() {
   ];
 
   return (
-    <div className={`relative w-full bg-[#010103] text-white overflow-x-hidden selection:bg-cyan-500/30`}>
+    <div className="relative w-full bg-[#010103] text-white overflow-x-hidden selection:bg-cyan-500/30">
       <CubeBackground />
 
       {/* ─── SYSTEM CANVAS HERO ─── */}
-      <section className="relative w-full h-screen lg:h-screen flex flex-col items-center justify-center overflow-hidden border-b border-white/5">
+      <section className="relative w-full h-[100dvh] min-h-[600px] flex flex-col items-center justify-center overflow-hidden border-b border-white/5">
         <SharedHeader />
         
         <motion.div style={{ x: moveX, y: moveY, scale: 1.05 }} className="absolute inset-0 z-0 opacity-30 pointer-events-none">
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#00f7ff06_1px,transparent_1px),linear-gradient(to_bottom,#00f7ff06_1px,transparent_1px)] bg-[size:40px_40px] lg:bg-[size:60px_60px]" />
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#00f7ff06_1px,transparent_1px),linear-gradient(to_bottom,#00f7ff06_1px,transparent_1px)] bg-[size:30px_30px] lg:bg-[size:60px_60px]" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#010103_85%)]" />
         </motion.div>
 
-        <div className="relative z-10 w-full h-full flex flex-col items-center justify-center px-4">
+        <div className="relative z-10 w-full h-full flex flex-col items-center justify-center px-4 overflow-hidden">
           <AnimatePresence>
             {!activeDomainKey && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center justify-center w-full h-full">
                 {isMobile ? (
-                  /* REFINED MOBILE LAYOUT - PREVENT OVERLAP */
-                  <div className="flex flex-col items-center w-full h-full pt-20 pb-24">
-                    {/* TOP SECTION: LOGO */}
-                    <div className="flex-none py-6">
+                  <div className="flex flex-col items-center w-full h-full justify-between pt-24 pb-20">
+                    <div className="flex-none">
                         <div className="relative">
-                           <div className="absolute inset-0 bg-cyan-500/10 blur-3xl rounded-full scale-150 animate-pulse" />
-                           <img src="/k1000-small.png" className="w-28 brightness-110 drop-shadow-[0_0_15px_#00f7ff] relative z-10" alt="Core" />
+                           <div className="absolute inset-0 bg-cyan-500/10 blur-2xl rounded-full scale-125 animate-pulse" />
+                           <img src="/k1000-small.png" className="w-24 brightness-110 drop-shadow-[0_0_10px_#00f7ff] relative z-10" alt="Core" />
                         </div>
                     </div>
 
-                    {/* MIDDLE SECTION: NODES (Scrollable if needed, but flex-1 to occupy space) */}
-                    <div className="flex-1 w-full flex flex-col justify-center space-y-2.5 px-2 max-w-sm overflow-y-auto no-scrollbar pb-10">
+                    <div className="flex-1 w-full max-w-[340px] flex flex-col justify-center space-y-2 px-2">
                       {allNodes.map((node) => (
-                      <button key={node.key} onClick={() => setActiveDomainKey(node.key)} className="w-full bg-black/60 backdrop-blur-md border border-cyan-400/30 p-3.5 flex justify-between items-center shadow-[0_0_15px_rgba(0,247,255,0.1)] active:scale-[0.98] transition-all rounded-lg group">
-                          <div className={`flex items-center gap-4 text-cyan-400 ${conthrax}`}>
-                              <div className="group-active:text-white transition-colors">{node.icon}</div>
-                              <span className="text-[10px] tracking-[0.1em] text-white uppercase font-bold">{node.label}</span>
+                      <button key={node.key} onClick={() => setActiveDomainKey(node.key)} className="w-full bg-black/40 backdrop-blur-xl border border-cyan-400/30 p-3 flex justify-between items-center shadow-[0_0_10px_rgba(0,247,255,0.05)] active:scale-[0.98] transition-all rounded-lg group">
+                          <div className={`flex items-center gap-3 text-cyan-400 ${conthrax}`}>
+                              <div className="scale-75 group-active:text-white transition-colors">{node.icon}</div>
+                              <span className="text-[9px] tracking-[0.05em] text-white uppercase font-bold">{node.label}</span>
                           </div>
-                          <ChevronRight size={16} className="text-cyan-400/50 group-active:text-cyan-400" />
+                          <ChevronRight size={14} className="text-cyan-400/50 group-active:text-cyan-400" />
                       </button>
                       ))}
                     </div>
                     
-                    {/* BOTTOM SECTION: SLOGAN (Higher z-index than background) */}
-                    <div className="flex-none pt-4 pb-12">
-                        <div className={`text-[8px] tracking-[0.5em] text-cyan-400/70 font-black uppercase text-center drop-shadow-[0_0_8px_#00f7ff] brightness-110 ${conthrax}`}>
+                    <div className="flex-none mt-4">
+                        <div className={`text-[7px] tracking-[0.4em] text-cyan-400/70 font-black uppercase text-center drop-shadow-[0_0_5px_#00f7ff] ${conthrax}`}>
                             Train • Transform • Transcend
                         </div>
                     </div>
@@ -194,10 +190,7 @@ export default function UnifiedPortal() {
                     </div>
                     {allNodes.map((node) => (
                       <motion.button key={node.key} onMouseEnter={() => setHoveredNode(node.key)} onMouseLeave={() => setHoveredNode(null)} 
-                        onClick={() => {
-                          setActiveDomainKey(node.key);
-                          setHoveredNode(null); 
-                        }} 
+                        onClick={() => { setActiveDomainKey(node.key); setHoveredNode(null); }} 
                         className={`absolute -translate-y-1/2 flex items-center cursor-pointer group z-30 ${LEFT_NODES.includes(node) ? "-translate-x-full flex-row" : "flex-row-reverse"}`} style={{ top: `${node.y}%`, left: `${node.x}%` }}>
                         <div className={`w-2 h-10 border-y-2 ${LEFT_NODES.includes(node) ? 'border-l-2' : 'border-r-2'} ${hoveredNode === node.key ? 'border-white' : 'border-cyan-400'}`} />
                         <div className={`relative px-8 py-4 min-w-[340px] backdrop-blur-2xl border-2 transition-all duration-300 ${hoveredNode === node.key ? 'bg-white text-black border-white shadow-[0_0_40px_#fff]' : 'bg-black/90 text-white border-cyan-400 shadow-[0_0_30px_rgba(0,247,255,0.4)]'}`}><div className="flex items-center gap-6"><div className={`p-2 border-2 ${hoveredNode === node.key ? 'border-black text-black' : 'border-cyan-400 text-cyan-400 brightness-110 drop-shadow-[0_0_5px_#00f7ff]'}`}>{node.icon}</div><span className={`text-[12px] font-black tracking-widest uppercase ${conthrax} ${hoveredNode === node.key ? 'text-black' : 'text-white brightness-110'}`}>{node.label}</span></div></div>
@@ -211,12 +204,11 @@ export default function UnifiedPortal() {
           </AnimatePresence>
         </div>
 
-        {/* HUD FOOTER - REFINED SPACING */}
-        <div className="absolute bottom-0 left-0 w-full px-6 lg:px-12 py-5 flex items-end justify-between pointer-events-none z-[110]">
-          <div className="flex flex-col gap-1">
+        <div className="absolute bottom-0 left-0 w-full px-5 lg:px-12 py-4 flex items-end justify-between pointer-events-none z-[110]">
+          <div className="flex flex-col gap-0.5">
             <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_5px_#00f7ff]" />
-                <span className={`text-[8px] lg:text-[10px] tracking-widest text-cyan-400 font-black uppercase ${conthrax}`}>SYS_LINK: ON</span>
+                <div className="w-1 h-1 rounded-full bg-cyan-400 animate-pulse" />
+                <span className={`text-[8px] tracking-[0.1em] text-cyan-400 font-bold uppercase ${conthrax}`}>SYS: ON</span>
             </div>
             <div className="hidden lg:flex items-center gap-3">
                 <CpuIcon size={14} className="text-cyan-400/60" />
@@ -224,13 +216,9 @@ export default function UnifiedPortal() {
             </div>
           </div>
           
-          <div className="hidden lg:flex flex-col items-center">
-            <div className={`text-[8px] tracking-[1.2em] font-mono text-cyan-300 uppercase font-black opacity-40 ${conthrax}`}>K-1000 TERMINAL</div>
-          </div>
-
           <div className="flex flex-col items-end gap-0">
-            <span className="text-[7px] lg:text-[9px] tracking-widest text-white/40 font-normal uppercase">TIMESTAMP</span>
-            <span className="text-xl lg:text-3xl font-mono text-cyan-400 brightness-110 drop-shadow-[0_0_10px_#00f7ff]">
+            <span className="text-[6px] lg:text-[9px] tracking-widest text-white/40 uppercase">TIMESTAMP</span>
+            <span className="text-sm lg:text-3xl font-mono text-cyan-400 brightness-110">
                 {currentTime.toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit' })}
             </span>
           </div>
@@ -240,78 +228,28 @@ export default function UnifiedPortal() {
       {/* ─── SCROLLABLE CONTENT ─── */}
       <div className="relative z-[50] bg-black">
         
-{/* HERO BANNER SECTION */}
 <section className="w-full px-4 lg:px-20 pt-10 lg:pt-32">
-  <div className="relative w-full aspect-[4/5] sm:aspect-[16/9] lg:aspect-[21/9] max-h-[700px] rounded-[24px] lg:rounded-[40px] overflow-hidden border-2 border-white/20 bg-black shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+  <div className="relative w-full min-h-[450px] aspect-[4/5] sm:aspect-[16/9] lg:aspect-[21/9] rounded-[24px] lg:rounded-[40px] overflow-hidden border border-white/10 bg-black">
+    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-[5]" />
+    <img src="/hero/hero-2.jpg" className="absolute inset-0 w-full h-full object-cover brightness-[0.35]" alt="Hero" />
     
-    {/* DENSE FILTER SHEET OVERLAY */}
-    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/30 z-[5] mix-blend-multiply" />
-    
-    {/* DARKER BASE IMAGE */}
-    <img 
-      src="/hero/hero-2.jpg" 
-      className="absolute inset-0 w-full h-full object-cover brightness-[0.4] lg:opacity-90" 
-      alt="Hero" 
-    />
-    
-    <div className="relative z-10 flex flex-col items-center justify-center text-center p-6 h-full">
-      <motion.p 
-        initial={{ opacity: 0 }} 
-        whileInView={{ opacity: 1 }} 
-        viewport={{ once: true }}
-        className={`${conthrax} text-cyan-400 tracking-[0.3em] lg:tracking-[0.6em] text-[8px] lg:text-[11px] mb-4 uppercase font-black`}
-      >
-        KIIT Elite's R&D Program
-      </motion.p>
+    <div className="relative z-10 flex flex-col items-center justify-center text-center p-4 h-full">
+      <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} className={`${conthrax} text-cyan-400 tracking-[0.2em] text-[7px] lg:text-[11px] mb-2 uppercase font-black`}>KIIT Elite's R&D Program</motion.p>
+      <motion.h1 initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} className={`${conthrax} text-3xl lg:text-8xl tracking-tight text-white mb-4 uppercase font-black leading-tight`}>Join <span className="text-cyan-400 drop-shadow-[0_0_10px_rgba(0,247,255,0.4)]">K-1000</span></motion.h1>
+      <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} className="text-white/70 max-w-md text-[10px] lg:text-xl mb-6 font-normal">Innovation • Research • Engineering <br/> The Official R&D Guild of KIIT University.</motion.p>
       
-      <motion.h1 
-        initial={{ opacity: 0, y: 10 }} 
-        whileInView={{ opacity: 1, y: 0 }} 
-        viewport={{ once: true }}
-        className={`${conthrax} text-2xl lg:text-8xl tracking-widest text-white mb-6 uppercase font-black`}
-      >
-        Join <span className="text-cyan-400 text-glow drop-shadow-[0_0_20px_rgba(0,247,255,0.4)]">K-1000</span>
-      </motion.h1>
-      
-      <motion.p 
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true }}
-        className="text-white/70 max-w-xl text-[10px] lg:text-xl mb-8 font-normal leading-relaxed"
-      >
-        Innovation • Research • Engineering <br className="hidden lg:block"/> The Official R&D Guild of KIIT University.
-      </motion.p>
-      
-      <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto px-6">
-        <Link 
-          href="/apply" 
-          className={`px-8 py-3.5 bg-cyan-400 text-black uppercase text-[10px] tracking-widest rounded-full shadow-[0_0_20px_rgba(0,247,255,0.4)] hover:bg-white transition-all duration-300 font-black text-center ${conthrax}`}
-        >
-          Apply Now
-        </Link>
-        <Link 
-          href="/about" 
-          className={`px-8 py-3.5 border-2 border-cyan-400/50 text-cyan-400 hover:border-cyan-400 hover:bg-cyan-400/5 uppercase text-[10px] tracking-widest rounded-full transition-all duration-300 font-black text-center ${conthrax}`}
-        >
-          Learn More
-        </Link>
+      <div className="flex flex-col sm:flex-row gap-3 w-full max-w-[280px] sm:max-w-none justify-center">
+        <Link href="/apply" className={`px-6 py-3 bg-cyan-400 text-black uppercase text-[9px] tracking-widest rounded-full font-black text-center ${conthrax}`}>Apply Now</Link>
+        <Link href="/about" className={`px-6 py-3 border border-cyan-400/50 text-cyan-400 uppercase text-[9px] tracking-widest rounded-full font-black text-center ${conthrax}`}>Learn More</Link>
       </div>
     </div>
   </div>
 
-  {/* STATS GRID WITH THICKER BORDERS */}
-  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-8 mt-8 lg:mt-24 w-full max-w-7xl mx-auto pb-10">
+  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-6 lg:mt-24 w-full max-w-7xl mx-auto pb-10 px-2">
     {stats.map((stat, i) => (
-      <div 
-        key={i} 
-        className="flex flex-col items-center space-y-1 lg:space-y-4 bg-white/[0.03] p-5 lg:p-8 rounded-2xl border-2 border-white/10 hover:border-cyan-400/30 transition-all duration-500 group"
-      >
-        <span className={`${conthrax} text-2xl lg:text-6xl text-cyan-400 font-black group-hover:scale-110 transition-transform duration-500`}>
-          {stat.number}
-        </span>
-        <span className={`text-[7px] lg:text-[11px] uppercase tracking-widest text-white/40 font-black text-center ${conthrax}`}>
-          {stat.label}
-        </span>
+      <div key={i} className="flex flex-col items-center py-4 lg:py-8 bg-white/[0.02] rounded-xl border border-white/5 group">
+        <span className={`${conthrax} text-xl lg:text-6xl text-cyan-400 font-black`}>{stat.number}</span>
+        <span className={`text-[6px] lg:text-[11px] uppercase tracking-widest text-white/40 font-black text-center ${conthrax}`}>{stat.label}</span>
       </div>
     ))}
   </div>
@@ -378,33 +316,18 @@ export default function UnifiedPortal() {
   </div>
 </section>
 
-        {/* BENEFITS */}
-<section className="w-full max-w-7xl mx-auto py-20 px-6 lg:px-10">
-  <h2 className={`${conthrax} text-xl lg:text-5xl text-center tracking-widest text-cyan-400 mb-12 lg:mb-24 uppercase font-black`}>
-    Benefits & Perks
-  </h2>
-  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+<section className="w-full max-w-7xl mx-auto py-16 px-6">
+  <h2 className={`${conthrax} text-xl lg:text-5xl text-center tracking-widest text-cyan-400 mb-10 lg:mb-24 uppercase font-black`}>Benefits & Perks</h2>
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
     {benefits.map((b: any, i: number) => {
       const Icon = iconMap[b.icon] || Lightbulb;
       return (
-        <div 
-          key={i} 
-          className="p-8 rounded-2xl bg-white/[0.03] backdrop-blur-sm transition-all duration-300
-                     /* Thicker, brighter borders */
-                     border-2 border-white/20 
-                     /* Intense glow on hover */
-                     hover:border-cyan-400 hover:shadow-[0_0_20px_rgba(0,247,255,0.2)] 
-                     group"
-        >
-          <div className="w-12 h-12 rounded-xl bg-cyan-500/20 flex items-center justify-center mb-6 border border-cyan-400/30">
-            <Icon className="w-6 h-6 text-cyan-400 group-hover:scale-110 transition-transform" />
+        <div key={i} className="p-6 lg:p-8 rounded-xl bg-white/[0.02] border border-white/10 hover:border-cyan-400/50 transition-all duration-300 group">
+          <div className="w-10 h-10 lg:w-12 h-12 rounded-lg bg-cyan-500/10 flex items-center justify-center mb-4 lg:mb-6 border border-cyan-400/20">
+            <Icon className="w-5 h-5 lg:w-6 h-6 text-cyan-400" />
           </div>
-          <h3 className={`${conthrax} text-lg text-white tracking-widest uppercase font-black mb-3 group-hover:text-cyan-400 transition-colors`}>
-            {b.title}
-          </h3>
-          <p className="text-md text-white/60 leading-relaxed font-medium">
-            {b.description}
-          </p>
+          <h3 className={`${conthrax} text-sm lg:text-lg text-white tracking-widest uppercase font-black mb-2`}>{b.title}</h3>
+          <p className="text-xs lg:text-md text-white/60 leading-relaxed">{b.description}</p>
         </div>
       );
     })}
@@ -415,12 +338,7 @@ export default function UnifiedPortal() {
       </div>
 
       <AnimatePresence mode="wait">
-        {activeDomain && (
-          <DomainHoloPanel 
-            domain={activeDomain as any} 
-            onClose={handlePanelClose} 
-          />
-        )}
+        {activeDomain && <DomainHoloPanel domain={activeDomain as any} onClose={handlePanelClose} />}
       </AnimatePresence>
     </div>
   );
