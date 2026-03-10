@@ -14,21 +14,21 @@ const Footer = () => {
   const pathname = usePathname();
 
   const quickLinks = [
-    { title: "Home", path: "/Sections/home" },
-    { title: "About Program", path: "/Sections/about" },
-    { title: "Benefits", path: "/Sections/benefits" },
-    { title: "Branches", path: "/Sections/branches" },
-    { title: "Apply Now", path: "/Sections/apply" },
-    { title: "Contact", path: "/Sections/contact" },
+    { title: "Home", path: "/home" },
+    { title: "About Program", path: "/about" },
+    { title: "Benefits", path: "/benefits" },
+    { title: "Branches", path: "/branches" },
+    { title: "Apply Now", path: "/apply" },
+    { title: "Contact", path: "/contact" },
   ];
 
   const researchAreas = [
-    { title: "Engineering & Technology", href: "/Sections/departments" },
-    { title: "Sciences & Applied Sciences", href: "/Sections/departments" },
-    { title: "Management & Social Sciences", href: "/Sections/departments" },
-    { title: "Medical & Health Sciences", href: "/Sections/departments" },
-    { title: "Law & Public Policy", href: "/Sections/departments" },
-    { title: "Sports & Tourism", href: "/Sections/departments" },
+    { title: "Engineering & Technology", href: "/departments" },
+    { title: "Sciences & Applied Sciences", href: "/departments" },
+    { title: "Management & Social Sciences", href: "/departments" },
+    { title: "Medical & Health Sciences", href: "/departments" },
+    { title: "Law & Public Policy", href: "/departments" },
+    { title: "Sports & Tourism", href: "/departments" },
   ];
 
   return (
