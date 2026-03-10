@@ -1,0 +1,30 @@
+.footer {
+  padding-top: 80px;
+  width: 100%;
+  
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 40px;
+  }
+
+  .topSection {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1.2fr;
+    gap: 60px;
+
+    @media (max-width: 1024px) {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    @media (max-width: 640px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .logoSection {
+    .description {
+      // Overridden by Tailwind classes in JSX for consistency with your typography rules
+    }
+  }
+}
