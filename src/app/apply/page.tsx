@@ -150,17 +150,20 @@ const ApplicationForm = () => {
             The K-1000 Program is an excellent opportunity for students to engage in research and academic excellence. If you have a passion for innovation, apply now to be part of this prestigious program.
           </p>
 
-          <motion.a
-            href={GOOGLE_FORM_LINK}
-            target="_blank"
-            rel="noopener noreferrer"
-            whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(34, 211, 238, 0.4)" }}
-            whileTap={{ scale: 0.95 }}
-            className={`${conthrax} inline-flex items-center gap-4 bg-cyan-500 text-black px-12 py-5 rounded-full font-black text-sm uppercase tracking-widest transition-all duration-300 shadow-[0_10px_40px_-10px_rgba(6,182,212,0.5)]`}
-          >
-            Apply Now
-            <ArrowRight size={18} />
-          </motion.a>
+          <motion.div
+  initial={{ opacity: 0.8 }}
+  className={`${conthrax} inline-flex items-center gap-4 bg-white/5 border border-white/10 text-white/40 px-12 py-5 rounded-full font-black text-sm uppercase tracking-[0.3em] cursor-not-allowed transition-all duration-500 shadow-[inset_0_0_20px_rgba(255,255,255,0.02)]`}
+>
+  <div className="relative flex items-center justify-center">
+    {/* Subtle status pulse to show the site isn't frozen, just the form is closed */}
+    <span className="absolute w-2 h-2 bg-white/ rounded-full animate-ping" />
+    <span className="relative w-2 h-2 bg-white/40 rounded-full" />
+  </div>
+  
+  <span>Applications Open Soon</span>
+  
+  <ArrowRight size={18} className="opacity-50" />
+</motion.div>
         </motion.div>
 
         {/* ─── SOCIAL CONNECT GRID ─── */}
