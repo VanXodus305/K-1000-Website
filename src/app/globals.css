@@ -1,7 +1,6 @@
 @import "tailwindcss";
 
 /* 1. LOAD THE FONT FILE */
-/* Place your font files in /public/fonts/ */
 @font-face {
   font-family: 'Conthrax';
   src: url('/fonts/conthrax-sb.otf') format('opentype');
@@ -15,7 +14,7 @@
   --background: #ffffff;
   --foreground: #171717;
   --font-orbitron: "Orbitron", sans-serif;
-  --font-conthrax: "Conthrax", sans-serif; /* Add this */
+  --font-conthrax: "Conthrax", sans-serif;
 }
 
 @theme inline {
@@ -23,8 +22,8 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  /* Map the variable for Tailwind utility usage */
   --font-conthrax: var(--font-conthrax); 
+  --font-orbitron: var(--font-orbitron);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -32,6 +31,35 @@
     --background: #000000;
     --foreground: #ededed;
   }
+}
+
+/* LENIS SMOOTH SCROLL SUPPORT */
+html.lenis, html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* PREMIUM SCROLLBAR */
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: #000;
+}
+::-webkit-scrollbar-thumb {
+  background: #00f7ff33;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #00f7ff66;
 }
 
 html, body {
@@ -43,13 +71,47 @@ html, body {
   font-family: var(--font-sans), sans-serif;
 }
 
-/* 2. FORCE HELPER CLASS */
-.font-conthrax {
-  font-family: var(--font-conthrax) !important;
-}
+/* HELPER CLASSES */
+.font-conthrax { font-family: var(--font-conthrax) !important; }
+.font-orbitron { font-family: var(--font-orbitron) !important; }
 
-.font-orbitron {
-  font-family: var(--font-orbitron) !important;
-}
+/* ANIMATIONS */
+@keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.animate-spin-slow { animation: spin-slow 60s linear infinite; }
 
-/* ... keep the rest of your animations and glass-panel styles ... */
+@keyframes fadeIn {
+  from { opacity:0; transform: translateY(10px); }
+  to { opacity:1; transform: translateY(0); }
+}
+.animate-fade-in { animation: fadeIn 0.9s ease forwards; }
+.animate-fade-in-slow { animation: fadeIn 1.6s ease forwards; }
+.animate-fade-in-fast { animation: fadeIn 0.45s ease forwards; }
+
+@keyframes scale-fade {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+.animate-scale-in { animation: scale-fade 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+
+@keyframes cursorBlink { 50% { opacity: 0; } }
+.type-cursor { display: inline-block; width: 0.55em; animation: cursorBlink 0.8s step-end infinite; }
+
+/* GLASS & GLOWS */
+.glass-panel {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: 0 0 40px rgba(0,255,255,0.18);
+}
+.glass-nav {
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.vignette-glow {
+  background: radial-gradient(circle, transparent 50%, rgba(0,0,0,0.8));
+  pointer-events: none;
+}
+.soft-glow { filter: drop-shadow(0 0 35px rgba(0,255,255,0.35)); }
+
+.dna-container, .dna-bar { display: none !important; }

@@ -1,20 +1,13 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Orbitron } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import SmoothScroll from "@/components/ui/Smoothscroll"; // Adjust path if needed
 import "./globals.css";
 
-/* 🧠 Font Imports */
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });
-
-<body
-  className="
-    bg-black text-white antialiased
-    flex flex-col items-center
-  "
-></body>
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -38,7 +31,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <body
         className={`
           ${geistSans.variable}
@@ -47,7 +40,9 @@ export default function RootLayout({
           antialiased bg-black text-white
         `}
       >
-        {children}
+        <SmoothScroll>
+          {children}
+        </SmoothScroll>
         <Analytics />
       </body>
     </html>
