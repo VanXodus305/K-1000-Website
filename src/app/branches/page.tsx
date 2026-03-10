@@ -191,48 +191,55 @@ export default function BranchesPage() {
           </p>
         </section>
 
-        {/* BRANCHES GRID */}
-        <section className="w-full max-w-7xl px-6 md:px-10 py-6 md:py-12">
-          <motion.div 
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={{
-              hidden: { opacity: 0 },
-              show: { opacity: 1, transition: { staggerChildren: 0.1 } }
-            }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
-          >
-            {branches.map((branch, index) => (
-              <motion.div
-                key={index}
-                variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
-                whileHover={{ y: -8 }}
-                className="group relative p-8 md:p-10 rounded-[32px] bg-white/[0.02] backdrop-blur-md border border-white/5 hover:border-cyan-400/40 transition-all duration-300 flex flex-col h-full shadow-2xl overflow-hidden"
-              >
-                <div className="absolute -top-10 -right-10 w-24 h-24 bg-cyan-500/5 blur-3xl group-hover:bg-cyan-500/10 transition-all" />
-                
-                <span className={`${conthrax} text-[9px] md:text-[10px] text-cyan-400/60 tracking-[0.2em] uppercase mb-4 block font-black`}>
-                  {branch.tag}
-                </span>
-                
-                <h3 className={`${conthrax} text-lg md:text-xl text-white mb-4 group-hover:text-cyan-400 transition-colors uppercase font-black`}>
-                  {branch.title}
-                </h3>
-                
-                <p className="text-white/60 text-xs md:text-xl leading-relaxed mb-8 flex-grow font-light">
-                  {branch.desc}
-                </p>
+{/* BRANCHES GRID */}
+<section className="w-full max-w-7xl px-6 md:px-10 py-6 md:py-12">
+  <motion.div 
+    initial="hidden"
+    whileInView="show"
+    viewport={{ once: true, margin: "-100px" }}
+    variants={{
+      hidden: { opacity: 0 },
+      show: { opacity: 1, transition: { staggerChildren: 0.1 } }
+    }}
+    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
+  >
+    {branches.map((branch, index) => (
+      <motion.div
+        key={index}
+        variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
+        whileHover={{ y: -8 }}
+        className="group relative p-8 md:p-10 rounded-[32px] bg-white/[0.03] backdrop-blur-md 
+                   /* Thicker, more prominent base border */
+                   border-2 border-white/20 
+                   /* High-fidelity Cyan glow on hover */
+                   hover:border-cyan-400 hover:shadow-[0_0_30px_rgba(0,247,255,0.15)] 
+                   transition-all duration-300 flex flex-col h-full shadow-2xl overflow-hidden"
+      >
+        {/* Aesthetic Glow Accent */}
+        <div className="absolute -top-10 -right-10 w-24 h-24 bg-cyan-500/10 blur-3xl group-hover:bg-cyan-500/20 transition-all" />
+        
+        <span className={`${conthrax} text-[9px] md:text-[10px] text-cyan-400/80 tracking-[0.2em] uppercase mb-4 block font-black`}>
+          {branch.tag}
+        </span>
+        
+        <h3 className={`${conthrax} text-lg md:text-xl text-white mb-4 group-hover:text-cyan-400 transition-colors uppercase font-black`}>
+          {branch.title}
+        </h3>
+        
+        <p className="text-white/70 text-xs md:text-sm leading-relaxed mb-8 flex-grow font-medium">
+          {branch.desc}
+        </p>
 
-                <div className="pt-6 border-t border-white/5">
-                  <p className={`${conthrax} text-[8px] md:text-[9px] text-white/30 group-hover:text-white/60 tracking-widest uppercase font-bold transition-colors`}>
-                    {branch.focus}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
-        </section>
+        {/* Thick divider to match the outer border */}
+        <div className="pt-6 border-t-2 border-white/10 group-hover:border-cyan-400/30 transition-colors">
+          <p className={`${conthrax} text-[8px] md:text-[9px] text-white/50 group-hover:text-white/80 tracking-widest uppercase font-black transition-colors`}>
+            {branch.focus}
+          </p>
+        </div>
+      </motion.div>
+    ))}
+  </motion.div>
+</section>
         
         <div className="w-full py-16 md:py-24" />
       </main>

@@ -81,7 +81,7 @@ const Footer = () => {
                 <li key={index}>
                   <Link
                     href={link.path}
-                    className={`flex items-center gap-2 text-[12px] transition-all hover:text-cyan-400 group ${
+                    className={`flex items-center gap-2 text-[16px] transition-all hover:text-cyan-400 group ${
                       pathname === link.path ? "text-cyan-400" : "text-white/50"
                     } font-medium tracking-wide`}
                   >
@@ -107,7 +107,7 @@ const Footer = () => {
                 <li key={index}>
                   <Link 
                     href={area.href}
-                    className="flex items-center gap-2 text-white/50 text-[12px] hover:text-cyan-400 group transition-all font-medium tracking-wide"
+                    className="flex items-center gap-2 text-white/50 text-[16px] hover:text-cyan-400 group transition-all font-medium tracking-wide"
                   >
                     <ChevronRight size={14} className="text-cyan-400/30 group-hover:translate-x-1 transition-transform" />
                     {area.title}
@@ -139,15 +139,15 @@ const Footer = () => {
             </div>
             
             <div className="space-y-4">
-              <div className="flex gap-3 items-start text-white text-[12px] font-medium">
+              <div className="flex gap-3 items-start text-white text-[16px] font-medium">
                 <MapPin className="text-cyan-400 shrink-0" size={16} />
                 <span className="leading-tight">KIIT University, Bhubaneswar,<br/><span className="text-white/30 text-[10px] uppercase tracking-wider">Odisha 751024</span></span>
               </div>
-              <div className="flex gap-3 items-start text-white text-[12px] font-medium">
+              <div className="flex gap-3 items-start text-white text-[16px] font-medium">
                 <Phone className="text-cyan-400 shrink-0" size={16} />
                 <span className="tracking-wide">Dr. Ajit Kumar Pasyat<br/><span className="text-cyan-400 text-[11px]">+91 7008588187</span></span>
               </div>
-              <div className="flex gap-3 items-start text-white text-[12px] font-medium">
+              <div className="flex gap-3 items-start text-white text-[16px] font-medium">
                 <Mail className="text-cyan-400 shrink-0" size={16} />
                 <span className="underline underline-offset-4 decoration-cyan-400/30 hover:text-cyan-400 transition-colors">k.1000@kiit.ac.in</span>
               </div>

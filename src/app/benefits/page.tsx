@@ -192,32 +192,43 @@ export default function BenefitsPage() {
           </p>
         </section>
 
-        {/* BENEFITS GRID */}
-        <section className="w-full max-w-7xl px-6 md:px-10 py-6 md:py-12">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-            {benefits.map((benefit, index) => (
-              <motion.div 
-                key={index} 
-                initial={{ opacity: 0, y: 15 }} 
-                whileInView={{ opacity: 1, y: 0 }} 
-                viewport={{ once: true }} 
-                transition={{ delay: index * 0.05 }} 
-                className="p-8 md:p-10 rounded-[32px] bg-white/[0.02] backdrop-blur-md border border-white/5 hover:border-cyan-400/40 transition-all duration-300 group flex flex-col items-start relative overflow-hidden shadow-2xl"
-              >
-                <div className="absolute -top-10 -right-10 w-24 h-24 bg-cyan-500/5 blur-3xl group-hover:bg-cyan-500/10 transition-all" />
-                <h3 className={`${conthrax} text-base md:text-xl text-white mb-3 tracking-widest group-hover:text-cyan-400 transition-colors uppercase font-black`}>
-                  {benefit.title}
-                </h3>
-                <p className="text-white/40 text-xs md:text-xl leading-relaxed font-light mb-8">{benefit.desc}</p>
-                <div className="mt-auto pt-6 border-t border-white/5 w-full">
-                  <p className={`${conthrax} text-[9px] md:text-[10px] text-cyan-400/60 uppercase tracking-widest font-bold`}>
-                    {benefit.detail}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </section>
+ {/* BENEFITS GRID */}
+<section className="w-full max-w-7xl px-6 md:px-10 py-6 md:py-12">
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+    {benefits.map((benefit, index) => (
+      <motion.div 
+        key={index} 
+        initial={{ opacity: 0, y: 15 }} 
+        whileInView={{ opacity: 1, y: 0 }} 
+        viewport={{ once: true }} 
+        transition={{ delay: index * 0.05 }} 
+        className="p-8 md:p-10 rounded-[32px] bg-white/[0.03] backdrop-blur-md 
+                   /* Thicker and Brighter base border */
+                   border-2 border-white/20 
+                   /* Intense hover state */
+                   hover:border-cyan-400 hover:shadow-[0_0_30px_rgba(0,247,255,0.15)] 
+                   transition-all duration-300 group flex flex-col items-start relative overflow-hidden"
+      >
+        {/* Corner Glow Accent */}
+        <div className="absolute -top-10 -right-10 w-24 h-24 bg-cyan-500/10 blur-3xl group-hover:bg-cyan-500/20 transition-all" />
+        
+        <h3 className={`${conthrax} text-base md:text-xl text-white mb-3 tracking-widest group-hover:text-cyan-400 transition-colors uppercase font-black`}>
+          {benefit.title}
+        </h3>
+        
+        <p className="text-white/60 text-xs md:text-xl leading-relaxed font-medium mb-8">
+          {benefit.desc}
+        </p>
+        
+        <div className="mt-auto pt-6 border-t-2 border-white/10 w-full group-hover:border-cyan-400/30 transition-colors">
+          <p className={`${conthrax} text-[9px] md:text-[10px] text-cyan-400/80 uppercase tracking-widest font-black`}>
+            {benefit.detail}
+          </p>
+        </div>
+      </motion.div>
+    ))}
+  </div>
+</section>
 
         {/* CALL TO ACTION SECTION */}
         <section className="w-full max-w-7xl px-6 py-12 md:py-20">

@@ -240,105 +240,176 @@ export default function UnifiedPortal() {
       {/* ─── SCROLLABLE CONTENT ─── */}
       <div className="relative z-[50] bg-black">
         
-        {/* HERO BANNER SECTION */}
-        <section className="w-full px-4 lg:px-20 pt-10 lg:pt-32">
-          <div className="relative w-full aspect-[4/5] sm:aspect-[16/9] lg:aspect-[21/9] max-h-[700px] rounded-[24px] lg:rounded-[40px] overflow-hidden border border-white/10 bg-black">
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent z-[5]" />
-            <img src="/hero/hero-2.jpg" className="absolute inset-0 w-full h-full object-cover opacity-50 lg:opacity-80" alt="Hero" />
-            
-            <div className="relative z-10 flex flex-col items-center justify-center text-center p-6 h-full">
-              <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} className={`${conthrax} text-cyan-400 tracking-[0.3em] lg:tracking-[0.6em] text-[8px] lg:text-[11px] mb-4 uppercase font-black`}>KIIT Elite's R&D Program</motion.p>
-              <motion.h1 initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} className={`${conthrax} text-2xl lg:text-8xl tracking-widest text-white mb-6 uppercase font-black`}>Join <span className="text-cyan-400 text-glow">K-1000</span></motion.h1>
-              <motion.p className="text-white/70 max-w-xl text-[10px] lg:text-xl mb-8 font-normal leading-relaxed">Innovation • Research • Engineering <br className="hidden lg:block"/> The Official R&D Guild of KIIT University.</motion.p>
-              
-              <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto px-6">
-                <Link href="/apply" className={`px-8 py-3.5 bg-cyan-400 text-black uppercase text-[10px] tracking-widest rounded-full shadow-[0_0_15px_rgba(0,247,255,0.3)] font-black text-center ${conthrax}`}>Apply Now</Link>
-                <Link href="/about" className={`px-8 py-3.5 border border-cyan-400/50 text-cyan-400 uppercase text-[10px] tracking-widest rounded-full font-black text-center ${conthrax}`}>Learn More</Link>
-              </div>
-            </div>
-          </div>
+{/* HERO BANNER SECTION */}
+<section className="w-full px-4 lg:px-20 pt-10 lg:pt-32">
+  <div className="relative w-full aspect-[4/5] sm:aspect-[16/9] lg:aspect-[21/9] max-h-[700px] rounded-[24px] lg:rounded-[40px] overflow-hidden border-2 border-white/20 bg-black shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+    
+    {/* DENSE FILTER SHEET OVERLAY */}
+    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/30 z-[5] mix-blend-multiply" />
+    
+    {/* DARKER BASE IMAGE */}
+    <img 
+      src="/hero/hero-2.jpg" 
+      className="absolute inset-0 w-full h-full object-cover brightness-[0.4] lg:opacity-90" 
+      alt="Hero" 
+    />
+    
+    <div className="relative z-10 flex flex-col items-center justify-center text-center p-6 h-full">
+      <motion.p 
+        initial={{ opacity: 0 }} 
+        whileInView={{ opacity: 1 }} 
+        viewport={{ once: true }}
+        className={`${conthrax} text-cyan-400 tracking-[0.3em] lg:tracking-[0.6em] text-[8px] lg:text-[11px] mb-4 uppercase font-black`}
+      >
+        KIIT Elite's R&D Program
+      </motion.p>
+      
+      <motion.h1 
+        initial={{ opacity: 0, y: 10 }} 
+        whileInView={{ opacity: 1, y: 0 }} 
+        viewport={{ once: true }}
+        className={`${conthrax} text-2xl lg:text-8xl tracking-widest text-white mb-6 uppercase font-black`}
+      >
+        Join <span className="text-cyan-400 text-glow drop-shadow-[0_0_20px_rgba(0,247,255,0.4)]">K-1000</span>
+      </motion.h1>
+      
+      <motion.p 
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+        className="text-white/70 max-w-xl text-[10px] lg:text-xl mb-8 font-normal leading-relaxed"
+      >
+        Innovation • Research • Engineering <br className="hidden lg:block"/> The Official R&D Guild of KIIT University.
+      </motion.p>
+      
+      <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto px-6">
+        <Link 
+          href="/apply" 
+          className={`px-8 py-3.5 bg-cyan-400 text-black uppercase text-[10px] tracking-widest rounded-full shadow-[0_0_20px_rgba(0,247,255,0.4)] hover:bg-white transition-all duration-300 font-black text-center ${conthrax}`}
+        >
+          Apply Now
+        </Link>
+        <Link 
+          href="/about" 
+          className={`px-8 py-3.5 border-2 border-cyan-400/50 text-cyan-400 hover:border-cyan-400 hover:bg-cyan-400/5 uppercase text-[10px] tracking-widest rounded-full transition-all duration-300 font-black text-center ${conthrax}`}
+        >
+          Learn More
+        </Link>
+      </div>
+    </div>
+  </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-8 mt-8 lg:mt-24 w-full max-w-7xl mx-auto pb-10">
-            {stats.map((stat, i) => (
-              <div key={i} className="flex flex-col items-center space-y-1 lg:space-y-4 bg-white/[0.02] p-5 lg:p-8 rounded-xl border border-white/5">
-                <span className={`${conthrax} text-2xl lg:text-6xl text-cyan-400 font-black`}>{stat.number}</span>
-                <span className={`text-[7px] lg:text-[11px] uppercase tracking-widest text-white/40 font-black text-center ${conthrax}`}>{stat.label}</span>
-              </div>
-            ))}
-          </div>
-        </section>
+  {/* STATS GRID WITH THICKER BORDERS */}
+  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-8 mt-8 lg:mt-24 w-full max-w-7xl mx-auto pb-10">
+    {stats.map((stat, i) => (
+      <div 
+        key={i} 
+        className="flex flex-col items-center space-y-1 lg:space-y-4 bg-white/[0.03] p-5 lg:p-8 rounded-2xl border-2 border-white/10 hover:border-cyan-400/30 transition-all duration-500 group"
+      >
+        <span className={`${conthrax} text-2xl lg:text-6xl text-cyan-400 font-black group-hover:scale-110 transition-transform duration-500`}>
+          {stat.number}
+        </span>
+        <span className={`text-[7px] lg:text-[11px] uppercase tracking-widest text-white/40 font-black text-center ${conthrax}`}>
+          {stat.label}
+        </span>
+      </div>
+    ))}
+  </div>
+</section>
 
-  {/* SECTION: ABOUT K-1000 */}
-        <section className="w-full px-6 md:px-20 py-32 border-t border-white/10">
-          <div className="w-full max-w-[1500px] mx-auto">
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="mb-24 w-full text-center"
-            >
-              <h2 className={`${conthrax} text-5xl md:text-8xl text-white uppercase tracking-tighter leading-none font-black`}>
-                About <span className="text-cyan-400 brightness-110 drop-shadow-[0_0_15px_rgba(0,247,255,0.5)]">K-1000</span>
-              </h2>
-            </motion.div>
+{/* SECTION: ABOUT K-1000 */}
+<section className="w-full px-6 md:px-20 py-32 border-t border-white/10">
+  <div className="w-full max-w-[1500px] mx-auto">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      className="mb-24 w-full text-center"
+    >
+      <h2 className={`${conthrax} text-5xl md:text-8xl text-white uppercase tracking-tighter leading-none font-black`}>
+        About <span className="text-cyan-400 brightness-110 drop-shadow-[0_0_15px_rgba(0,247,255,0.5)]">K-1000</span>
+      </h2>
+    </motion.div>
 
-            <div className="grid lg:grid-cols-2 gap-16 items-start">
-              <motion.div 
-                initial={{ opacity: 0, x: -30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                className="relative rounded-[40px] overflow-hidden border border-white/10 shadow-2xl group aspect-video"
-              >
-                <img 
-                  src="/hero/hero-1.jpg" 
-                  className="w-full h-full object-cover brightness-75 group-hover:scale-105 transition-transform duration-1000" 
-                  alt="About K-1000" 
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-              </motion.div>
+    <div className="grid lg:grid-cols-2 gap-16 items-start mb-16">
+      <motion.div 
+        initial={{ opacity: 0, x: -30 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true }}
+        className="relative rounded-[40px] overflow-hidden border border-white/10 shadow-2xl group aspect-video"
+      >
+        <img 
+          src="/hero/hero-1.jpg" 
+          className="w-full h-full object-cover brightness-75 group-hover:scale-105 transition-transform duration-1000" 
+          alt="About K-1000" 
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+      </motion.div>
 
-              <motion.div 
-                initial={{ opacity: 0, x: 30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                className="space-y-8"
-              >
-                <p className="text-xl text-white/70 leading-relaxed font-normal text-justify">
-                  K-1000 is the official Research and Development (R&D) organization/program of KIIT, established to foster a culture of innovation, research, and real-world problem-solving. Its mission is to support 1000 exceptional students in pursuing cutting-edge research, while simultaneously training and enhancing their skills in a competitive and collaborative environment.
-                </p>
-                <p className="text-lg text-white/50 leading-relaxed font-normal text-justify">
-                  The program encourages students to develop impactful projects that address real-world challenges across both technical and non-technical domains, thereby contributing to scientific, technological, and societal advancement.
-                </p>
-                
-                <div className="grid grid-cols-2 gap-4 pt-6">
-                  {["Hands-on projects", "Research & Patents", "Industry Pipelines", "Technical Mastery"].map((text, i) => (
-                    <div key={i} className="flex items-center gap-3 bg-white/[0.03] p-4 rounded-xl border border-white/10">
-                      <div className="w-2 h-2 bg-cyan-400 rounded-full shadow-[0_0_8px_#00f7ff]" />
-                      <span className={`text-[9px] text-white uppercase tracking-widest font-black ${conthrax}`}>{text}</span>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-            </div>
-          </div>
-        </section>
+      <motion.div 
+        initial={{ opacity: 0, x: 30 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true }}
+        className="space-y-8"
+      >
+        <p className="text-xl text-white/70 leading-relaxed font-normal text-justify">
+          K-1000 is the official Research and Development (R&D) organization/program of KIIT, established to foster a culture of innovation, research, and real-world problem-solving. Its mission is to support 1000 exceptional students in pursuing cutting-edge research, while simultaneously training and enhancing their skills in a competitive and collaborative environment.
+        </p>
+        <p className="text-lg text-white/50 leading-relaxed font-normal text-justify">
+          The program encourages students to develop impactful projects that address real-world challenges across both technical and non-technical domains, thereby contributing to scientific, technological, and societal advancement.
+        </p>
+      </motion.div>
+    </div>
+
+    {/* STRAIGHT LINE ROW FOR THE 4 ITEMS */}
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+      {["Hands-on projects", "Research & Patents", "Industry Pipelines", "Technical Mastery"].map((text, i) => (
+        <div 
+          key={i} 
+          className="flex items-center justify-center gap-3 bg-white/[0.04] p-5 rounded-2xl border-2 border-white/20 hover:border-cyan-400/50 hover:bg-white/[0.06] transition-all duration-300 group"
+        >
+          <div className="w-2.5 h-2.5 bg-cyan-400 rounded-full shadow-[0_0_12px_#00f7ff] group-hover:scale-110 transition-transform" />
+          <span className={`text-[10px] text-white uppercase tracking-widest font-black ${conthrax} group-hover:text-cyan-400 transition-colors`}>
+            {text}
+          </span>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
 
         {/* BENEFITS */}
-        <section className="w-full max-w-7xl mx-auto py-20 px-6 lg:px-10">
-          <h2 className={`${conthrax} text-xl lg:text-5xl text-center tracking-widest text-cyan-400 mb-12 lg:mb-24 uppercase font-black`}>Benefits & Perks</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {benefits.map((b: any, i: number) => {
-              const Icon = iconMap[b.icon] || Lightbulb;
-              return (
-                <div key={i} className="p-8 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-cyan-400/20 transition-all">
-                  <div className="w-12 h-12 rounded-xl bg-cyan-500/10 flex items-center justify-center mb-6">
-                    <Icon className="w-6 h-6 text-cyan-400" />
-                  </div>
-                  <h3 className={`${conthrax} text-lg text-white tracking-widest uppercase font-black mb-3`}>{b.title}</h3>
-                  <p className="text-xs text-white/50 leading-relaxed">{b.description}</p>
-                </div>
-              );
-            })}
+<section className="w-full max-w-7xl mx-auto py-20 px-6 lg:px-10">
+  <h2 className={`${conthrax} text-xl lg:text-5xl text-center tracking-widest text-cyan-400 mb-12 lg:mb-24 uppercase font-black`}>
+    Benefits & Perks
+  </h2>
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    {benefits.map((b: any, i: number) => {
+      const Icon = iconMap[b.icon] || Lightbulb;
+      return (
+        <div 
+          key={i} 
+          className="p-8 rounded-2xl bg-white/[0.03] backdrop-blur-sm transition-all duration-300
+                     /* Thicker, brighter borders */
+                     border-2 border-white/20 
+                     /* Intense glow on hover */
+                     hover:border-cyan-400 hover:shadow-[0_0_20px_rgba(0,247,255,0.2)] 
+                     group"
+        >
+          <div className="w-12 h-12 rounded-xl bg-cyan-500/20 flex items-center justify-center mb-6 border border-cyan-400/30">
+            <Icon className="w-6 h-6 text-cyan-400 group-hover:scale-110 transition-transform" />
           </div>
-        </section>
+          <h3 className={`${conthrax} text-lg text-white tracking-widest uppercase font-black mb-3 group-hover:text-cyan-400 transition-colors`}>
+            {b.title}
+          </h3>
+          <p className="text-md text-white/60 leading-relaxed font-medium">
+            {b.description}
+          </p>
+        </div>
+      );
+    })}
+  </div>
+</section>
 
         <Footer />
       </div>
