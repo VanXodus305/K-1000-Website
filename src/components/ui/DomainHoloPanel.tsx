@@ -28,14 +28,12 @@ type Leader = {
 };
 
 const conthrax = "font-['Conthrax',_sans-serif]";
-const orbitron = "font-['Orbitron',_sans-serif]";
 
 /* ─────────── HELPERS ─────────── */
 const cleanString = (s: string) => 
   s.toLowerCase()
    .replace(/&/g, "and")
    .replace(/management/g, "organization") 
-   .replace(/internship and placement/g, "academic and internship guidance")
    .replace(/\s+/g, "")
    .trim();
 
@@ -59,12 +57,14 @@ function useDecryptText(text: string, speed = 25) {
 export default function DomainHoloPanel({ domain, onClose }: { domain: Domain; onClose: () => void }) {
   const titleDecrypted = useDecryptText(domain.title);
 
-  // Mute shining nodes on close by resetting virtual mouse position
+  // UX: Lock body scroll when panel is active
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = "unset"; };
+  }, []);
+
   const handleClose = () => {
-    const mouseEvent = new MouseEvent('mousemove', {
-      clientX: -5000,
-      clientY: -5000
-    });
+    const mouseEvent = new MouseEvent('mousemove', { clientX: -5000, clientY: -5000 });
     window.dispatchEvent(mouseEvent);
     onClose();
   };
@@ -73,11 +73,25 @@ export default function DomainHoloPanel({ domain, onClose }: { domain: Domain; o
     const hierarchy = leadership.hierarchy ?? [];
     const directors = hierarchy.find(h => h.level === 3)?.members ?? [];
     const deputies = hierarchy.find(h => h.level === 4)?.members ?? [];
-    const targetKey = cleanString(domain.title);
+    
+    // Normalize current domain title
+    const domainTitleCleaned = cleanString(domain.title);
+
+    // Bridge naming gaps between domains.ts and leadership.ts
+    const branchMapping: Record<string, string> = {
+      "internshipandplacement": "academicinternshipandplacementguidance",
+      "eventorganization": "eventmanagement",
+      "researchandpublications": "researchandpublications",
+      "trainingprogram": "trainingprogram",
+      "projectwing": "projectwing",
+      "higherstudies": "higherstudies"
+    };
+
+    const targetKey = branchMapping[domainTitleCleaned] || domainTitleCleaned;
 
     return {
-      director: directors.find((m: Leader) => cleanString(m.branch) === targetKey),
-      deputy: deputies.find((m: Leader) => cleanString(m.branch) === targetKey),
+      director: directors.find((m: any) => cleanString(m.branch) === targetKey),
+      deputy: deputies.find((m: any) => cleanString(m.branch) === targetKey),
     };
   }, [domain.title]);
 
@@ -114,14 +128,15 @@ export default function DomainHoloPanel({ domain, onClose }: { domain: Domain; o
              </h1>
           </div>
 
-          <div className="flex md:flex-col overflow-x-auto md:overflow-y-auto p-4 md:p-6 gap-4 md:space-y-8 custom-scroll scrollbar-hide">
+          {/* Refined Scrolling Container */}
+          <div className="flex md:flex-col overflow-y-auto p-4 md:p-6 gap-6 md:space-y-8 custom-scroll scrollbar-hide">
              <div className="min-w-[260px] md:min-w-full">
                 <h3 className={`${conthrax} text-[8px] md:text-[9px] text-white/30 tracking-[0.2em] uppercase mb-3 md:mb-4 font-black`}>Director</h3>
-                {director ? <LeaderCard leader={director} /> : <div className="h-40 md:h-44 border border-dashed border-white/10 rounded-lg" />}
+                {director ? <LeaderCard leader={director} /> : <EmptySlot label="TBD" />}
              </div>
              <div className="min-w-[260px] md:min-w-full">
                 <h3 className={`${conthrax} text-[8px] md:text-[9px] text-white/30 tracking-[0.2em] uppercase mb-3 md:mb-4 font-black`}>Deputy Director</h3>
-                {deputy ? <LeaderCard leader={deputy} /> : <div className="h-40 md:h-44 border border-dashed border-white/10 rounded-lg" />}
+                {deputy ? <LeaderCard leader={deputy} /> : <EmptySlot label="TBD" />}
              </div>
           </div>
         </div>
@@ -148,9 +163,9 @@ export default function DomainHoloPanel({ domain, onClose }: { domain: Domain; o
                   {domain.focusAreas.map((area, i) => (
                     <div 
                       key={i} 
-                      className="p-4 md:p-5 bg-white/[0.02] border border-white/5 flex items-center gap-4 md:gap-5 hover:border-cyan-500/30 transition-all"
+                      className="p-4 md:p-5 bg-white/[0.02] border border-white/5 flex items-center gap-4 md:gap-5 hover:border-cyan-500/30 transition-all group"
                     >
-                      <Layers size={12} className="text-cyan-500/40" />
+                      <Layers size={12} className="text-cyan-500/40 group-hover:text-cyan-500 transition-colors" />
                       <span className={`${conthrax} text-[9px] md:text-[11px] text-white/70 uppercase tracking-[0.15em] font-black`}>{area}</span>
                     </div>
                   ))}
@@ -161,7 +176,7 @@ export default function DomainHoloPanel({ domain, onClose }: { domain: Domain; o
             {/* Details */}
             <section className="p-6 md:p-8 bg-white/[0.01] border border-white/5 rounded-2xl relative">
                <h2 className={`${conthrax} text-[8px] md:text-[9px] text-white/20 tracking-[0.3em] uppercase mb-4 md:mb-6 font-black`}>Operational Description</h2>
-               <p className="text-white/60 text-xs md:text-base leading-relaxed whitespace-pre-line font-light">
+               <p className="text-white/60 text-xs md:text-base leading-relaxed whitespace-pre-line font-light text-justify">
                  {domain.description}
                </p>
             </section>
@@ -189,18 +204,32 @@ export default function DomainHoloPanel({ domain, onClose }: { domain: Domain; o
 
 function LeaderCard({ leader }: { leader: Leader }) {
   return (
-    <div className="group relative w-full h-40 md:h-52 overflow-hidden border border-white/10 rounded-2xl bg-black transition-all duration-500 hover:border-cyan-500/40">
-      <img 
-        src={leader.image} 
-        alt={leader.name} 
-        className="absolute inset-0 w-full h-full object-cover grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700"
-        style={{ objectPosition: 'center 15%' }} 
-      />
+    <div className="group relative w-full h-40 md:h-52 overflow-hidden border border-white/10 rounded-2xl bg-[#080808] transition-all duration-500 hover:border-cyan-500/40 will-change-transform">
+      {/* Loading state / Background fallback */}
+      <div className="absolute inset-0 bg-cyan-950/10" />
+      
+      {leader.image && (
+        <img 
+          src={leader.image} 
+          alt={leader.name} 
+          className="absolute inset-0 w-full h-full object-cover grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700 group-hover:scale-105"
+          style={{ objectPosition: 'center 15%' }} 
+        />
+      )}
+      
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
       <div className="absolute bottom-0 left-0 w-full p-4 md:p-5">
-        <h4 className={`${conthrax} text-white text-[10px] md:text-xs tracking-wider uppercase mb-1 font-black`}>{leader.name}</h4>
+        <h4 className={`${conthrax} text-white text-[10px] md:text-xs tracking-wider uppercase mb-1 font-black group-hover:text-cyan-400 transition-colors`}>{leader.name}</h4>
         <p className={`${conthrax} text-[7px] md:text-[8px] text-white/40 uppercase tracking-widest font-black`}>{leader.position}</p>
       </div>
+    </div>
+  );
+}
+
+function EmptySlot({ label }: { label: string }) {
+  return (
+    <div className="h-40 md:h-52 border border-dashed border-white/10 rounded-2xl flex items-center justify-center bg-white/[0.02]">
+      <span className={`${conthrax} text-[8px] text-white/10 uppercase tracking-widest font-black`}>{label}</span>
     </div>
   );
 }
