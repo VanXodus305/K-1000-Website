@@ -137,7 +137,7 @@ const ApplicationForm = () => {
           <div className="flex justify-center">
             <div className="flex items-center gap-2 px-4 py-1 rounded-full border border-white/10 bg-white/5 backdrop-blur-md">
               <Sparkles size={12} className="text-cyan-400" />
-              <span className={`${conthrax} text-[9px] tracking-[0.3em] uppercase font-black text-white/60`}>Enrollment Open</span>
+              <span className={`${conthrax} text-[9px] tracking-[0.3em] uppercase font-black text-white/60`}>Enrollment Closed</span>
             </div>
           </div>
 

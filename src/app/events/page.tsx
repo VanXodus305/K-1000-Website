@@ -19,6 +19,7 @@ const Events = () => {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
   }, []);
+  
 
   return (
     <div className="relative w-full min-h-screen bg-[#020202] text-white selection:bg-cyan-500/30 overflow-x-hidden">
@@ -42,10 +43,6 @@ const Events = () => {
         <div className="mb-12 md:mb-20 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <Terminal size={18} className="text-cyan-400" />
-              <span className={`${conthrax} text-[10px] text-cyan-500/60 tracking-[0.5em] uppercase font-black`}>
-                Archives // System.Log
-              </span>
             </div>
             <h1 className={`${conthrax} text-4xl md:text-7xl text-white uppercase leading-none tracking-tighter font-black`}>
               Event <span className="text-cyan-400 drop-shadow-[0_0_15px_rgba(0,247,255,0.4)]">Registry</span>
