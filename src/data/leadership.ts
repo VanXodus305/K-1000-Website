@@ -174,14 +174,14 @@ export const leadership = {
           position: "Deputy Chief Creative Officer",
           branch: "Office of Creativity & Design",
           image:
-            "https://res.cloudinary.com/vanxodus305/image/upload/w_1024,ar_1:1,c_auto,g_auto/v1754856115/K-1000/IMG_0309_rbu35s.jpg",
+            "https://res.cloudinary.com/vanxodus305/image/upload/w_1024,ar_1:1,c_auto,g_auto,f_auto/v1754856115/K-1000/IMG_0309_rbu35s.jpg",
         },
         {
           name: "Brhadyuti Bhattacharjee",
           position: "Deputy Chief Communications Officer",
           branch: "Office of Communications & Content",
           image:
-            "",
+            "https://res.cloudinary.com/vanxodus305/image/upload/w_1024,ar_1:1,c_auto,g_auto,f_auto/v1776323181/K-1000/vkss4mxwgs5xvxq5likd.jpg",
         },
       ],
     },
