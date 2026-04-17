@@ -13,14 +13,15 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  --font-orbitron: "Orbitron", sans-serif;
-  --font-conthrax: "Conthrax", sans-serif;
+  /* Updated to Arial fallback */
+  --font-orbitron: "Orbitron", Arial, sans-serif;
+  --font-conthrax: "Conthrax", Arial, sans-serif;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: Arial, sans-serif; /* Forced Arial as the default sans */
   --font-mono: var(--font-geist-mono);
   --font-conthrax: var(--font-conthrax); 
   --font-orbitron: var(--font-orbitron);
@@ -68,7 +69,8 @@ html, body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
-  font-family: var(--font-sans), sans-serif;
+  /* Forced Arial here as the global default */
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 /* HELPER CLASSES */

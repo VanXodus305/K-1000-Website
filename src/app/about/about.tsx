@@ -8,9 +8,9 @@ import { leadership } from "@/data/leadership";
 import SharedHeader from "../../components/ui/SharedHeader";
 import Footer from "../../components/footer/Footer";
 
-const conthrax = "font-['Conthrax',_sans-serif]";
+const conthrax = "font-['Conthrax',_Arial]";
 
-// ─── HIGH-PERFORMANCE GSAP BACKGROUND (FULL RESTORATION) ───
+// ─── HIGH-PERFORMANCE GSAP BACKGROUND ───
 const CubeBackground = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -47,7 +47,6 @@ const CubeBackground = () => {
         const dx = mouse.x - this.x, dy = mouse.y - this.y;
         const distSq = dx * dx + dy * dy;
         
-        // Performance-friendly interpolation (No Math.sqrt in loop)
         if (distSq < 22500) { 
           this.size += (this.baseSize * 3 - this.size) * 0.1;
         } else {
@@ -168,7 +167,7 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* FOUNDER SECTION (FULL CONTENT RESTORED) */}
+        {/* FOUNDER SECTION */}
         <section className="w-full px-4 md:px-20 py-12 md:py-24 flex flex-col items-center border-t border-white/5">
           <div className="w-full max-w-[1400px]">
             <div className="relative overflow-hidden p-6 md:p-16 rounded-[32px] md:rounded-[60px] border border-white/10 bg-[#0a0a0c]/60 backdrop-blur-xl shadow-[0_0_50px_rgba(0,0,0,0.4)]">
@@ -178,7 +177,8 @@ export default function AboutPage() {
                   <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/20 to-transparent rounded-2xl md:rounded-[40px] blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
                   <img src="/about/Founder.png" className="relative w-full h-auto max-h-[500px] md:max-h-none object-contain brightness-95 rounded-2xl md:rounded-[40px] transition-transform duration-700 group-hover:scale-[1.02]" alt="Founder" />
                 </div>
-                <div className="flex flex-col space-y-5 md:space-y-8">
+                {/* Changed to text-left for all states */}
+                <div className="flex flex-col space-y-5 md:space-y-8 text-left">
                   <div className="space-y-3">
                     <h2 className={`${conthrax} text-2xl md:text-6xl text-white uppercase leading-tight tracking-tighter font-black`}>
                       OUR <span className="text-cyan-400 drop-shadow-[0_0_15px_rgba(0,247,255,0.3)]">FOUNDER</span>
@@ -189,15 +189,14 @@ export default function AboutPage() {
                     <span className={`${conthrax} text-cyan-400 block text-xs md:text-xl tracking-[0.2em] uppercase font-black`}>
                       Prof. Dr. Achyuta Samanta
                     </span>
-                    <p className="text-[11px] md:text-lg text-white/60 leading-relaxed font-normal text-justify md:text-left">
+                    {/* UPDATED: removed text-justify, explicitly added text-left */}
+                    <p className="text-[11px] md:text-lg text-white/60 leading-relaxed font-normal text-left">
                       Prof. Dr. Achyuta Samanta's life story reads like a powerful saga of grit, determination, and social responsibility. Born and brought up in poverty in a remote village in Odisha, he was dealt a cruel blow at the tender age of four when he lost his father, after which his life became a struggle for food and education for 15 long years. 
                       <br /><br />
                       However, he persevered, and at the age of 22, joined teaching. At 25, he embarked on a journey that would change his own life, and the lives of thousands of people. With just Rs 5000 in his pocket, he started KIIT and KISS in two rented houses.
                     </p>
                   </div>
-                  <div className="flex md:hidden items-center gap-2 pt-4 border-t border-white/5">
-                     <div className="w-1 h-1 rounded-full bg-cyan-500 animate-pulse" />
-                     <span className="text-[7px] text-white/30 tracking-[0.3em] uppercase">Visionary Leadership Established</span>
+                  <div className="flex items-center gap-2 pt-4 border-t border-white/5">
                   </div>
                 </div>
               </div>
@@ -216,6 +215,7 @@ export default function AboutPage() {
                 <div className="w-full aspect-[4/5] rounded-[24px] overflow-hidden border border-white/5 bg-[#0a0a0a]/80 backdrop-blur-sm group-hover:border-cyan-500/50 transition-all duration-500 shadow-2xl">
                   <img src={m.image} className="size-full object-cover object-[center_15%] transition-transform duration-700 group-hover:scale-110" alt={m.name} />
                 </div>
+                {/* Names and positions are typically center-centric in grids, but kept text-left for the content containers */}
                 <h3 className={`${conthrax} text-sm md:text-lg text-white mt-5 text-center tracking-wide group-hover:text-cyan-400 transition-colors uppercase leading-tight font-black`}>
                   {m.name}
                 </h3>
@@ -258,6 +258,7 @@ export default function AboutPage() {
         </section>
       </main>
 
+      {/* MEMBER MODAL */}
       <AnimatePresence>
         {selectedMember && (
           <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
@@ -266,12 +267,15 @@ export default function AboutPage() {
               <div className="w-full md:w-[45%] h-[280px] md:h-auto overflow-hidden">
                 <img src={selectedMember.image} className="size-full object-cover object-[center_15%]" alt={selectedMember.name} />
               </div>
-              <div className="flex-1 p-8 md:p-12 flex flex-col justify-center">
+              {/* UPDATED: text-left alignment for modal body */}
+              <div className="flex-1 p-8 md:p-12 flex flex-col justify-center text-left">
                 <h3 className={`${conthrax} text-xl md:text-3xl text-white uppercase font-black`}>{selectedMember.name}</h3>
                 <p className={`${conthrax} text-cyan-400 text-sm mt-3 tracking-widest uppercase font-bold`}>{selectedMember.position}</p>
                 <div className="h-px w-16 bg-cyan-500 my-6 shadow-[0_0_10px_#00f7ff]" />
-                <p className="text-white/60 text-sm md:text-base leading-relaxed font-light text-justify">{selectedMember.description}</p>
-                <button onClick={() => setSelectedMember(null)} className={`${conthrax} mt-8 text-[10px] text-cyan-400/50 uppercase tracking-widest hover:text-white transition-colors font-black`}>
+                <p className="text-white/60 text-sm md:text-base leading-relaxed font-light text-left">
+                  {selectedMember.description}
+                </p>
+                <button onClick={() => setSelectedMember(null)} className={`${conthrax} mt-8 text-[10px] text-cyan-400/50 uppercase tracking-widest hover:text-white transition-colors font-black text-left`}>
                   Close Profile
                 </button>
               </div>

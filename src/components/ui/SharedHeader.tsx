@@ -38,7 +38,6 @@ export default function SharedHeader() {
   const pathname = usePathname(); 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // PRODUCTION OPTIMIZATION: Background Module Sync
   useEffect(() => {
     NAV_ITEMS.forEach((key) => {
       const route = ROUTES[key];
@@ -48,7 +47,6 @@ export default function SharedHeader() {
     });
   }, [router, pathname]);
 
-  // Prevent body scroll when mobile menu is open
   useEffect(() => {
     if (isMobileMenuOpen) {
       document.body.style.overflow = 'hidden';
@@ -71,10 +69,8 @@ export default function SharedHeader() {
 
   return (
     <>
-      {/* ─── MAIN HEADER ─── */}
       <header className={`fixed top-0 left-0 w-full px-6 md:px-12 py-6 md:py-8 flex md:grid md:grid-cols-[1.5fr_auto_1fr] items-center justify-between z-[110] ${conthrax} bg-black/10 backdrop-blur-sm md:bg-transparent`}>
         
-        {/* Left Section: Logo & EST. Tag */}
         <motion.div 
           initial={{ opacity: 0, x: -20 }} 
           animate={{ opacity: 1, x: 0 }}
@@ -93,7 +89,6 @@ export default function SharedHeader() {
           <span className="text-[8px] tracking-[0.5em] text-cyan-500/50 hidden xl:block uppercase">EST. 2025</span>
         </motion.div>
 
-        {/* Center: Desktop Nav (Added cursor-pointer to the pill container) */}
         <motion.nav
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -114,7 +109,6 @@ export default function SharedHeader() {
           ))}
         </motion.nav>
 
-        {/* Right Section: System Status & KIIT Logo */}
         <motion.div 
           initial={{ opacity: 0, x: 20 }} 
           animate={{ opacity: 1, x: 0 }} 
@@ -130,58 +124,54 @@ export default function SharedHeader() {
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
             className="md:hidden text-[#00f7ff] p-2 hover:bg-white/5 rounded-lg transition-colors outline-none cursor-pointer"
           >
-            {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </motion.div>
       </header>
 
-      {/* ─── MOBILE NAVIGATION OVERLAY ─── */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
-            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            transition={{ type: "spring", damping: 30, stiffness: 250 }}
             className={`fixed inset-0 z-[120] bg-[#010103] flex flex-col md:hidden ${conthrax}`}
           >
-            {/* Cyber Grid Background */}
             <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[linear-gradient(to_right,#00f7ff_1px,transparent_1px),linear-gradient(to_bottom,#00f7ff_1px,transparent_1px)] bg-[size:30px_30px]" />
             
-            {/* Header in Overlay */}
             <div className="flex justify-between items-center px-6 py-5 border-b border-white/5 relative z-10 bg-black/20 backdrop-blur-md">
-              <img src="/k1000-logo.png" className="h-7 w-auto" alt="Logo" />
+              <img src="/k1000-logo.png" className="h-6 w-auto" alt="Logo" />
               <button 
                 onClick={() => setIsMobileMenuOpen(false)} 
                 className="p-2 bg-white/5 border border-white/10 rounded-full cursor-pointer"
               >
-                <X size={22} className="text-white" />
+                <X size={20} className="text-white" />
               </button>
             </div>
 
-            {/* Nav Links Container */}
-            <div className="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar py-6 px-8 relative z-10">
-              <nav className="flex flex-col gap-1 min-h-min">
+            <div className="flex-1 overflow-y-auto no-scrollbar py-4 px-6 relative z-10">
+              <nav className="flex flex-col gap-0.5">
                 {NAV_ITEMS.map((key, index) => (
                   <motion.button
-                    initial={{ x: 20, opacity: 0 }}
+                    initial={{ x: 10, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
-                    transition={{ delay: index * 0.05 }}
+                    transition={{ delay: index * 0.03 }}
                     key={key}
                     onClick={() => goTo(key)}
-                    className="group flex items-center justify-between py-5 border-b border-white/5 outline-none cursor-pointer"
+                    className="group flex items-center justify-between py-4 border-b border-white/5 outline-none cursor-pointer"
                   >
-                    <div className="flex flex-col text-left">
-                      <span className={`text-[10px] tracking-[0.3em] mb-1 ${getIsActive(key) ? "text-cyan-400" : "text-white/20"}`}>
+                    <div className="flex items-center gap-4 text-left">
+                      <span className={`text-[9px] tracking-[0.2em] font-bold ${getIsActive(key) ? "text-cyan-400" : "text-white/20"}`}>
                         0{index + 1}
                       </span>
-                      <span className={`text-2xl uppercase tracking-tighter font-black transition-all ${getIsActive(key) ? "text-cyan-400 translate-x-2" : "text-white hover:text-cyan-400"}`}>
+                      <span className={`text-lg uppercase tracking-widest font-bold transition-all ${getIsActive(key) ? "text-cyan-400 translate-x-1" : "text-white/80 hover:text-cyan-400"}`}>
                         {NAV_LABELS[key]}
                       </span>
                     </div>
                     {getIsActive(key) && (
                       <motion.div layoutId="activeArrow" className="text-cyan-400">
-                        <Zap size={20} fill="currentColor" />
+                        <Zap size={14} fill="currentColor" />
                       </motion.div>
                     )}
                   </motion.button>
@@ -189,14 +179,13 @@ export default function SharedHeader() {
               </nav>
             </div>
 
-            {/* Simplified Footer */}
-            <div className="p-8 border-t border-white/5 bg-black/40 backdrop-blur-xl">
-              <div className="flex justify-between items-center text-[8px] tracking-[0.2em] text-white/30 uppercase">
+            <div className="p-6 border-t border-white/5 bg-black/40 backdrop-blur-xl">
+              <div className="flex justify-between items-center text-[7px] tracking-[0.2em] text-white/30 uppercase font-bold">
                 <div className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse" />
+                  <div className="w-1 h-1 rounded-full bg-cyan-500 animate-pulse" />
                   <span>UPLINK: ACTIVE</span>
                 </div>
-                <span>V2.0.0</span>
+                <span>VERSION 2.0.0</span>
               </div>
             </div>
           </motion.div>

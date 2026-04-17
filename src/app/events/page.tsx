@@ -12,7 +12,12 @@ const conthrax = "font-['Conthrax',_sans-serif]";
 const orbitron = "font-['Orbitron',_sans-serif]";
 
 const Events = () => {
-  const [selectedEvent, setSelectedEvent] = useState<K1000Event>(EVENTS[0]);
+  // Use useMemo to reverse the events list once (Oldest to Newest)
+  const sortedEvents = useMemo(() => [...EVENTS].reverse(), []);
+  
+  // Initialize with the first item in the reversed list (the oldest)
+  const [selectedEvent, setSelectedEvent] = useState<K1000Event>(sortedEvents[0]);
+  
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
 
@@ -22,7 +27,7 @@ const Events = () => {
   
 
   return (
-    <div className="relative w-full min-h-screen bg-[#020202] text-white selection:bg-cyan-500/30 overflow-x-hidden">
+    <div className="relative w-full min-h-screen bg-[#020202] text-white selection:bg-cyan-500/30 overflow-x-hidden cursor-default">
       {/* Dynamic Background Grid */}
       <div className="fixed inset-0 z-0 opacity-20 pointer-events-none">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#00f7ff0a_1px,transparent_1px),linear-gradient(to_bottom,#00f7ff0a_1px,transparent_1px)] bg-[size:40px_40px]" />
@@ -42,8 +47,6 @@ const Events = () => {
         {/* HEADER BLOCK */}
         <div className="mb-12 md:mb-20 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-4">
-            <div className="flex items-center gap-3">
-            </div>
             <h1 className={`${conthrax} text-4xl md:text-7xl text-white uppercase leading-none tracking-tighter font-black`}>
               Event <span className="text-cyan-400 drop-shadow-[0_0_15px_rgba(0,247,255,0.4)]">Registry</span>
             </h1>
@@ -61,11 +64,12 @@ const Events = () => {
           <div className="lg:col-span-4 sticky top-28 z-30">
             <div className="bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-[32px] p-2 max-h-[70vh] overflow-y-auto custom-scrollbar">
               <div className="space-y-1">
-                {EVENTS.map((event) => (
+                {sortedEvents.map((event) => (
                   <button
                     key={event.id}
                     onClick={() => setSelectedEvent(event)}
-                    className={`w-full text-left px-6 py-5 rounded-[24px] transition-all duration-500 group relative overflow-hidden ${
+                    // Added cursor-pointer here
+                    className={`w-full text-left px-6 py-5 rounded-[24px] transition-all duration-500 group relative overflow-hidden cursor-pointer ${
                       selectedEvent.id === event.id 
                       ? "bg-cyan-500/10 border border-cyan-500/40" 
                       : "hover:bg-white/5 border border-transparent"
@@ -130,7 +134,7 @@ const Events = () => {
                       whileTap={{ scale: 0.98 }}
                       href={selectedEvent.link} 
                       target="_blank" 
-                      className={`${conthrax} flex items-center gap-3 px-8 py-4 bg-cyan-500 text-black rounded-full font-black text-[10px] uppercase tracking-widest shadow-[0_0_30px_rgba(0,247,255,0.4)]`}
+                      className={`${conthrax} flex items-center gap-3 px-8 py-4 bg-cyan-500 text-black rounded-full font-black text-[10px] uppercase tracking-widest shadow-[0_0_30px_rgba(0,247,255,0.4)] cursor-pointer`}
                     >
                       <span>Launch Report</span>
                       <ExternalLink size={14} />
@@ -172,7 +176,6 @@ const Events = () => {
         </div>
       </main>
 
-      {/* Mobile Feed remains similar but uses the same card aesthetic */}
       <footer className="py-20 flex flex-col items-center justify-center opacity-10">
            <Activity size={40} className="text-cyan-400 mb-4" />
            <p className={`${conthrax} text-[8px] uppercase tracking-[1.5em] font-black`}>End of Registry</p>

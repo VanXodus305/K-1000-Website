@@ -32,7 +32,6 @@ const Footer = () => {
   ];
 
   return (
-    // Reduced padding-top/bottom via utility classes if styles.footer doesn't override
     <footer className={`${styles.footer} bg-[#010103] border-t border-cyan-500/30 relative z-[100] py-8 md:py-12`}>
       {/* Top Border Glow Line */}
       <div className="absolute top-0 left-0 w-full h-[1px] bg-cyan-400/40 shadow-[0_0_10px_#00f7ff]" />
@@ -155,12 +154,12 @@ const Footer = () => {
           </motion.div>
         </div>
 
-        {/* Bottom Section */}
+        {/* Bottom Section - Centered on Mobile */}
         <div className="mt-12 pt-6 pb-2 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-[10px] text-white/40 uppercase tracking-[0.3em] font-medium">
+          <p className="text-[10px] text-white/40 uppercase tracking-[0.3em] font-medium text-center md:text-left">
             © {new Date().getFullYear()} KIIT University.
           </p>
-          <div className={`${conthrax} text-[9px] text-cyan-500/60 tracking-[0.8em] font-black uppercase`}>
+          <div className={`${conthrax} text-[7px] text-cyan-500/60 tracking-[0.8em] font-black uppercase text-center md:text-right w-full md:w-auto`}>
             Train . Transform . Transcend
           </div>
         </div>

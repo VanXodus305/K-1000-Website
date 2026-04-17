@@ -542,9 +542,10 @@ export default function UnifiedPortal() {
           </div>
         </section>
 
-        {/* SECTION: ABOUT K-1000 */}
+{/* SECTION: ABOUT K-1000 */}
         <section className="w-full px-6 md:px-20 py-32 border-t border-white/10">
           <div className="w-full max-w-[1500px] mx-auto">
+            {/* Heading stays center-aligned as requested */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -576,22 +577,23 @@ export default function UnifiedPortal() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               </motion.div>
 
+              {/* Description shifted to text-left */}
               <motion.div
                 initial={{ opacity: 0, x: 30 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
-                className="space-y-8"
+                className="space-y-8 text-left"
               >
-                <p className="text-xl text-white/70 leading-relaxed font-normal text-justify">
+                <p className="text-xl text-white/70 leading-relaxed font-normal">
                   K-1000 is the official Research and Development (R&D)
-                  organization/program of KIIT, established to foster a culture
+                  organization program of KIIT, established to foster a culture
                   of innovation, research, and real-world problem-solving. Its
                   mission is to support 1000 exceptional students in pursuing
                   cutting-edge research, while simultaneously training and
                   enhancing their skills in a competitive and collaborative
                   environment.
                 </p>
-                <p className="text-lg text-white/50 leading-relaxed font-normal text-justify">
+                <p className="text-lg text-white/50 leading-relaxed font-normal">
                   The program encourages students to develop impactful projects
                   that address real-world challenges across both technical and
                   non-technical domains, thereby contributing to scientific,
@@ -600,7 +602,7 @@ export default function UnifiedPortal() {
               </motion.div>
             </div>
 
-            {/* STRAIGHT LINE ROW FOR THE 4 ITEMS */}
+            {/* STRAIGHT LINE ROW - items-start and justify-start for left-centricity */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
               {[
                 "Hands-on projects",
@@ -610,11 +612,11 @@ export default function UnifiedPortal() {
               ].map((text, i) => (
                 <div
                   key={i}
-                  className="flex items-center justify-center gap-3 bg-white/[0.04] p-5 rounded-2xl border-2 border-white/20 hover:border-cyan-400/50 hover:bg-white/[0.06] transition-all duration-300 group"
+                  className="flex items-center justify-start gap-4 bg-white/[0.04] p-5 rounded-2xl border-2 border-white/20 hover:border-cyan-400/50 hover:bg-white/[0.06] transition-all duration-300 group"
                 >
                   <div className="w-2.5 h-2.5 bg-cyan-400 rounded-full shadow-[0_0_12px_#00f7ff] group-hover:scale-110 transition-transform" />
                   <span
-                    className={`text-[10px] text-white uppercase tracking-widest font-black ${conthrax} group-hover:text-cyan-400 transition-colors`}
+                    className={`text-[10px] text-white uppercase tracking-widest font-black ${conthrax} group-hover:text-cyan-400 transition-colors text-left`}
                   >
                     {text}
                   </span>
