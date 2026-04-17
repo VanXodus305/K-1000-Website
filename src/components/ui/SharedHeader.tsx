@@ -71,16 +71,17 @@ export default function SharedHeader() {
 
   return (
     <>
-      {/* ─── MAIN HEADER (Desktop UI Intact) ─── */}
-      <header className={`fixed top-0 left-0 w-full px-6 md:px-12 py-6 md:py-8 flex md:grid md:grid-cols-[1fr_auto_1fr] items-center justify-between z-[110] ${conthrax} bg-black/10 backdrop-blur-sm md:bg-transparent`}>
+      {/* ─── MAIN HEADER ─── */}
+      <header className={`fixed top-0 left-0 w-full px-6 md:px-12 py-6 md:py-8 flex md:grid md:grid-cols-[1.5fr_auto_1fr] items-center justify-between z-[110] ${conthrax} bg-black/10 backdrop-blur-sm md:bg-transparent`}>
         
         {/* Left Section: Logo & EST. Tag */}
         <motion.div 
           initial={{ opacity: 0, x: -20 }} 
           animate={{ opacity: 1, x: 0 }}
-          className="flex items-center gap-4"
+          className="flex items-center gap-4 cursor-pointer"
+          onClick={handleLogoClick}
         >
-          <button onClick={handleLogoClick} className="hover:opacity-80 transition-opacity outline-none">
+          <button className="hover:opacity-80 transition-opacity outline-none cursor-pointer">
             <img
               src="/k1000-logo.png"
               className="h-8 md:h-10 w-auto drop-shadow-[0_0_15px_#00f7ff]"
@@ -92,17 +93,17 @@ export default function SharedHeader() {
           <span className="text-[8px] tracking-[0.5em] text-cyan-500/50 hidden xl:block uppercase">EST. 2025</span>
         </motion.div>
 
-        {/* Center: Desktop Nav */}
+        {/* Center: Desktop Nav (Added cursor-pointer to the pill container) */}
         <motion.nav
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="hidden md:flex gap-1 bg-black/40 border border-white/5 p-1 rounded-full backdrop-blur-md"
+          className="hidden md:flex gap-1 bg-black/40 border border-white/5 p-1 rounded-full backdrop-blur-md ml-auto mr-4 lg:mr-6 cursor-pointer"
         >
           {NAV_ITEMS.map((key) => (
             <button
               key={key}
               onClick={() => goTo(key)}
-              className={`px-3 lg:px-4 py-2 text-[7px] lg:text-[8px] uppercase tracking-[0.2em] font-bold rounded-full transition-all duration-300 outline-none
+              className={`px-3 lg:px-4 py-2 text-[7px] lg:text-[8px] uppercase tracking-[0.2em] font-bold rounded-full transition-all duration-300 outline-none cursor-pointer
                 ${getIsActive(key) 
                   ? "text-[#00f7ff] bg-cyan-500/10 shadow-[inset_0_0_10px_rgba(0,247,255,0.1)]" 
                   : "text-white/40 hover:text-[#00f7ff] hover:bg-white/5"
@@ -117,7 +118,7 @@ export default function SharedHeader() {
         <motion.div 
           initial={{ opacity: 0, x: 20 }} 
           animate={{ opacity: 1, x: 0 }} 
-          className="flex items-center justify-end gap-4 md:gap-6"
+          className="flex items-center justify-end gap-4 md:gap-6 cursor-pointer"
         >
           <div className="text-right hidden xl:block">
             <p className="text-[8px] text-cyan-500/40 tracking-widest leading-none mb-1 uppercase">UPLINK</p>
@@ -127,7 +128,7 @@ export default function SharedHeader() {
           
           <button 
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
-            className="md:hidden text-[#00f7ff] p-2 hover:bg-white/5 rounded-lg transition-colors outline-none"
+            className="md:hidden text-[#00f7ff] p-2 hover:bg-white/5 rounded-lg transition-colors outline-none cursor-pointer"
           >
             {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
@@ -152,13 +153,13 @@ export default function SharedHeader() {
               <img src="/k1000-logo.png" className="h-7 w-auto" alt="Logo" />
               <button 
                 onClick={() => setIsMobileMenuOpen(false)} 
-                className="p-2 bg-white/5 border border-white/10 rounded-full"
+                className="p-2 bg-white/5 border border-white/10 rounded-full cursor-pointer"
               >
                 <X size={22} className="text-white" />
               </button>
             </div>
 
-            {/* Nav Links Container - Now Scrollable */}
+            {/* Nav Links Container */}
             <div className="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar py-6 px-8 relative z-10">
               <nav className="flex flex-col gap-1 min-h-min">
                 {NAV_ITEMS.map((key, index) => (
@@ -168,7 +169,7 @@ export default function SharedHeader() {
                     transition={{ delay: index * 0.05 }}
                     key={key}
                     onClick={() => goTo(key)}
-                    className="group flex items-center justify-between py-5 border-b border-white/5 outline-none"
+                    className="group flex items-center justify-between py-5 border-b border-white/5 outline-none cursor-pointer"
                   >
                     <div className="flex flex-col text-left">
                       <span className={`text-[10px] tracking-[0.3em] mb-1 ${getIsActive(key) ? "text-cyan-400" : "text-white/20"}`}>
@@ -188,7 +189,7 @@ export default function SharedHeader() {
               </nav>
             </div>
 
-            {/* Simplified Footer - Status Only */}
+            {/* Simplified Footer */}
             <div className="p-8 border-t border-white/5 bg-black/40 backdrop-blur-xl">
               <div className="flex justify-between items-center text-[8px] tracking-[0.2em] text-white/30 uppercase">
                 <div className="flex items-center gap-2">
