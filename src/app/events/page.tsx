@@ -42,7 +42,7 @@ const Events = () => {
         style={{ scaleX }}
       />
 
-      <main className="relative z-10 max-w-[1600px] mx-auto pt-24 pb-20 px-4 md:px-10">
+      <main className="relative z-10 max-w-[1600px] mx-auto pt-32 pb-20 px-4 md:px-10">
         
         {/* HEADER BLOCK */}
         <div className="mb-12 md:mb-20 flex flex-col md:flex-row md:items-end justify-between gap-6">

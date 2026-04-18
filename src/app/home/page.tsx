@@ -446,7 +446,7 @@ export default function UnifiedPortal() {
             <div className="hidden lg:flex items-center gap-3">
               <CpuIcon size={14} className="text-cyan-400/60" />
               <span className="text-[9px] tracking-widest text-white/50">
-                CPU_L: 12.4%
+                CPU: 12.4%
               </span>
             </div>
           </div>
