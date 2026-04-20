@@ -1,23 +1,50 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence, useScroll, useSpring } from "framer-motion";
+import gsap from "gsap";
 import Image from "next/image"; 
 import { EVENTS, K1000Event } from "@/data/event";
-import { Calendar, ExternalLink, Activity, ShieldCheck, Terminal, ChevronRight, Zap } from "lucide-react";
+import { Calendar, ExternalLink, Activity, ShieldCheck, ChevronRight, Zap } from "lucide-react";
 import SharedHeader from "../../components/ui/SharedHeader";
 import Footer from "../../components/footer/Footer";
 
 const conthrax = "font-['Conthrax',_sans-serif]";
 const orbitron = "font-['Orbitron',_sans-serif]";
 
+/* ─────────── BACKGROUND GSAP ANIMATION ─────────── */
+const CubeBackground = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d", { alpha: true });
+    if (!ctx) return;
+    let ctxGSAP = gsap.context(() => {
+      let particles: any[] = [];
+      let width = window.innerWidth, height = window.innerHeight;
+      const mouse = { x: width / 2, y: height / 2 };
+      const resize = () => { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; init(); };
+      class Particle {
+        x: number; y: number; size: number; baseSize: number; vx: number; vy: number;
+        constructor() { this.x = Math.random() * width; this.y = Math.random() * height; this.baseSize = Math.random() * 2 + 1.5; this.size = this.baseSize; this.vx = (Math.random() - 0.5) * 0.4; this.vy = (Math.random() - 0.5) * 0.4; }
+        update() { this.x += this.vx; this.y += this.vy; if (this.x < 0 || this.x > width) this.vx *= -1; if (this.y < 0 || this.y > height) this.vy *= -1; const dx = mouse.x - this.x, dy = mouse.y - this.y; const distSq = dx * dx + dy * dy; this.size = distSq < 22500 ? gsap.utils.interpolate(this.size, this.baseSize * 3, 0.1) : gsap.utils.interpolate(this.size, this.baseSize, 0.05); }
+        draw() { if (!ctx) return; ctx.fillStyle = "rgba(0, 247, 255, 0.8)"; ctx.fillRect(this.x, this.y, this.size, this.size); }
+      }
+      const init = () => { particles = []; const count = Math.floor((width * height) / 9500); for (let i = 0; i < count; i++) particles.push(new Particle()); };
+      const animate = () => { ctx.clearRect(0, 0, width, height); for (let i = 0; i < particles.length; i++) { const p = particles[i]; p.update(); p.draw(); for (let j = i + 1; j < particles.length; j++) { const p2 = particles[j]; const dx = p.x - p2.x, dy = p.y - p2.y; const distSq = dx * dx + dy * dy; if (distSq < 14400) { ctx.beginPath(); ctx.strokeStyle = `rgba(0, 247, 255, ${0.25 * (1 - Math.sqrt(distSq) / 120)})`; ctx.lineWidth = 0.8; ctx.moveTo(p.x, p.y); ctx.lineTo(p2.x, p2.y); ctx.stroke(); } } } requestAnimationFrame(animate); };
+      const handleMouseMove = (e: MouseEvent) => { gsap.to(mouse, { x: e.clientX, y: e.clientY, duration: 0.6, ease: "power2.out" }); };
+      window.addEventListener("resize", resize); window.addEventListener("mousemove", handleMouseMove, { passive: true });
+      resize(); animate();
+    });
+    return () => ctxGSAP.revert();
+  }, []);
+  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none" style={{ zIndex: 0, transform: 'translateZ(0)' }} />;
+};
+
 const Events = () => {
-  // Use useMemo to reverse the events list once (Oldest to Newest)
   const sortedEvents = useMemo(() => [...EVENTS].reverse(), []);
-  
-  // Initialize with the first item in the reversed list (the oldest)
   const [selectedEvent, setSelectedEvent] = useState<K1000Event>(sortedEvents[0]);
-  
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
 
@@ -25,26 +52,17 @@ const Events = () => {
     window.scrollTo({ top: 0, behavior: 'instant' });
   }, []);
   
-
   return (
     <div className="relative w-full min-h-screen bg-[#020202] text-white selection:bg-cyan-500/30 overflow-x-hidden cursor-default">
-      {/* Dynamic Background Grid */}
-      <div className="fixed inset-0 z-0 opacity-20 pointer-events-none">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#00f7ff0a_1px,transparent_1px),linear-gradient(to_bottom,#00f7ff0a_1px,transparent_1px)] bg-[size:40px_40px]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#000_90%)]" />
-      </div>
-
+      <CubeBackground />
       <SharedHeader />
 
-      {/* Progress Line */}
       <motion.div 
         className="fixed top-0 left-0 right-0 h-[2px] bg-cyan-500 z-[100] origin-left"
         style={{ scaleX }}
       />
 
       <main className="relative z-10 max-w-[1600px] mx-auto pt-32 pb-20 px-4 md:px-10">
-        
-        {/* HEADER BLOCK */}
         <div className="mb-12 md:mb-20 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-4">
             <h1 className={`${conthrax} text-4xl md:text-7xl text-white uppercase leading-none tracking-tighter font-black`}>
@@ -59,8 +77,6 @@ const Events = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:items-start">
-          
-          {/* NAVIGATION DECK (Sticky) */}
           <div className="lg:col-span-4 sticky top-28 z-30">
             <div className="bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-[32px] p-2 max-h-[70vh] overflow-y-auto custom-scrollbar">
               <div className="space-y-1">
@@ -68,7 +84,6 @@ const Events = () => {
                   <button
                     key={event.id}
                     onClick={() => setSelectedEvent(event)}
-                    // Added cursor-pointer here
                     className={`w-full text-left px-6 py-5 rounded-[24px] transition-all duration-500 group relative overflow-hidden cursor-pointer ${
                       selectedEvent.id === event.id 
                       ? "bg-cyan-500/10 border border-cyan-500/40" 
@@ -95,7 +110,6 @@ const Events = () => {
             </div>
           </div>
 
-          {/* DISPLAY CORE */}
           <div className="lg:col-span-8 space-y-8">
             <AnimatePresence mode="wait">
               <motion.div
@@ -106,7 +120,6 @@ const Events = () => {
                 transition={{ duration: 0.5, ease: "circOut" }}
                 className="space-y-8"
               >
-                {/* HERO ASSET */}
                 <div className="relative aspect-video w-full rounded-[40px] overflow-hidden border border-white/10 shadow-2xl">
                   <Image
                     src={selectedEvent.gallery[0]}
@@ -142,7 +155,6 @@ const Events = () => {
                   </div>
                 </div>
 
-                {/* DATA GRID */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="space-y-6">
                     <div className="flex items-center gap-3 text-cyan-500/60">
