@@ -93,24 +93,11 @@ const { director, deputy } = useMemo(() => {
     const hierarchy = (leadership as any).hierarchy ?? [];
     const directors = hierarchy.find((h: any) => h.level === 3)?.members ?? [];
     const deputies = hierarchy.find((h: any) => h.level === 4)?.members ?? [];
-
-    // This converts "Event Organization" -> "eventorganization"
     const domainTitleCleaned = cleanString(domain.title);
-
-    /**
-     * Mapping Logic:
-     * Key: Must match cleanString(domain.title)
-     * Value: Must match cleanString(leadership[i].branch)
-     */
+  
     const branchMapping: Record<string, string> = {
-      // Domain: "Internship and Placement" -> "internshipandplacement"
-      // Leadership: "Academic Internship & Placement Guidance" -> "academicinternshipandplacementguidance"
-      internshipandplacement: "academicinternshipandplacementguidance",
-      
-      // Domain: "Event Organization" -> "eventorganization"
-      // Leadership: "Event Management" -> "eventorganization" (because management is replaced by organization)
+      academicinternshipandplacement: "academicinternshipandplacementguidance",
       eventorganization: "eventorganization", 
-      
       researchandpublications: "researchandpublications",
       projectwing: "projectwing",
       trainingprogram: "trainingprogram",

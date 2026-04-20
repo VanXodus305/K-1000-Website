@@ -73,10 +73,10 @@ export const domains = [
 
   {
     key: "events",
-    title: "Event Organization",
+    title: "Event Management",
     yearOfFormation: 2022,
     overview:
-      "The Event Organization domain manages the planning, coordination, and execution of K-1000’s technical and community-driven events.",
+      "The Event Management domain manages the planning, coordination, and execution of K-1000’s technical and community-driven events.",
     description:
       "This domain is responsible for conceptualizing and delivering a wide range of events, including workshops, hackathons, seminars, and speaker sessions. Members gain experience in logistics, communication, sponsorship coordination, and audience engagement. The domain plays a crucial role in building K-1000’s public presence while providing students with leadership and organizational exposure through hands-on event management.",
     focusAreas: [
@@ -97,10 +97,10 @@ export const domains = [
 
   {
     key: "internship",
-    title: "Internship and Placement",
+    title: "Academic Internship & Placement",
     yearOfFormation: 2023,
     overview:
-      "The Internship and Placement domain prepares students for professional careers by aligning academic learning with industry expectations.",
+      "The Academic Internship and Placement domain prepares students for professional careers by aligning academic learning with industry expectations.",
     description:
       "This domain focuses on career readiness through structured preparation programs, including resume reviews, mock interviews, and skill-mapping sessions. Students receive guidance on navigating recruitment processes, understanding industry roles, and building professional profiles. By leveraging peer learning and alumni insights, the domain helps students make informed career decisions and improve their chances of securing internships and placements.",
     focusAreas: [
