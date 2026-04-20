@@ -17,101 +17,35 @@ import Footer from "../../components/footer/Footer";
 
 const conthrax = "font-['Conthrax',_sans-serif]";
 
-// ─── OPTIMIZED GSAP BACKGROUND ───
+/* ─────────── BACKGROUND ─────────── */
 const CubeBackground = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
-    
     let ctxGSAP = gsap.context(() => {
       let particles: any[] = [];
       let width = window.innerWidth, height = window.innerHeight;
       const mouse = { x: width / 2, y: height / 2 };
-
-      const resize = () => {
-        width = canvas.width = window.innerWidth;
-        height = canvas.height = window.innerHeight;
-        init();
-      };
-
+      const resize = () => { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; init(); };
       class Particle {
         x: number; y: number; size: number; baseSize: number; vx: number; vy: number;
-        constructor() {
-          this.x = Math.random() * width;
-          this.y = Math.random() * height;
-          // Smaller particles for mobile to maintain "Premium" feel
-          this.baseSize = Math.random() * (width < 768 ? 1 : 2) + 1;
-          this.size = this.baseSize;
-          this.vx = (Math.random() - 0.5) * 0.3;
-          this.vy = (Math.random() - 0.5) * 0.3;
-        }
-        update() {
-          this.x += this.vx; this.y += this.vy;
-          if (this.x < 0 || this.x > width) this.vx *= -1;
-          if (this.y < 0 || this.y > height) this.vy *= -1;
-          const dx = mouse.x - this.x, dy = mouse.y - this.y, dist = Math.sqrt(dx * dx + dy * dy);
-          // Reduced hover radius on mobile
-          const radius = width < 768 ? 80 : 150;
-          this.size = dist < radius ? gsap.utils.interpolate(this.size, this.baseSize * 2.5, 0.1) : gsap.utils.interpolate(this.size, this.baseSize, 0.05);
-        }
-        draw() {
-          if (!ctx) return;
-          ctx.fillStyle = "rgba(0, 247, 255, 0.6)";
-          ctx.shadowBlur = width < 768 ? 5 : 12; // Performance: Lower blur on mobile
-          ctx.shadowColor = "#00f7ff";
-          ctx.fillRect(this.x, this.y, this.size, this.size);
-          ctx.shadowBlur = 0;
-        }
+        constructor() { this.x = Math.random() * width; this.y = Math.random() * height; this.baseSize = Math.random() * 2 + 1.5; this.size = this.baseSize; this.vx = (Math.random() - 0.5) * 0.4; this.vy = (Math.random() - 0.5) * 0.4; }
+        update() { this.x += this.vx; this.y += this.vy; if (this.x < 0 || this.x > width) this.vx *= -1; if (this.y < 0 || this.y > height) this.vy *= -1; const dx = mouse.x - this.x, dy = mouse.y - this.y; const distSq = dx * dx + dy * dy; this.size = distSq < 22500 ? gsap.utils.interpolate(this.size, this.baseSize * 3, 0.1) : gsap.utils.interpolate(this.size, this.baseSize, 0.05); }
+        draw() { if (!ctx) return; ctx.fillStyle = "rgba(0, 247, 255, 0.8)"; ctx.fillRect(this.x, this.y, this.size, this.size); }
       }
-
-      const init = () => {
-        particles = [];
-        // Performance: Significantly fewer particles on mobile devices
-        const density = width < 768 ? 15000 : 9000;
-        const count = Math.floor((width * height) / density);
-        for (let i = 0; i < count; i++) particles.push(new Particle());
-      };
-
-      const animate = () => {
-        ctx.clearRect(0, 0, width, height);
-        particles.forEach((p, i) => {
-          p.update(); p.draw();
-          // Optimized connection lines (only draw for nearby particles)
-          const connectionDist = width < 768 ? 70 : 120;
-          for (let j = i + 1; j < particles.length; j++) {
-            const dx = p.x - particles[j].x, dy = p.y - particles[j].y, dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < connectionDist) {
-              ctx.beginPath();
-              ctx.strokeStyle = `rgba(0, 247, 255, ${0.15 * (1 - dist / connectionDist)})`;
-              ctx.lineWidth = 0.5;
-              ctx.moveTo(p.x, p.y);
-              ctx.lineTo(particles[j].x, particles[j].y);
-              ctx.stroke();
-            }
-          }
-        });
-        requestAnimationFrame(animate);
-      };
-
-      const handleMouseMove = (e: MouseEvent) => { gsap.to(mouse, { x: e.clientX, y: e.clientY, duration: 0.8 }); };
-      const handleTouchMove = (e: TouchEvent) => { 
-        mouse.x = e.touches[0].clientX; 
-        mouse.y = e.touches[0].clientY; 
-      };
-
-      window.addEventListener("resize", resize);
-      window.addEventListener("mousemove", handleMouseMove);
-      window.addEventListener("touchmove", handleTouchMove);
+      const init = () => { particles = []; const count = Math.floor((width * height) / 9500); for (let i = 0; i < count; i++) particles.push(new Particle()); };
+      const animate = () => { ctx.clearRect(0, 0, width, height); for (let i = 0; i < particles.length; i++) { const p = particles[i]; p.update(); p.draw(); for (let j = i + 1; j < particles.length; j++) { const p2 = particles[j]; const dx = p.x - p2.x, dy = p.y - p2.y; const distSq = dx * dx + dy * dy; if (distSq < 14400) { ctx.beginPath(); ctx.strokeStyle = `rgba(0, 247, 255, ${0.25 * (1 - Math.sqrt(distSq) / 120)})`; ctx.lineWidth = 0.8; ctx.moveTo(p.x, p.y); ctx.lineTo(p2.x, p2.y); ctx.stroke(); } } } requestAnimationFrame(animate); };
+      const handleMouseMove = (e: MouseEvent) => { gsap.to(mouse, { x: e.clientX, y: e.clientY, duration: 0.6, ease: "power2.out" }); };
+      window.addEventListener("resize", resize); window.addEventListener("mousemove", handleMouseMove, { passive: true });
       resize(); animate();
     });
     return () => ctxGSAP.revert();
   }, []);
-  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none opacity-60" style={{ zIndex: 1 }} />;
+  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none" style={{ zIndex: 0, transform: 'translateZ(0)' }} />;
 };
-
 const categories = [
   { title: "Engineering & Tech", id: "DEPT-ENG-01", icon: <FaLaptopCode />, schools: ["School of Computer Applications", "School of Computer Engineering", "School of Civil Engineering", "School of Electronics Engineering", "School of Mechanical Engineering", "School of Electrical Engineering", "School of Chemical Engineering"] },
   { title: "Sciences & Applied", id: "DEPT-SCI-02", icon: <FaMicroscope />, schools: ["School of Biotechnology", "School of Applied Sciences", "School of Architecture & Planning"] },
