@@ -45,8 +45,22 @@ const CubeBackground = () => {
 const Events = () => {
   const sortedEvents = useMemo(() => [...EVENTS].reverse(), []);
   const [selectedEvent, setSelectedEvent] = useState<K1000Event>(sortedEvents[0]);
+  const navRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
+
+  // Auto-scroll logic for mobile/desktop nav
+  useEffect(() => {
+    if (navRef.current) {
+      const activeBtn = navRef.current.querySelector(`[data-id="${selectedEvent.id}"]`) as HTMLElement;
+      if (activeBtn) {
+        navRef.current.scrollTo({
+          left: activeBtn.offsetLeft - 20,
+          behavior: 'smooth'
+        });
+      }
+    }
+  }, [selectedEvent.id]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
@@ -77,36 +91,37 @@ const Events = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:items-start">
-          <div className="lg:col-span-4 sticky top-28 z-30">
-            <div className="bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-[32px] p-2 max-h-[70vh] overflow-y-auto custom-scrollbar">
-              <div className="space-y-1">
-                {sortedEvents.map((event) => (
-                  <button
-                    key={event.id}
-                    onClick={() => setSelectedEvent(event)}
-                    className={`w-full text-left px-6 py-5 rounded-[24px] transition-all duration-500 group relative overflow-hidden cursor-pointer ${
-                      selectedEvent.id === event.id 
-                      ? "bg-cyan-500/10 border border-cyan-500/40" 
-                      : "hover:bg-white/5 border border-transparent"
-                    }`}
-                  >
-                    {selectedEvent.id === event.id && (
-                      <motion.div layoutId="activeGlow" className="absolute inset-0 bg-cyan-500/5 blur-xl" />
-                    )}
-                    <div className="relative z-10 flex items-center justify-between">
-                      <div className="flex flex-col gap-1">
-                        <span className={`${orbitron} text-[8px] tracking-widest font-black ${selectedEvent.id === event.id ? "text-cyan-400" : "text-white/20"}`}>
-                          {event.date.toUpperCase()}
-                        </span>
-                        <span className={`${conthrax} text-[11px] md:text-xs text-white uppercase tracking-wider font-black group-hover:text-cyan-300 transition-colors`}>
-                          {event.title}
-                        </span>
-                      </div>
-                      <ChevronRight size={14} className={`transition-transform duration-300 ${selectedEvent.id === event.id ? "text-cyan-400 translate-x-0" : "text-white/10 -translate-x-2"}`} />
+          
+          {/* NAVIGATION: Mobile (Horizontal) / Desktop (Sticky) */}
+          <div className="lg:col-span-4 lg:sticky lg:top-28 z-30">
+            <div ref={navRef} className="flex lg:flex-col overflow-x-auto lg:overflow-visible bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-[32px] p-2 gap-1 custom-scrollbar">
+              {sortedEvents.map((event) => (
+                <button
+                  key={event.id}
+                  data-id={event.id}
+                  onClick={() => setSelectedEvent(event)}
+                  className={`flex-shrink-0 lg:w-full w-[220px] text-left px-6 py-5 rounded-[24px] transition-all duration-500 group relative overflow-hidden cursor-pointer ${
+                    selectedEvent.id === event.id 
+                    ? "bg-cyan-500/10 border border-cyan-500/40" 
+                    : "hover:bg-white/5 border border-transparent"
+                  }`}
+                >
+                  {selectedEvent.id === event.id && (
+                    <motion.div layoutId="activeGlow" className="absolute inset-0 bg-cyan-500/5 blur-xl" />
+                  )}
+                  <div className="relative z-10 flex items-center justify-between">
+                    <div className="flex flex-col gap-1">
+                      <span className={`${orbitron} text-[8px] tracking-widest font-black ${selectedEvent.id === event.id ? "text-cyan-400" : "text-white/20"}`}>
+                        {event.date.toUpperCase()}
+                      </span>
+                      <span className={`${conthrax} text-[11px] text-white uppercase tracking-wider font-black whitespace-nowrap`}>
+                        {event.title}
+                      </span>
                     </div>
-                  </button>
-                ))}
-              </div>
+                    <ChevronRight size={14} className={`hidden lg:block transition-transform duration-300 ${selectedEvent.id === event.id ? "text-cyan-400" : "text-white/10"}`} />
+                  </div>
+                </button>
+              ))}
             </div>
           </div>
 
@@ -193,6 +208,11 @@ const Events = () => {
            <p className={`${conthrax} text-[8px] uppercase tracking-[1.5em] font-black`}>End of Registry</p>
       </footer>
       <Footer />
+      <style jsx global>{`
+        .custom-scrollbar::-webkit-scrollbar { height: 4px; width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0, 247, 255, 0.2); border-radius: 10px; }
+      `}</style>
     </div>
   );
 };

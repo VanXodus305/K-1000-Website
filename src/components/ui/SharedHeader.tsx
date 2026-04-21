@@ -69,7 +69,7 @@ export default function SharedHeader() {
 
   return (
     <>
-      <header className={`fixed top-0 left-0 w-full px-6 md:px-12 py-6 md:py-8 flex md:grid md:grid-cols-[1.5fr_auto_1fr] items-center justify-between z-[110] ${conthrax} bg-black/10 backdrop-blur-sm md:bg-transparent`}>
+      <header className={`fixed top-0 left-0 w-full px-6 md:px-12 py-4 flex md:grid md:grid-cols-[1.5fr_auto_1fr] items-center justify-between z-[110] ${conthrax} bg-black/5 backdrop-blur-[4px] md:bg-transparent`}>
         
         <motion.div 
           initial={{ opacity: 0, x: -20 }} 
@@ -80,7 +80,7 @@ export default function SharedHeader() {
           <button className="hover:opacity-80 transition-opacity outline-none cursor-pointer">
             <img
               src="/k1000-logo.png"
-              className="h-8 md:h-10 w-auto drop-shadow-[0_0_15px_#00f7ff]"
+              className="h-8 md:h-9 w-auto drop-shadow-[0_0_15px_#00f7ff]"
               alt="K-1000"
             />
           </button>
@@ -92,13 +92,13 @@ export default function SharedHeader() {
         <motion.nav
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="hidden md:flex gap-1 bg-black/40 border border-white/5 p-1 rounded-full backdrop-blur-md ml-auto mr-4 lg:mr-6 cursor-pointer"
+          className="hidden md:flex gap-1 bg-black/30 border border-white/5 p-1 rounded-full backdrop-blur-sm ml-auto mr-4 lg:mr-6 cursor-pointer"
         >
           {NAV_ITEMS.map((key) => (
             <button
               key={key}
               onClick={() => goTo(key)}
-              className={`px-3 lg:px-4 py-2 text-[7px] lg:text-[8px] uppercase tracking-[0.2em] font-bold rounded-full transition-all duration-300 outline-none cursor-pointer
+              className={`px-3 lg:px-4 py-1.5 text-[7px] lg:text-[8px] uppercase tracking-[0.2em] font-bold rounded-full transition-all duration-300 outline-none cursor-pointer
                 ${getIsActive(key) 
                   ? "text-[#00f7ff] bg-cyan-500/10 shadow-[inset_0_0_10px_rgba(0,247,255,0.1)]" 
                   : "text-white/40 hover:text-[#00f7ff] hover:bg-white/5"
@@ -118,7 +118,7 @@ export default function SharedHeader() {
             <p className="text-[8px] text-cyan-500/40 tracking-widest leading-none mb-1 uppercase">UPLINK</p>
             <p className="text-[10px] text-cyan-400 uppercase leading-none font-bold">HEALTHY</p>
           </div>
-          <img src="/kiit-logo.png" className="h-10 md:h-14 w-auto object-contain" alt="KIIT" />
+          <img src="/kiit-logo.png" className="h-10 md:h-12 w-auto object-contain" alt="KIIT" />
           
           <button 
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} 
@@ -129,6 +129,7 @@ export default function SharedHeader() {
         </motion.div>
       </header>
 
+      {/* Mobile Menu Overlay */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
