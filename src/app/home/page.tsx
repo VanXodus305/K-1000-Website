@@ -335,26 +335,26 @@ export default function UnifiedPortal() {
                     style={{ transform: `scale(${scale})` }}
                     className="relative w-[1440px] h-[900px] flex items-center justify-center"
                   >
+
                     <svg
-                      viewBox="0 0 100 100"
+                      viewBox="0 0 1440 900"
                       preserveAspectRatio="none"
                       className="absolute inset-0 w-full h-full z-0 pointer-events-none"
                     >
                       {allNodes.map((node) => (
                         <motion.line
                           key={node.key}
-                          x1="50"
-                          y1="50"
-                          x2={node.x}
-                          y2={node.y}
-                          stroke={
-                            hoveredNode === node.key ? "#ffffff" : "#00f7ff"
-                          }
-                          strokeWidth={hoveredNode === node.key ? "0.8" : "0.6"}
+                          x1={720}
+                          y1={450}
+                          x2={node.x * 14.4}
+                          y2={node.y * 9}
+                          stroke={hoveredNode === node.key ? "#ffffff" : "#00f7ff"}
+                          strokeWidth={hoveredNode === node.key ? "1.2" : "0.9"}
                           strokeOpacity={hoveredNode === node.key ? "1" : "0.8"}
                         />
                       ))}
                     </svg>
+
                     <div className="flex flex-col items-center relative z-20">
                       <motion.div
                         onMouseEnter={() => setIsCoreHovered(true)}
@@ -382,50 +382,67 @@ export default function UnifiedPortal() {
                         </div>
                       </motion.div>
                       <div
-                        className={`mt-16 text-[12px] tracking-[1.4em] text-cyan-400 font-black uppercase text-center drop-shadow-[0_0_12px_#00f7ff] brightness-110 ${conthrax}`}
+                        className={`mt-20 text-[18px] tracking-[1.4em] text-cyan-400 font-black uppercase text-center drop-shadow-[0_0_12px_#00f7ff] brightness-110 ${conthrax}`}
                       >
                         Train • Transform • Transcend
                       </div>
                     </div>
-                    {allNodes.map((node) => (
-                      <motion.button
-                        key={node.key}
-                        onMouseEnter={() => setHoveredNode(node.key)}
-                        onMouseLeave={() => setHoveredNode(null)}
-                        onClick={() => {
-                          setActiveDomainKey(node.key);
-                          setHoveredNode(null);
-                        }}
-                        className={`absolute -translate-y-1/2 flex items-center cursor-pointer group z-30 ${LEFT_NODES.includes(node) ? "-translate-x-full flex-row" : "flex-row-reverse"}`}
-                        style={{ top: `${node.y}%`, left: `${node.x}%` }}
-                      >
-                        <div
-                          className={`w-2 h-10 border-y-2 ${LEFT_NODES.includes(node) ? "border-l-2" : "border-r-2"} ${hoveredNode === node.key ? "border-white" : "border-cyan-400"}`}
-                        />
-                        <div
-                          className={`relative px-8 py-4 min-w-[340px] backdrop-blur-2xl border-2 transition-all duration-300 ${hoveredNode === node.key ? "bg-white text-black border-white shadow-[0_0_40px_#fff]" : "bg-black/90 text-white border-cyan-400 shadow-[0_0_30px_rgba(0,247,255,0.4)]"}`}
+
+                    {allNodes.map((node) => {
+                      const isLeft = LEFT_NODES.includes(node);
+                      return (
+                        <motion.button
+                          key={node.key}
+                          onMouseEnter={() => setHoveredNode(node.key)}
+                          onMouseLeave={() => setHoveredNode(null)}
+                          onClick={() => {
+                            setActiveDomainKey(node.key);
+                            setHoveredNode(null);
+                          }}
+                          className={`absolute flex items-center cursor-pointer group z-30 ${isLeft ? "flex-row-reverse" : "flex-row"}`}
+                          style={{
+                            top: `${node.y}%`,
+                            left: `${node.x}%`,
+                            // Right nodes (flex-row): diamond is first child = left edge = at anchor. Just center vertically.
+                            // Left nodes (flex-row-reverse): diamond is first child but visually last (rightmost). 
+                            //   Shift entire button left by 100% so diamond's right edge lands at anchor.
+                            transform: isLeft
+                              ? "translate(-100%, -50%)"
+                              : "translate(0%, -50%)",
+                          }}
                         >
-                          <div className="flex items-center gap-6">
-                            <div
-                              className={`p-2 border-2 ${hoveredNode === node.key ? "border-black text-black" : "border-cyan-400 text-cyan-400 brightness-110 drop-shadow-[0_0_5px_#00f7ff]"}`}
-                            >
-                              {node.icon}
+                          {/* diamond — center sits exactly at node.x/node.y = SVG line endpoint */}
+                          <div
+                            className={`w-4 h-4 rotate-45 border-2 flex-shrink-0 ${hoveredNode === node.key ? "bg-white border-white shadow-[0_0_20px_#fff]" : "bg-[#010103] border-cyan-400 shadow-[0_0_15px_#00f7ff]"}`}
+                          />
+                          {/* horizontal stub */}
+                          <div
+                            className={`w-10 h-[2px] flex-shrink-0 ${hoveredNode === node.key ? "bg-white shadow-[0_0_20px_#fff]" : "bg-cyan-400 shadow-[0_0_15px_#00f7ff]"}`}
+                          />
+                          {/* card */}
+                          <div
+                            className={`relative px-8 py-4 min-w-[340px] backdrop-blur-2xl border-2 transition-all duration-300 ${hoveredNode === node.key ? "bg-white text-black border-white shadow-[0_0_40px_#fff]" : "bg-black/90 text-white border-cyan-400 shadow-[0_0_30px_rgba(0,247,255,0.4)]"}`}
+                          >
+                            <div className="flex items-center gap-6">
+                              <div
+                                className={`p-2 border-2 ${hoveredNode === node.key ? "border-black text-black" : "border-cyan-400 text-cyan-400 brightness-110 drop-shadow-[0_0_5px_#00f7ff]"}`}
+                              >
+                                {node.icon}
+                              </div>
+                              <span
+                                className={`text-[12px] font-black tracking-widest uppercase ${conthrax} ${hoveredNode === node.key ? "text-black" : "text-white brightness-110"}`}
+                              >
+                                {node.label}
+                              </span>
                             </div>
-                            <span
-                              className={`text-[12px] font-black tracking-widest uppercase ${conthrax} ${hoveredNode === node.key ? "text-black" : "text-white brightness-110"}`}
-                            >
-                              {node.label}
-                            </span>
                           </div>
-                        </div>
-                        <div
-                          className={`w-10 h-[2px] ${hoveredNode === node.key ? "bg-white shadow-[0_0_20px_#fff]" : "bg-cyan-400 shadow-[0_0_15px_#00f7ff]"}`}
-                        />
-                        <div
-                          className={`w-4 h-4 rotate-45 border-2 ${hoveredNode === node.key ? "bg-white border-white" : "bg-[#010103] border-cyan-400 shadow-[0_0_15px_#00f7ff]"}`}
-                        />
-                      </motion.button>
-                    ))}
+                          {/* bracket notch on far card edge */}
+                          <div
+                            className={`w-2 h-10 border-y-2 flex-shrink-0 ${isLeft ? "border-l-2" : "border-r-2"} ${hoveredNode === node.key ? "border-white" : "border-cyan-400"}`}
+                          />
+                        </motion.button>
+                      );
+                    })}
                   </motion.div>
                 )}
               </motion.div>
@@ -542,10 +559,9 @@ export default function UnifiedPortal() {
           </div>
         </section>
 
-{/* SECTION: ABOUT K-1000 */}
+        {/* SECTION: ABOUT K-1000 */}
         <section className="w-full px-6 md:px-20 py-32 border-t border-white/10">
           <div className="w-full max-w-[1500px] mx-auto">
-            {/* Heading stays center-aligned as requested */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -577,7 +593,6 @@ export default function UnifiedPortal() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               </motion.div>
 
-              {/* Description shifted to text-left */}
               <motion.div
                 initial={{ opacity: 0, x: 30 }}
                 whileInView={{ opacity: 1, x: 0 }}
@@ -602,7 +617,6 @@ export default function UnifiedPortal() {
               </motion.div>
             </div>
 
-            {/* STRAIGHT LINE ROW - items-start and justify-start for left-centricity */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
               {[
                 "Hands-on projects",
