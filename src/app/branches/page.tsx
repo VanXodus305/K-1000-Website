@@ -86,15 +86,11 @@ export default function BranchesPage() {
   const navRef = useRef<HTMLDivElement>(null);
   const activeDomain = branches.find((b) => b.key === activeTab)!;
 
-  // Auto-scroll logic for mobile horizontal nav
   useEffect(() => {
     if (navRef.current) {
       const activeBtn = navRef.current.querySelector(`[data-key="${activeTab}"]`) as HTMLElement;
       if (activeBtn) {
-        navRef.current.scrollTo({
-          left: activeBtn.offsetLeft - 20,
-          behavior: 'smooth'
-        });
+        navRef.current.scrollTo({ left: activeBtn.offsetLeft - 20, behavior: 'smooth' });
       }
     }
   }, [activeTab]);
@@ -117,7 +113,6 @@ export default function BranchesPage() {
         <SharedHeader />
         
         <main className="max-w-[1600px] mx-auto pt-32 pb-20 px-4 md:px-10">
-          
           <section className="w-full mb-12 md:mb-20">
             <div className="relative w-full h-64 md:h-[350px] rounded-[40px] overflow-hidden border border-white/10 bg-black">
               <img src={activeDomain.image} className="absolute inset-0 w-full h-full object-cover opacity-40" alt="Hero" />
@@ -133,31 +128,22 @@ export default function BranchesPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:items-start">
             
-            {/* NAVIGATION: Mobile (Horizontal) / Desktop (Vertical Sticky) */}
-            <div className="lg:col-span-4 lg:sticky lg:top-28 z-30">
-              <div ref={navRef} className="flex lg:flex-col overflow-x-auto lg:overflow-visible bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-[32px] p-2 gap-1 custom-scrollbar">
+            <div className="lg:col-span-4 lg:sticky lg:top-24 lg:self-start z-30">
+              <div ref={navRef} className="flex lg:flex-col overflow-x-auto lg:overflow-visible bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-[32px] p-2 gap-1 mobile-nav-scroll">
                 {branches.map((b) => (
                   <button
                     key={b.key}
                     data-key={b.key}
                     onClick={() => setActiveTab(b.key)}
                     className={`flex-shrink-0 lg:w-full w-[220px] text-left px-6 py-5 rounded-[24px] transition-all duration-500 group relative overflow-hidden cursor-pointer ${
-                      activeTab === b.key 
-                      ? "bg-cyan-500/10 border border-cyan-500/40" 
-                      : "hover:bg-white/5 border border-transparent"
+                      activeTab === b.key ? "bg-cyan-500/10 border border-cyan-500/40" : "hover:bg-white/5 border border-transparent"
                     }`}
                   >
-                    {activeTab === b.key && (
-                      <motion.div layoutId="activeGlow" className="absolute inset-0 bg-cyan-500/5 blur-xl" />
-                    )}
+                    {activeTab === b.key && <motion.div layoutId="activeGlow" className="absolute inset-0 bg-cyan-500/5 blur-xl" />}
                     <div className="relative z-10 flex items-center justify-between">
                       <div className="flex flex-col gap-1">
-                        <span className={`${orbitron} text-[8px] tracking-widest font-black ${activeTab === b.key ? "text-cyan-400" : "text-white/20"}`}>
-                          {b.key.toUpperCase()}
-                        </span>
-                        <span className={`${conthrax} text-[11px] md:text-xs text-white uppercase tracking-wider font-black group-hover:text-cyan-300 transition-colors`}>
-                          {b.title}
-                        </span>
+                        <span className={`${orbitron} text-[8px] tracking-widest font-black ${activeTab === b.key ? "text-cyan-400" : "text-white/20"}`}>{b.key.toUpperCase()}</span>
+                        <span className={`${conthrax} text-[11px] md:text-xs text-white uppercase tracking-wider font-black group-hover:text-cyan-300 transition-colors`}>{b.title}</span>
                       </div>
                       <ChevronRight size={14} className={`hidden lg:block transition-transform duration-300 ${activeTab === b.key ? "text-cyan-400" : "text-white/10"}`} />
                     </div>
@@ -166,7 +152,6 @@ export default function BranchesPage() {
               </div>
             </div>
 
-            {/* CONTENT AREA */}
             <div className="lg:col-span-8">
               <AnimatePresence mode="wait">
                 <motion.div
@@ -211,9 +196,8 @@ export default function BranchesPage() {
         <Footer />
       </div>
       <style jsx global>{`
-        .custom-scrollbar::-webkit-scrollbar { height: 4px; width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0, 247, 255, 0.2); border-radius: 10px; }
+        .mobile-nav-scroll::-webkit-scrollbar { display: none; }
+        .mobile-nav-scroll { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
     </div>
   );
