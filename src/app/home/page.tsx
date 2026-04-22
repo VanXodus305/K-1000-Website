@@ -195,7 +195,7 @@ const RIGHT_NODES = [
   },
   {
     key: "events",
-    label: "Event Organisation",
+    label: "Event Management",
     y: 65,
     x: 66,
     icon: <Zap size={24} />,
