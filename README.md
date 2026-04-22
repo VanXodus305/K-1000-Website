@@ -6,6 +6,8 @@
 **Version:** `0.1.0`  
 **Status:** `Development`
 
+<img width="3024" height="1652" alt="image" src="https://github.com/user-attachments/assets/03e2fbab-7364-45ba-ae56-b674661033dd" />
+
 
 ## ⚡ Overview
 
@@ -116,8 +118,7 @@ k1000-main/
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-username/k1000-main.git
-   cd k1000-main
+   git clone https://github.com/VanXodus305/K-1000-Website.git
    ```
 
 2. **Install dependencies**
@@ -211,8 +212,4 @@ This project is proprietary to KIIT University and K-1000 Research Program.
 For inquiries about K-1000 or this website:
 - **Organization:** K-1000 Research Program
 - **University:** KIIT University
-- **Website:** [kiit.ac.in](https://kiit.ac.in)
-
----
-
-*Built with ❤️ for KIIT's future innovators*
+- **Website:** [k1000.kiit.ac.in](https://k1000.kiit.ac.in)
