@@ -97,7 +97,7 @@ const { director, deputy } = useMemo(() => {
   
     const branchMapping: Record<string, string> = {
       academicinternshipandplacement: "academicinternshipandplacementguidance",
-      eventorganization: "eventorganization", 
+      eventmanagement: "eventmanagement", 
       researchandpublications: "researchandpublications",
       projectwing: "projectwing",
       trainingprogram: "trainingprogram",

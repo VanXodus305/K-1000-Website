@@ -73,7 +73,8 @@ export const domains = [
 
   {
     key: "events",
-    title: "Event Management",
+    // Extra spaces to align with design to avoid text wrapping in the UI. Please do not remove or edit the title without checking the design first.
+    title: "Event Management  ",
     yearOfFormation: 2022,
     overview:
       "The Event Management domain manages the planning, coordination, and execution of K-1000’s technical and community-driven events.",
