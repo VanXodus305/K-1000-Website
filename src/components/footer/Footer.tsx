@@ -23,12 +23,12 @@ const Footer = () => {
   ];
 
   const researchAreas = [
-    { title: "Engineering & Technology", href: "/departments" },
-    { title: "Sciences & Applied Sciences", href: "/departments" },
-    { title: "Management & Social Sciences", href: "/departments" },
-    { title: "Medical & Health Sciences", href: "/departments" },
-    { title: "Law & Public Policy", href: "/departments" },
-    { title: "Sports & Tourism", href: "/departments" },
+    { title: "Engineering & Technology", href: "/departments#DEPT-ENG-01" },
+    { title: "Sciences & Applied Sciences", href: "/departments#DEPT-SCI-02" },
+    { title: "Management & Social Sciences", href: "/departments#DEPT-MGMT-03" },
+    { title: "Medical & Health Sciences", href: "/departments#DEPT-MED-04" },
+    { title: "Law & Public Policy", href: "/departments#DEPT-LAW-05" },
+    { title: "Sports & Tourism", href: "/departments#DEPT-SPR-06" },
   ];
 
   return (

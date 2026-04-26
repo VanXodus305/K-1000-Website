@@ -101,10 +101,11 @@ export default function DepartmentsPage() {
           {categories.map((category, index) => (
             <motion.div
               key={index}
+              id={category.id}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-100px" }}
-              className="relative group"
+              className="relative group scroll-mt-24"
             >
               {/* Desktop Side Line - Hidden on Mobile */}
               <div className="absolute top-0 -left-6 md:-left-12 w-[1px] h-full bg-gradient-to-b from-cyan-400/40 via-cyan-400/5 to-transparent hidden md:block" />
