@@ -94,6 +94,7 @@ const ApplicationForm = () => {
   const GOOGLE_FORM_LINK = "https://forms.gle/irg7nzkhh3tWnpib8";
   const LINKED_IN = "https://www.linkedin.com/company/k1000-kiit";
   const INSTAGRAM = "https://www.instagram.com/k1000_kiit";
+  const WHATSAPP = "https://chat.whatsapp.com/CAM4B9Qf0mN6i4CvJaVKi3";
 
   const socialsData = [
     { 
@@ -111,7 +112,7 @@ const ApplicationForm = () => {
     { 
       title: "WhatsApp", 
       icon: FaWhatsapp, 
-      link: "#", 
+      link: WHATSAPP, 
       description: "Direct channel for community discussions and quick alerts." 
     },
   ];
