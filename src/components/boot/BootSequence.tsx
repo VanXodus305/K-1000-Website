@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import SystemCanvas from "../../app/home/page";
+import UnifiedPortal from "../home/UnifiedPortal";
 
 const conthrax = "font-['Conthrax',_sans-serif]";
 
@@ -133,7 +133,7 @@ export default function BootSequence() {
             animate={{ opacity: 1 }}
             transition={{ duration: 1.2 }}
           >
-            <SystemCanvas />
+            <UnifiedPortal />
           </motion.div>
         )}
       </AnimatePresence>
