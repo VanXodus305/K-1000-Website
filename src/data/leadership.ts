@@ -1,4 +1,21 @@
-export const leadership = {
+export type LeadershipMember = {
+  name: string;
+  position: string;
+  branch: string;
+  image: string;
+};
+
+export type LeadershipLevel = {
+  level: number;
+  title: string;
+  members: LeadershipMember[];
+};
+
+export type LeadershipData = {
+  hierarchy: LeadershipLevel[];
+};
+
+export const leadership: LeadershipData = {
   hierarchy: [
     {
       level: 1,

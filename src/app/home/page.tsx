@@ -33,7 +33,7 @@ import Link from "next/link";
 
 import SharedHeader from "../../components/ui/SharedHeader";
 import Footer from "../../components/footer/Footer";
-import { domains } from "../../data/domain";
+import { domains, type K1000Domain } from "../../data/domain";
 import DomainHoloPanel from "../../components/ui/DomainHoloPanel";
 import data from "@/data/data.json";
 
@@ -50,6 +50,16 @@ const iconMap: Record<string, LucideIcon> = {
   Users,
 };
 
+type BenefitItem = (typeof data)["benefits"][number];
+type Particle = {
+  x: number;
+  y: number;
+  size: number;
+  baseSize: number;
+  vx: number;
+  vy: number;
+};
+
 const CubeBackground = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
@@ -57,8 +67,8 @@ const CubeBackground = () => {
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    let ctxGSAP = gsap.context(() => {
-      let particles: any[] = [];
+    const ctxGSAP = gsap.context(() => {
+      let particles: Particle[] = [];
       let width = window.innerWidth,
         height = window.innerHeight;
       const mouse = { x: width / 2, y: height / 2 };
@@ -67,53 +77,40 @@ const CubeBackground = () => {
         height = canvas.height = window.innerHeight;
         init();
       };
-      class Particle {
-        x: number;
-        y: number;
-        size: number;
-        baseSize: number;
-        vx: number;
-        vy: number;
-        constructor() {
-          this.x = Math.random() * width;
-          this.y = Math.random() * height;
-          this.baseSize = Math.random() * 2 + 1.5;
-          this.size = this.baseSize;
-          this.vx = (Math.random() - 0.5) * 0.4;
-          this.vy = (Math.random() - 0.5) * 0.4;
-        }
-        update() {
-          this.x += this.vx;
-          this.y += this.vy;
-          if (this.x < 0 || this.x > width) this.vx *= -1;
-          if (this.y < 0 || this.y > height) this.vy *= -1;
-          const dx = mouse.x - this.x,
-            dy = mouse.y - this.y,
-            dist = Math.sqrt(dx * dx + dy * dy);
-          this.size =
-            dist < 150
-              ? gsap.utils.interpolate(this.size, this.baseSize * 3, 0.1)
-              : gsap.utils.interpolate(this.size, this.baseSize, 0.05);
-        }
-        draw() {
-          if (!ctx) return;
-          ctx.fillStyle = "rgba(0, 247, 255, 0.8)";
-          ctx.shadowBlur = 12;
-          ctx.shadowColor = "#00f7ff";
-          ctx.fillRect(this.x, this.y, this.size, this.size);
-          ctx.shadowBlur = 0;
-        }
-      }
+      const createParticle = (): Particle => ({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        baseSize: Math.random() * 2 + 1.5,
+        size: 0,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: (Math.random() - 0.5) * 0.4,
+      });
       const init = () => {
-        particles = [];
         const count = Math.floor((width * height) / 9000);
-        for (let i = 0; i < count; i++) particles.push(new Particle());
+        particles = Array.from({ length: count }, () => {
+          const particle = createParticle();
+          return { ...particle, size: particle.baseSize };
+        });
       };
       const animate = () => {
         ctx.clearRect(0, 0, width, height);
         particles.forEach((p, i) => {
-          p.update();
-          p.draw();
+          p.x += p.vx;
+          p.y += p.vy;
+          if (p.x < 0 || p.x > width) p.vx *= -1;
+          if (p.y < 0 || p.y > height) p.vy *= -1;
+          const dx = mouse.x - p.x,
+            dy = mouse.y - p.y,
+            dist = Math.sqrt(dx * dx + dy * dy);
+          p.size =
+            dist < 150
+              ? gsap.utils.interpolate(p.size, p.baseSize * 3, 0.1)
+              : gsap.utils.interpolate(p.size, p.baseSize, 0.05);
+          ctx.fillStyle = "rgba(0, 247, 255, 0.8)";
+          ctx.shadowBlur = 12;
+          ctx.shadowColor = "#00f7ff";
+          ctx.fillRect(p.x, p.y, p.size, p.size);
+          ctx.shadowBlur = 0;
           for (let j = i + 1; j < particles.length; j++) {
             const dx = p.x - particles[j].x,
               dy = p.y - particles[j].y,
@@ -500,7 +497,7 @@ export default function UnifiedPortal() {
                 whileInView={{ opacity: 1 }}
                 className={`${conthrax} text-cyan-400 tracking-[0.2em] text-[7px] lg:text-[11px] mb-2 uppercase font-black`}
               >
-                KIIT Elite's R&D Program
+                KIIT Elite&apos;s R&amp;D Program
               </motion.p>
               <motion.h1
                 initial={{ opacity: 0, y: 10 }}
@@ -647,7 +644,7 @@ export default function UnifiedPortal() {
             Benefits & Perks
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
-            {benefits.map((b: any, i: number) => {
+            {benefits.map((b: BenefitItem, i: number) => {
               const Icon = iconMap[b.icon] || Lightbulb;
               return (
                 <div
@@ -677,7 +674,7 @@ export default function UnifiedPortal() {
       <AnimatePresence mode="wait">
         {activeDomain && (
           <DomainHoloPanel
-            domain={activeDomain as any}
+            domain={activeDomain as K1000Domain}
             onClose={handlePanelClose}
           />
         )}
