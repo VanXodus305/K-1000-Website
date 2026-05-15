@@ -23,7 +23,6 @@ export default function Hero() {
         {/* 🖼️ Background Image */}
         <img
           src="/hero/hero-2.jpg"
-          alt="K-1000 hero"
           className="
             w-full h-[520px] object-cover
             rounded-[32px]
@@ -46,7 +45,7 @@ export default function Hero() {
         >
           {/* Tag */}
           <p className="text-cyan-300 font-[Orbitron] tracking-[0.35em] text-[10px] mb-4">
-            WELCOME TO KIIT&apos;S ELITE ENGINEERING PROGRAM
+            WELCOME TO KIIT'S ELITE ENGINEERING PROGRAM
           </p>
 
           {/* Title */}

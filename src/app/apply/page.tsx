@@ -1,23 +1,75 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { FaInstagram, FaLinkedinIn, FaWhatsapp } from "react-icons/fa6";
 import { ArrowRight, Sparkles } from "lucide-react";
+import gsap from "gsap";
 import SharedHeader from "../../components/ui/SharedHeader";
 import Footer from "../../components/footer/Footer";
-import CubeBackground from "../../components/ui/CubeBackground";
 
 const conthrax = "font-['Conthrax',_sans-serif]";
 
-type SocialCard = {
-  title: string;
-  icon: React.ComponentType<{ className?: string }>;
-  description: string;
+// ─── GSAP BACKGROUND (UNTOUCHED) ───
+const CubeBackground = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    let ctxGSAP = gsap.context(() => {
+      let particles: any[] = [];
+      let width = window.innerWidth, height = window.innerHeight;
+      const mouse = { x: width / 2, y: height / 2 };
+      const resize = () => { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; init(); };
+      class Particle {
+        x: number; y: number; size: number; baseSize: number; vx: number; vy: number;
+        constructor() {
+          this.x = Math.random() * width; this.y = Math.random() * height;
+          this.baseSize = Math.random() * 2 + 1.5; this.size = this.baseSize;
+          this.vx = (Math.random() - 0.5) * 0.4; this.vy = (Math.random() - 0.5) * 0.4;
+        }
+        update() {
+          this.x += this.vx; this.y += this.vy;
+          if (this.x < 0 || this.x > width) this.vx *= -1; if (this.y < 0 || this.y > height) this.vy *= -1;
+          const dx = mouse.x - this.x, dy = mouse.y - this.y, dist = Math.sqrt(dx * dx + dy * dy);
+          this.size = dist < 150 ? gsap.utils.interpolate(this.size, this.baseSize * 3, 0.1) : gsap.utils.interpolate(this.size, this.baseSize, 0.05);
+        }
+        draw() {
+          if (!ctx) return; ctx.fillStyle = "rgba(0, 247, 255, 0.8)"; ctx.shadowBlur = 12; ctx.shadowColor = "#00f7ff";
+          ctx.fillRect(this.x, this.y, this.size, this.size); ctx.shadowBlur = 0;
+        }
+      }
+      const init = () => { 
+        particles = []; 
+        // Reduced density for mobile performance
+        const densityMultiplier = width < 768 ? 15000 : 9000;
+        const count = Math.floor((width * height) / densityMultiplier); 
+        for (let i = 0; i < count; i++) particles.push(new Particle()); 
+      };
+      const animate = () => {
+        ctx.clearRect(0, 0, width, height);
+        particles.forEach((p, i) => {
+          p.update(); p.draw();
+          for (let j = i + 1; j < particles.length; j++) {
+            const dx = p.x - particles[j].x, dy = p.y - particles[j].y, dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 120) { ctx.beginPath(); ctx.strokeStyle = `rgba(0, 247, 255, ${0.25 * (1 - dist / 120)})`; ctx.lineWidth = 0.8; ctx.moveTo(p.x, p.y); ctx.lineTo(particles[j].x, particles[j].y); ctx.stroke(); }
+          }
+        });
+        requestAnimationFrame(animate);
+      };
+      const handleMouseMove = (e: MouseEvent) => { gsap.to(mouse, { x: e.clientX, y: e.clientY, duration: 0.6, ease: "power2.out" }); };
+      window.addEventListener("resize", resize); window.addEventListener("mousemove", handleMouseMove);
+      resize(); animate();
+    });
+    return () => ctxGSAP.revert();
+  }, []);
+  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none" style={{ zIndex: 1 }} />;
 };
 
 // ─── INTERNAL CARD COMPONENT ───
-const StatCard = ({ icon: Icon, title, description }: SocialCard) => (
+const StatCard = ({ icon: Icon, title, description }: any) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     whileInView={{ opacity: 1, y: 0 }}
@@ -37,6 +89,9 @@ const StatCard = ({ icon: Icon, title, description }: SocialCard) => (
 );
 
 const ApplicationForm = () => {
+  const [mounted, setMounted] = useState(false);
+  
+  const GOOGLE_FORM_LINK = "https://forms.gle/irg7nzkhh3tWnpib8";
   const LINKED_IN = "https://www.linkedin.com/company/k1000-kiit";
   const INSTAGRAM = "https://www.instagram.com/k1000_kiit";
   const WHATSAPP = "https://chat.whatsapp.com/CAM4B9Qf0mN6i4CvJaVKi3";
@@ -64,14 +119,17 @@ const ApplicationForm = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    setMounted(true);
   }, []);
+
+  if (!mounted) return null;
 
   return (
     <div className="relative w-full min-h-screen bg-black text-white selection:bg-cyan-500/30 flex flex-col items-center overflow-x-hidden">
       <SharedHeader />
 
       {/* ─── BACKGROUND LAYERS ─── */}
-      <CubeBackground disableLinesOnMobile />
+      <CubeBackground />
       <div className="fixed inset-0 bg-[radial-gradient(circle_at_50%_50%,#0ea5e90a_0%,transparent_50%)] pointer-events-none z-[2]" />
 
       <main className="relative z-10 w-full max-w-5xl px-6 pt-32 md:pt-52 flex flex-col items-center text-center">

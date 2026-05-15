@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
+import gsap from "gsap";
 import SharedHeader from "../../components/ui/SharedHeader";
 import Footer from "../../components/footer/Footer";
-import CubeBackground from "../../components/ui/CubeBackground";
 
 const images = [
   "https://cdn.prod.website-files.com/67aa2520eb413205a7dac909/67aa3147b53442d24541b355_KIIT-University-Bhubaneswar.jpeg",
@@ -61,6 +61,95 @@ const benefits = [
   },
 ];
 
+// ─── OPTIMIZED GSAP BACKGROUND (PERFORMANCE TUNED) ───
+const CubeBackground = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d", { alpha: true });
+    if (!ctx) return;
+    
+    let ctxGSAP = gsap.context(() => {
+      let particles: any[] = [];
+      let width = window.innerWidth, height = window.innerHeight;
+      const mouse = { x: width / 2, y: height / 2 };
+      
+      const resize = () => { 
+        width = canvas.width = window.innerWidth; 
+        height = canvas.height = window.innerHeight; 
+        init(); 
+      };
+
+      class Particle {
+        x: number; y: number; size: number; baseSize: number; vx: number; vy: number;
+        constructor() {
+          this.x = Math.random() * width; this.y = Math.random() * height;
+          this.baseSize = Math.random() * 2 + 1.5; this.size = this.baseSize;
+          this.vx = (Math.random() - 0.5) * 0.4; this.vy = (Math.random() - 0.5) * 0.4;
+        }
+        update() {
+          this.x += this.vx; this.y += this.vy;
+          if (this.x < 0 || this.x > width) this.vx *= -1; 
+          if (this.y < 0 || this.y > height) this.vy *= -1;
+          
+          const dx = mouse.x - this.x, dy = mouse.y - this.y;
+          const distSq = dx * dx + dy * dy;
+          
+          if (distSq < 22500) { // 150 squared
+            this.size = gsap.utils.interpolate(this.size, this.baseSize * 3, 0.1);
+          } else {
+            this.size = gsap.utils.interpolate(this.size, this.baseSize, 0.05);
+          }
+        }
+        draw() {
+          if (!ctx) return; 
+          ctx.fillStyle = "rgba(0, 247, 255, 0.8)"; 
+          ctx.fillRect(this.x, this.y, this.size, this.size);
+        }
+      }
+
+      const init = () => { 
+        particles = []; 
+        const count = Math.floor((width * height) / 9500); 
+        for (let i = 0; i < count; i++) particles.push(new Particle()); 
+      };
+
+      const animate = () => {
+        ctx.clearRect(0, 0, width, height);
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
+          p.update(); p.draw();
+          for (let j = i + 1; j < particles.length; j++) {
+            const p2 = particles[j];
+            const dx = p.x - p2.x, dy = p.y - p2.y;
+            const distSq = dx * dx + dy * dy;
+            if (distSq < 14400) { // 120 squared
+              ctx.beginPath(); 
+              ctx.strokeStyle = `rgba(0, 247, 255, ${0.25 * (1 - Math.sqrt(distSq) / 120)})`; 
+              ctx.lineWidth = 0.8; 
+              ctx.moveTo(p.x, p.y); 
+              ctx.lineTo(p2.x, p2.y); 
+              ctx.stroke(); 
+            }
+          }
+        }
+        requestAnimationFrame(animate);
+      };
+
+      const handleMouseMove = (e: MouseEvent) => { 
+        gsap.to(mouse, { x: e.clientX, y: e.clientY, duration: 0.6, ease: "power2.out" }); 
+      };
+
+      window.addEventListener("resize", resize); 
+      window.addEventListener("mousemove", handleMouseMove, { passive: true });
+      resize(); animate();
+    });
+    return () => ctxGSAP.revert();
+  }, []);
+  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none" style={{ zIndex: 1, transform: 'translateZ(0)' }} />;
+};
+
 export default function BenefitsPage() {
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -69,7 +158,7 @@ export default function BenefitsPage() {
   return (
     <div className="flex flex-col items-center w-full bg-black text-white selection:bg-cyan-500/30 overflow-x-hidden relative">
       <SharedHeader />
-      <CubeBackground disableLinesOnMobile />
+      <CubeBackground />
       <div className="fixed inset-0 bg-[radial-gradient(circle_at_50%_50%,#0ea5e90a_0%,transparent_70%)] pointer-events-none z-[2]" />
 
       <main className="flex-grow flex flex-col items-center w-full relative z-10">
@@ -99,7 +188,7 @@ export default function BenefitsPage() {
             The <span className="text-cyan-400">Ecosystem</span>
           </h2>
           <p className="text-sm md:text-lg text-white/50 leading-relaxed font-light tracking-wide mx-auto max-w-2xl">
-            The K-1000 initiative is more than a program; it&apos;s a launchpad. By integrating technical rigor with research excellence, we prepare students for the highest tiers of global industry and academia.
+            The K-1000 initiative is more than a program; it's a launchpad. By integrating technical rigor with research excellence, we prepare students for the highest tiers of global industry and academia.
           </p>
         </section>
 

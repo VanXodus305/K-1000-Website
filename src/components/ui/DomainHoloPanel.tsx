@@ -1,10 +1,31 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { motion } from "framer-motion";
-import { Shield, ChevronRight, X, Cpu, Layers } from "lucide-react";
-import { leadership, type LeadershipMember } from "../../data/leadership";
-import type { K1000Domain } from "../../data/domain";
+import { motion, AnimatePresence } from "framer-motion";
+import { Shield, Target, ChevronRight, X, Cpu, Layers } from "lucide-react";
+import { leadership } from "../../data/leadership";
+
+/* ─────────── TYPES ─────────── */
+type Domain = {
+  key: string;
+  title: string;
+  overview: string;
+  description: string;
+  focusAreas?: string[];
+  outcomes: string[];
+  yearOfFormation: number;
+  baseColor: string;
+  accentColor: string;
+  applyLink?: string;
+  icon?: React.ReactNode;
+};
+
+type Leader = {
+  name: string;
+  position: string;
+  branch: string;
+  image: string;
+};
 
 const conthrax = "font-['Conthrax',_sans-serif]";
 
@@ -48,40 +69,15 @@ export default function DomainHoloPanel({
   domain,
   onClose,
 }: {
-  domain: K1000Domain;
+  domain: Domain;
   onClose: () => void;
 }) {
   const titleDecrypted = useDecryptText(domain.title);
 
   useEffect(() => {
-    const scrollY = window.scrollY;
-    const isMobile = window.innerWidth < 1024;
-    const previousHtmlOverflow = document.documentElement.style.overflow;
-    const previousBodyOverflow = document.body.style.overflow;
-    const previousBodyPosition = document.body.style.position;
-    const previousBodyTop = document.body.style.top;
-    const previousBodyWidth = document.body.style.width;
-    const previousBodyTouchAction = document.body.style.touchAction;
-
-    document.documentElement.style.overflow = "hidden";
     document.body.style.overflow = "hidden";
-    if (isMobile) {
-      document.body.style.position = "fixed";
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = "100%";
-      document.body.style.touchAction = "none";
-    }
-
     return () => {
-      document.documentElement.style.overflow = previousHtmlOverflow;
-      document.body.style.overflow = previousBodyOverflow;
-      document.body.style.position = previousBodyPosition;
-      document.body.style.top = previousBodyTop;
-      document.body.style.width = previousBodyWidth;
-      document.body.style.touchAction = previousBodyTouchAction;
-      if (isMobile) {
-        window.scrollTo(0, scrollY);
-      }
+      document.body.style.overflow = "unset";
     };
   }, []);
 
@@ -93,11 +89,10 @@ export default function DomainHoloPanel({
     window.dispatchEvent(mouseEvent);
     onClose();
   };
-  const { director, deputy } = useMemo(() => {
-    const directors =
-      leadership.hierarchy.find((entry) => entry.level === 3)?.members ?? [];
-    const deputies =
-      leadership.hierarchy.find((entry) => entry.level === 4)?.members ?? [];
+const { director, deputy } = useMemo(() => {
+    const hierarchy = (leadership as any).hierarchy ?? [];
+    const directors = hierarchy.find((h: any) => h.level === 3)?.members ?? [];
+    const deputies = hierarchy.find((h: any) => h.level === 4)?.members ?? [];
     const domainTitleCleaned = cleanString(domain.title);
   
     const branchMapping: Record<string, string> = {
@@ -112,8 +107,8 @@ export default function DomainHoloPanel({
     const targetKey = branchMapping[domainTitleCleaned] || domainTitleCleaned;
 
     return {
-      director: directors.find((member) => cleanString(member.branch) === targetKey),
-      deputy: deputies.find((member) => cleanString(member.branch) === targetKey),
+      director: directors.find((m: any) => cleanString(m.branch) === targetKey),
+      deputy: deputies.find((m: any) => cleanString(m.branch) === targetKey),
     };
   }, [domain.title]);
 
@@ -122,7 +117,7 @@ export default function DomainHoloPanel({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[200] flex items-center justify-center md:p-8 p-0 overscroll-none touch-none"
+      className="fixed inset-0 z-[200] flex items-center justify-center md:p-8 p-0"
     >
       <div
         className="absolute inset-0 bg-black/95 backdrop-blur-xl"
@@ -132,7 +127,7 @@ export default function DomainHoloPanel({
       <motion.div
         initial={{ y: 50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="relative w-full max-w-6xl h-full md:h-[82vh] bg-[#050505] border-t md:border border-white/10 shadow-[0_0_100px_rgba(0,0,0,1)] overflow-hidden flex flex-col md:flex-row overscroll-contain"
+        className="relative w-full max-w-6xl h-full md:h-[82vh] bg-[#050505] border-t md:border border-white/10 shadow-[0_0_100px_rgba(0,0,0,1)] overflow-hidden flex flex-col md:flex-row"
       >
         {/* Close Button */}
         <button
@@ -157,7 +152,8 @@ export default function DomainHoloPanel({
           </div>
 
           <div
-            data-lenis-prevent
+            data-lenis-prevent-wheel
+            data-lenis-prevent-touch
             className="flex md:flex-col overflow-x-auto md:overflow-y-auto p-4 md:p-5 gap-3 md:gap-6 custom-scroll scrollbar-hide"
           >
             <div className="min-w-[140px] flex-1 md:min-w-full">
@@ -177,7 +173,8 @@ export default function DomainHoloPanel({
 
         {/* RIGHT - Content Area */}
         <div
-          data-lenis-prevent
+          data-lenis-prevent-wheel
+          data-lenis-prevent-touch
           className="flex-1 overflow-y-auto p-6 md:p-12 lg:p-14 bg-[#020202] relative custom-scroll"
         >
           <div className="max-w-3xl space-y-8 md:space-y-12 pb-12 md:pb-0">
@@ -246,7 +243,7 @@ export default function DomainHoloPanel({
   );
 }
 
-function LeaderCard({ leader }: { leader: LeadershipMember }) {
+function LeaderCard({ leader }: { leader: Leader }) {
   return (
     <div className="group relative w-full h-24 sm:h-32 md:h-48 overflow-hidden border border-white/10 rounded-xl md:rounded-2xl bg-[#080808] transition-all duration-500 hover:border-cyan-500/40 will-change-transform">
       <div className="absolute inset-0 bg-cyan-950/5" />
@@ -255,7 +252,7 @@ function LeaderCard({ leader }: { leader: LeadershipMember }) {
         <img
           src={leader.image}
           alt={leader.name}
-          className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-700 group-hover:scale-105"
+          className="absolute inset-0 w-full h-full object-cover grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700 group-hover:scale-105"
           style={{ objectPosition: "center 15%" }}
         />
       )}

@@ -1,6 +1,6 @@
 /**
  * K-1000 Event Registry
- * Updated with Open Source Forge, Dark Route, and Kampus Konversations Ep. 2
+ * Updated with Dark Route and Kampus Konversations Ep. 2
  */
 
 export interface K1000Event {
@@ -16,22 +16,6 @@ export interface K1000Event {
 }
 
 export const EVENTS: K1000Event[] = [
-  {
-    id: "open-source-forge-2026",
-    title: "Open Source Forge",
-    date: "March 2026",
-    description: "Hosted as part of KIIT Fest 9.0 on March 6, 2026, Open Source Forge was K-1000's open source hackathon focused on turning ideas into working prototypes through rapid collaboration. The event brought together passionate developers to build, share knowledge, and experience the spirit of open source through hands-on innovation.",
-    category: "Hackathon",
-    link: "https://www.linkedin.com/posts/k1000-kiit_kiitfest-opensourceforge-hackathon-activity-7439726560129212416-Ptow?utm_source=share&utm_medium=member_desktop&rcm=ACoAAEm5JkcBKa43Z4nddyF8IPdYC21GNdts4xQ",
-    status: "COMPLETED",
-    highlights: [
-      "KIIT Fest 9.0 Feature Event: Conducted on March 6, 2026 as part of the university festival.",
-      "50+ Participants: Brought together student developers around open collaboration and practical building.",
-      "₹45,000+ Prize Pool: High-energy competitive environment with strong participation incentives.",
-      "6+ Hours of Coding & Innovation: Teams brainstormed, built real prototypes, and explored the spirit of open source."
-    ],
-    gallery: ["/events/opensourceforge.png"]
-  },
   {
     id: "kampus-konversations-ep2",
     title: "Kampus Konversations Ep.2",

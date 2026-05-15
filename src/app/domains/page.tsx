@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import gsap from "gsap";
 import { Cpu, Target, Layers, BookOpen, Briefcase, GraduationCap, Users } from "lucide-react";
 import SharedHeader from "../../components/ui/SharedHeader";
 import Footer from "../../components/footer/Footer";
 import { leadership } from "../../data/leadership";
-import CubeBackground from "../../components/ui/CubeBackground";
 
 /* ─────────── DATA & MAPPING ─────────── */
 const branchMapping: Record<string, string> = {
@@ -84,25 +84,53 @@ const branches: Domain[] = [
 const conthrax = "font-['Conthrax',_sans-serif]";
 const cleanString = (s: string) => s.toLowerCase().replace(/&/g, "and").replace(/management/g, "organization").replace(/\s+/g, "").trim();
 
+const CubeBackground = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d", { alpha: true });
+    if (!ctx) return;
+    let ctxGSAP = gsap.context(() => {
+      let particles: any[] = [];
+      let width = window.innerWidth, height = window.innerHeight;
+      const mouse = { x: width / 2, y: height / 2 };
+      const resize = () => { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; init(); };
+      class Particle {
+        x: number; y: number; size: number; baseSize: number; vx: number; vy: number;
+        constructor() { this.x = Math.random() * width; this.y = Math.random() * height; this.baseSize = Math.random() * 2 + 1.5; this.size = this.baseSize; this.vx = (Math.random() - 0.5) * 0.4; this.vy = (Math.random() - 0.5) * 0.4; }
+        update() { this.x += this.vx; this.y += this.vy; if (this.x < 0 || this.x > width) this.vx *= -1; if (this.y < 0 || this.y > height) this.vy *= -1; const dx = mouse.x - this.x, dy = mouse.y - this.y; const distSq = dx * dx + dy * dy; this.size = distSq < 22500 ? gsap.utils.interpolate(this.size, this.baseSize * 3, 0.1) : gsap.utils.interpolate(this.size, this.baseSize, 0.05); }
+        draw() { if (!ctx) return; ctx.fillStyle = "rgba(0, 247, 255, 0.8)"; ctx.fillRect(this.x, this.y, this.size, this.size); }
+      }
+      const init = () => { particles = []; const count = Math.floor((width * height) / 9500); for (let i = 0; i < count; i++) particles.push(new Particle()); };
+      const animate = () => { ctx.clearRect(0, 0, width, height); for (let i = 0; i < particles.length; i++) { const p = particles[i]; p.update(); p.draw(); for (let j = i + 1; j < particles.length; j++) { const p2 = particles[j]; const dx = p.x - p2.x, dy = p.y - p2.y; const distSq = dx * dx + dy * dy; if (distSq < 14400) { ctx.beginPath(); ctx.strokeStyle = `rgba(0, 247, 255, ${0.25 * (1 - Math.sqrt(distSq) / 120)})`; ctx.lineWidth = 0.8; ctx.moveTo(p.x, p.y); ctx.lineTo(p2.x, p2.y); ctx.stroke(); } } } requestAnimationFrame(animate); };
+      const handleMouseMove = (e: MouseEvent) => { gsap.to(mouse, { x: e.clientX, y: e.clientY, duration: 0.6, ease: "power2.out" }); };
+      window.addEventListener("resize", resize); window.addEventListener("mousemove", handleMouseMove, { passive: true });
+      resize(); animate();
+    });
+    return () => ctxGSAP.revert();
+  }, []);
+  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none" style={{ zIndex: 0, transform: 'translateZ(0)' }} />;
+};
+
 export default function BranchesPage() {
   const [activeTab, setActiveTab] = useState(branches[0].key);
   const activeDomain = branches.find((b) => b.key === activeTab)!;
 
   const { director, deputy } = useMemo(() => {
-    const directors =
-      leadership.hierarchy.find((entry) => entry.level === 3)?.members ?? [];
-    const deputies =
-      leadership.hierarchy.find((entry) => entry.level === 4)?.members ?? [];
+    const hierarchy = (leadership as any).hierarchy ?? [];
+    const directors = hierarchy.find((h: any) => h.level === 3)?.members ?? [];
+    const deputies = hierarchy.find((h: any) => h.level === 4)?.members ?? [];
     const targetKey = branchMapping[activeDomain.key] || cleanString(activeDomain.title);
     return {
-      director: directors.find((member) => cleanString(member.branch) === targetKey),
-      deputy: deputies.find((member) => cleanString(member.branch) === targetKey),
+      director: directors.find((m: any) => cleanString(m.branch) === targetKey),
+      deputy: deputies.find((m: any) => cleanString(m.branch) === targetKey),
     };
   }, [activeDomain]);
 
   return (
     <div className="flex flex-col w-full bg-black text-white min-h-screen relative">
-      <CubeBackground zIndex={0} disableLinesOnMobile />
+      <CubeBackground />
       <div className="relative z-10">
         <SharedHeader />
         <div className="pt-24 md:pt-32" />
@@ -132,7 +160,7 @@ export default function BranchesPage() {
             <div className="w-full md:w-2/3">
               <AnimatePresence mode="wait">
                 <motion.div key={activeTab} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="p-8 md:p-10 rounded-[32px] bg-white/[0.03] border border-white/10">
-                  <p className="text-lg md:text-xl text-white/90 italic mb-8 border-l-2 border-cyan-500 pl-4 text-left">&quot;{activeDomain.missionStatement}&quot;</p>
+                  <p className="text-lg md:text-xl text-white/90 italic mb-8 border-l-2 border-cyan-500 pl-4 text-left">"{activeDomain.missionStatement}"</p>
                   <p className="text-white/60 leading-relaxed mb-10 text-left">{activeDomain.description}</p>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8 border-y border-white/10 py-8 mb-10 text-left">
