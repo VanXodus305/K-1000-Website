@@ -2,25 +2,18 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import SystemCanvas from "../../app/home/page";
+import UnifiedPortal from "../home/UnifiedPortal";
 
 const conthrax = "font-['Conthrax',_sans-serif]";
 
 export default function BootSequence() {
-  // Use "initializing" as a middle ground to prevent UI jumps
-  const [stage, setStage] = useState<"charging" | "ready" | "initializing">("initializing");
+  const [stage, setStage] = useState<"charging" | "ready">(() =>
+    typeof window !== "undefined" &&
+    window.sessionStorage.getItem("k1000_system_booted")
+      ? "ready"
+      : "charging",
+  );
   const [status, setStatus] = useState("CORE_STANDBY");
-
-  useEffect(() => {
-    // Check if we've already booted in this session
-    const hasBooted = sessionStorage.getItem("k1000_system_booted");
-
-    if (hasBooted) {
-      setStage("ready");
-    } else {
-      setStage("charging");
-    }
-  }, []);
 
   useEffect(() => {
     if (stage === "charging") {
@@ -40,9 +33,6 @@ export default function BootSequence() {
     sessionStorage.setItem("k1000_system_booted", "true");
     setTimeout(() => setStage("ready"), 800);
   };
-
-  // Prevent rendering anything until we know the session state to avoid laggy flashes
-  if (stage === "initializing") return <div className="bg-black min-h-screen" />;
 
   return (
     <div className="bg-black min-h-screen">
@@ -143,7 +133,7 @@ export default function BootSequence() {
             animate={{ opacity: 1 }}
             transition={{ duration: 1.2 }}
           >
-            <SystemCanvas />
+            <UnifiedPortal />
           </motion.div>
         )}
       </AnimatePresence>

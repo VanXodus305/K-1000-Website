@@ -144,3 +144,5 @@ export const domains = [
     accentColor: "#5eead4",
   },
 ];
+
+export type K1000Domain = (typeof domains)[number];

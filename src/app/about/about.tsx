@@ -1,116 +1,24 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useRouter } from "next/navigation";
-import gsap from "gsap";
 import { leadership } from "@/data/leadership";
 import SharedHeader from "../../components/ui/SharedHeader";
 import Footer from "../../components/footer/Footer";
+import CubeBackground from "../../components/ui/CubeBackground";
 
 const conthrax = "font-['Conthrax',_Arial]";
 
-// ─── HIGH-PERFORMANCE GSAP BACKGROUND ───
-const CubeBackground = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d", { alpha: true });
-    if (!ctx) return;
-    
-    let animationFrameId: number;
-    let particles: any[] = [];
-    let width = window.innerWidth, height = window.innerHeight;
-    const mouse = { x: width / 2, y: height / 2 };
-
-    const resize = () => {
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
-      init();
-    };
-
-    class Particle {
-      x: number; y: number; size: number; baseSize: number; vx: number; vy: number;
-      constructor() {
-        this.x = Math.random() * width; this.y = Math.random() * height;
-        this.baseSize = Math.random() * 2 + 1.5;
-        this.size = this.baseSize;
-        this.vx = (Math.random() - 0.5) * 0.4; this.vy = (Math.random() - 0.5) * 0.4;
-      }
-      update() {
-        this.x += this.vx; this.y += this.vy;
-        if (this.x < 0 || this.x > width) this.vx *= -1; 
-        if (this.y < 0 || this.y > height) this.vy *= -1;
-        
-        const dx = mouse.x - this.x, dy = mouse.y - this.y;
-        const distSq = dx * dx + dy * dy;
-        
-        if (distSq < 22500) { 
-          this.size += (this.baseSize * 3 - this.size) * 0.1;
-        } else {
-          this.size += (this.baseSize - this.size) * 0.05;
-        }
-      }
-      draw() {
-        if (!ctx) return;
-        ctx.fillStyle = "rgba(0, 247, 255, 0.8)"; 
-        ctx.fillRect(this.x, this.y, this.size, this.size);
-      }
-    }
-
-    const init = () => {
-      particles = [];
-      const count = Math.min(Math.floor((width * height) / 9500), 150); 
-      for (let i = 0; i < count; i++) particles.push(new Particle());
-    };
-
-    const animate = () => {
-      ctx.clearRect(0, 0, width, height);
-      for (let i = 0; i < particles.length; i++) {
-        const p = particles[i];
-        p.update(); 
-        p.draw();
-        for (let j = i + 1; j < particles.length; j++) {
-          const p2 = particles[j];
-          const dx = p.x - p2.x, dy = p.y - p2.y;
-          const distSq = dx * dx + dy * dy;
-          if (distSq < 14400) { 
-            ctx.beginPath();
-            ctx.strokeStyle = `rgba(0, 247, 255, ${0.25 * (1 - distSq / 14400)})`;
-            ctx.lineWidth = 0.8;
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.stroke();
-          }
-        }
-      }
-      animationFrameId = requestAnimationFrame(animate);
-    };
-
-    const handleMouseMove = (e: MouseEvent) => {
-      gsap.to(mouse, { x: e.clientX, y: e.clientY, duration: 0.6, ease: "power2.out" });
-    };
-
-    window.addEventListener("resize", resize); 
-    window.addEventListener("mousemove", handleMouseMove, { passive: true });
-    resize(); 
-    animate();
-
-    return () => {
-      window.removeEventListener("resize", resize);
-      window.removeEventListener("mousemove", handleMouseMove);
-      cancelAnimationFrame(animationFrameId);
-    };
-  }, []);
-
-  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none" style={{ zIndex: 1, transform: 'translateZ(0)' }} />;
+type BoardMember = {
+  id: string;
+  name: string;
+  position: string;
+  image: string;
+  description: string;
 };
 
 export default function AboutPage() {
-  const router = useRouter();
-  const [selectedMember, setSelectedMember] = useState<any | null>(null);
+  const [selectedMember, setSelectedMember] = useState<BoardMember | null>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -147,7 +55,7 @@ export default function AboutPage() {
   return (
     <div className="flex flex-col items-center w-full bg-black text-white selection:bg-cyan-500/30 overflow-x-hidden relative">
       <SharedHeader />
-      <CubeBackground />
+      <CubeBackground disableLinesOnMobile />
       <div className="fixed inset-0 bg-[radial-gradient(circle_at_50%_50%,#0ea5e90a_0%,transparent_70%)] pointer-events-none z-[2]" />
 
       <main className="relative z-10 w-full flex flex-col items-center">
@@ -191,7 +99,7 @@ export default function AboutPage() {
                     </span>
                     {/* UPDATED: removed text-justify, explicitly added text-left */}
                     <p className="text-[11px] md:text-lg text-white/60 leading-relaxed font-normal text-left">
-                      Prof. Dr. Achyuta Samanta's life story reads like a powerful saga of grit, determination, and social responsibility. Born and brought up in poverty in a remote village in Odisha, he was dealt a cruel blow at the tender age of four when he lost his father, after which his life became a struggle for food and education for 15 long years. 
+                      Prof. Dr. Achyuta Samanta&apos;s life story reads like a powerful saga of grit, determination, and social responsibility. Born and brought up in poverty in a remote village in Odisha, he was dealt a cruel blow at the tender age of four when he lost his father, after which his life became a struggle for food and education for 15 long years. 
                       <br /><br />
                       However, he persevered, and at the age of 22, joined teaching. At 25, he embarked on a journey that would change his own life, and the lives of thousands of people. With just Rs 5000 in his pocket, he started KIIT and KISS in two rented houses.
                     </p>
