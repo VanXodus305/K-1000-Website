@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Shield, ChevronRight, X, Cpu, Layers } from "lucide-react";
 import { leadership, type LeadershipMember } from "../../data/leadership";
-import type { K1000Domain } from "../../data/domain";
+import type { K1000DomainWithApplyLink } from "../../data/domain";
 
 const conthrax = "font-['Conthrax',_sans-serif]";
 
@@ -48,7 +48,7 @@ export default function DomainHoloPanel({
   domain,
   onClose,
 }: {
-  domain: K1000Domain;
+  domain: K1000DomainWithApplyLink;
   onClose: () => void;
 }) {
   const titleDecrypted = useDecryptText(domain.title);

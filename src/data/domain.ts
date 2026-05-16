@@ -146,3 +146,6 @@ export const domains = [
 ];
 
 export type K1000Domain = (typeof domains)[number];
+export type K1000DomainWithApplyLink = K1000Domain & {
+  applyLink?: string;
+};

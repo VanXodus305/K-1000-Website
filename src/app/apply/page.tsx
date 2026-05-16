@@ -2,6 +2,7 @@
 
 import React, { useEffect } from "react";
 import { motion } from "framer-motion";
+import type { IconType } from "react-icons";
 import { FaInstagram, FaLinkedinIn, FaWhatsapp } from "react-icons/fa6";
 import { ArrowRight, Sparkles } from "lucide-react";
 import SharedHeader from "../../components/ui/SharedHeader";
@@ -12,7 +13,7 @@ const conthrax = "font-['Conthrax',_sans-serif]";
 
 type SocialCard = {
   title: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: IconType;
   description: string;
 };
 
