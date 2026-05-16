@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Zap } from "lucide-react";
+import { Menu, X } from "lucide-react";
+import CubeBackground from "./CubeBackground";
 
 export const ROUTES = {
   home: "/",
@@ -139,8 +140,17 @@ export default function SharedHeader() {
             transition={{ type: "spring", damping: 30, stiffness: 250 }}
             className={`fixed inset-0 z-[120] bg-[#010103] flex flex-col md:hidden ${conthrax}`}
           >
-            <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[linear-gradient(to_right,#00f7ff_1px,transparent_1px),linear-gradient(to_bottom,#00f7ff_1px,transparent_1px)] bg-[size:30px_30px]" />
-            
+            <CubeBackground
+              densityDesktop={12000}
+              densityMobile={18000}
+              maxParticles={90}
+              enableGlow
+              disableLinesOnMobile
+              className="z-0 opacity-60"
+            />
+            <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_top,rgba(0,247,255,0.05)_0%,transparent_35%)]" />
+            <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,transparent_0%,#010103_88%)]" />
+
             <div className="flex justify-between items-center px-6 py-5 border-b border-white/5 relative z-10 bg-black/20 backdrop-blur-md">
               <img src="/k1000-logo.png" className="h-6 w-auto" alt="Logo" />
               <button 
@@ -160,21 +170,43 @@ export default function SharedHeader() {
                     transition={{ delay: index * 0.03 }}
                     key={key}
                     onClick={() => goTo(key)}
-                    className="group flex items-center justify-between py-4 border-b border-white/5 outline-none cursor-pointer"
+                    className={`group relative flex items-center justify-between overflow-hidden border-b px-2 py-4 outline-none cursor-pointer transition-all duration-300 ${
+                      getIsActive(key)
+                        ? "border-cyan-500/15 bg-cyan-500/[0.02]"
+                        : "border-white/5"
+                    }`}
                   >
-                    <div className="flex items-center gap-4 text-left">
-                      <span className={`text-[9px] tracking-[0.2em] font-bold ${getIsActive(key) ? "text-cyan-400" : "text-white/20"}`}>
+                    {getIsActive(key) && (
+                      <>
+                        <div className="absolute left-0 top-1/2 h-9 w-[2px] -translate-y-1/2 bg-cyan-400 shadow-[0_0_8px_rgba(0,247,255,0.7)]" />
+                        <div className="absolute inset-y-1 left-0 right-0 bg-[linear-gradient(90deg,rgba(0,247,255,0.05),rgba(0,247,255,0.015)_38%,transparent_72%)]" />
+                      </>
+                    )}
+                    <div className="flex items-center gap-5 pl-4 text-left">
+                      <span
+                        className={`relative z-10 w-8 text-left text-[9px] tracking-[0.18em] font-bold tabular-nums transition-colors ${
+                          getIsActive(key) ? "text-cyan-300" : "text-white/20"
+                        }`}
+                      >
                         0{index + 1}
                       </span>
-                      <span className={`text-lg uppercase tracking-widest font-bold transition-all ${getIsActive(key) ? "text-cyan-400 translate-x-1" : "text-white/80 hover:text-cyan-400"}`}>
+                      <span
+                        className={`relative z-10 text-lg uppercase tracking-[0.12em] font-bold transition-all ${
+                          getIsActive(key)
+                            ? "translate-x-1 text-cyan-300 drop-shadow-[0_0_6px_rgba(0,247,255,0.28)]"
+                            : "text-white/80 hover:text-cyan-400"
+                        }`}
+                      >
                         {NAV_LABELS[key]}
                       </span>
                     </div>
-                    {getIsActive(key) && (
-                      <motion.div layoutId="activeArrow" className="text-cyan-400">
-                        <Zap size={14} fill="currentColor" />
-                      </motion.div>
-                    )}
+                    <div
+                      className={`relative z-10 h-[1px] w-8 transition-all duration-300 ${
+                        getIsActive(key)
+                          ? "w-6 bg-cyan-400/80 shadow-[0_0_8px_rgba(0,247,255,0.55)]"
+                          : "bg-white/10 group-hover:bg-cyan-500/40"
+                      }`}
+                    />
                   </motion.button>
                 ))}
               </nav>

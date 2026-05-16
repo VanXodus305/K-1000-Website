@@ -1,24 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 import CubeBackground from "../components/ui/CubeBackground";
 
 const conthrax = "font-['Conthrax',_sans-serif]";
 
 export default function NotFound() {
-  const router = useRouter();
-
-  useEffect(() => {
-    const timeout = window.setTimeout(() => {
-      router.replace("/");
-    }, 2600);
-
-    return () => window.clearTimeout(timeout);
-  }, [router]);
-
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#010103] text-white">
       <CubeBackground
@@ -47,8 +35,8 @@ export default function NotFound() {
           </h1>
 
           <p className="mx-auto mt-8 max-w-2xl text-sm leading-relaxed text-white/55 md:text-base">
-            The requested path is outside the K-1000 system registry. Redirecting
-            you back to the primary interface.
+            The requested path is outside the K-1000 system registry. Return to
+            the primary interface to continue navigation.
           </p>
 
           <Link

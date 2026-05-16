@@ -60,7 +60,13 @@ export default function BranchesPage() {
     if (navRef.current) {
       const activeBtn = navRef.current.querySelector(`[data-key="${activeTab}"]`) as HTMLElement;
       if (activeBtn) {
-        navRef.current.scrollTo({ left: activeBtn.offsetLeft - 20, behavior: 'smooth' });
+        navRef.current.scrollTo({
+          left:
+            activeBtn.offsetLeft -
+            navRef.current.clientWidth / 2 +
+            activeBtn.clientWidth / 2,
+          behavior: "smooth",
+        });
       }
     }
   }, [activeTab]);
@@ -100,13 +106,13 @@ export default function BranchesPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:items-start">
             
             <div className="lg:col-span-4 lg:sticky lg:top-24 lg:self-start z-30">
-              <div ref={navRef} className="flex lg:flex-col overflow-x-auto lg:overflow-visible bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-[32px] p-2 gap-1 mobile-nav-scroll">
+              <div ref={navRef} className="flex lg:flex-col overflow-x-auto overscroll-x-contain lg:overflow-visible bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-[32px] p-2 pr-5 lg:pr-2 gap-1 mobile-nav-scroll">
                 {branches.map((b) => (
                   <button
                     key={b.key}
                     data-key={b.key}
                     onClick={() => setActiveTab(b.key)}
-                    className={`flex-shrink-0 lg:w-full w-[220px] text-left px-6 py-5 rounded-[24px] transition-all duration-500 group relative overflow-hidden cursor-pointer ${
+                    className={`flex-shrink-0 last:mr-1 lg:w-full w-[220px] text-left px-6 py-5 rounded-[24px] transition-all duration-500 group relative overflow-hidden cursor-pointer ${
                       activeTab === b.key ? "bg-cyan-500/10 border border-cyan-500/40" : "hover:bg-white/5 border border-transparent"
                     }`}
                   >
@@ -152,7 +158,7 @@ export default function BranchesPage() {
                     {[director, deputy].map((leader, i) => (
                       <div key={i} className="flex flex-col gap-4">
                         <p className="text-[10px] uppercase text-white/40">{i === 0 ? "Director" : "Deputy Director"}</p>
-                        <div className="w-full h-72 rounded-2xl overflow-hidden border border-white/10 bg-white/5">
+                        <div className="w-full aspect-square md:aspect-auto md:h-72 rounded-2xl overflow-hidden border border-white/10 bg-white/5">
                           {leader ? <img src={leader.image} alt={leader.name} className="w-full h-full object-cover object-[center_20%]" /> : <div className="h-full flex items-center justify-center text-white/10">TBD</div>}
                         </div>
                         <p className={`${conthrax} text-sm`}>{leader?.name || "TBD"}</p>

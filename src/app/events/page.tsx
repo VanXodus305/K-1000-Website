@@ -84,7 +84,7 @@ const Events = () => {
           <div className="lg:col-span-4 lg:sticky lg:top-28 z-30">
             <div
               ref={navRef}
-              className="flex lg:flex-col overflow-x-auto lg:overflow-y-auto lg:max-h-[calc(100vh-8rem)] bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-[24px] lg:rounded-[32px] p-2 gap-1 custom-scrollbar"
+              className="flex lg:flex-col overflow-x-auto overscroll-x-contain lg:overflow-y-auto lg:max-h-[calc(100vh-8rem)] bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-[24px] lg:rounded-[32px] p-2 pr-5 lg:pr-2 gap-1 custom-scrollbar"
             >
               {sortedEvents.map((event) => (
                 <button
@@ -92,7 +92,7 @@ const Events = () => {
                   data-id={event.id}
                   onClick={() => setSelectedEvent(event)}
                   className={`
-                    flex-shrink-0 
+                    flex-shrink-0 last:mr-1
                     /* Mobile: fixed width horizontal card */
                     w-[180px] sm:w-[210px]
                     /* Desktop: full width */

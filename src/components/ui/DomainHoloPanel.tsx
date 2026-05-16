@@ -63,9 +63,9 @@ export default function DomainHoloPanel({
     const previousBodyWidth = document.body.style.width;
     const previousBodyTouchAction = document.body.style.touchAction;
 
-    document.documentElement.style.overflow = "hidden";
-    document.body.style.overflow = "hidden";
     if (isMobile) {
+      document.documentElement.style.overflow = "hidden";
+      document.body.style.overflow = "hidden";
       document.body.style.position = "fixed";
       document.body.style.top = `-${scrollY}px`;
       document.body.style.width = "100%";
