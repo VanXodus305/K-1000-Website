@@ -49,11 +49,38 @@ export default function SharedHeader() {
   }, [router, pathname]);
 
   useEffect(() => {
-    if (isMobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
+    if (!isMobileMenuOpen) return;
+
+    const scrollY = window.scrollY;
+    const isMobile = window.innerWidth < 768;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousBodyPosition = document.body.style.position;
+    const previousBodyTop = document.body.style.top;
+    const previousBodyWidth = document.body.style.width;
+    const previousBodyTouchAction = document.body.style.touchAction;
+
+    if (isMobile) {
+      document.documentElement.style.overflow = "hidden";
+      document.body.style.overflow = "hidden";
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = "100%";
+      document.body.style.touchAction = "none";
     }
+
+    return () => {
+      document.documentElement.style.overflow = previousHtmlOverflow;
+      document.body.style.overflow = previousBodyOverflow;
+      document.body.style.position = previousBodyPosition;
+      document.body.style.top = previousBodyTop;
+      document.body.style.width = previousBodyWidth;
+      document.body.style.touchAction = previousBodyTouchAction;
+
+      if (isMobile) {
+        window.scrollTo(0, scrollY);
+      }
+    };
   }, [isMobileMenuOpen]);
 
   const getIsActive = (key: NavKey) => pathname === ROUTES[key];
