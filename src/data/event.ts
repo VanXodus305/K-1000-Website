@@ -46,7 +46,7 @@ export const EVENTS: K1000Event[] = [
       "Interactive Lab Culture: A deep dive into the environment of international research facilities.",
       "Uplink for aspiring researchers and high-performance engineering students."
     ],
-    gallery: ["/events/kkep2.jpg"]
+    gallery: ["/events/kkep2.png"]
   },
     {
     id: "dark-route-2025",
@@ -94,7 +94,7 @@ export const EVENTS: K1000Event[] = [
       "Research opportunities in core engineering domains.",
       "Attended by 120+ high-potential candidates."
     ],
-    gallery: ["/events/kkep1.jpg"]
+    gallery: ["/events/kkep1.png"]
   },
   {
     id: "ignithon-2025",
