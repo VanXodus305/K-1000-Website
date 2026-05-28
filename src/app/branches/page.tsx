@@ -105,8 +105,8 @@ export default function BranchesPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:items-start">
             
-            <div className="lg:col-span-4 lg:sticky lg:top-24 lg:self-start lg:h-fit z-30">
-              <div ref={navRef} className="flex lg:flex-col overflow-x-auto overscroll-x-contain lg:overflow-visible bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-[32px] p-2 pr-5 lg:pr-2 gap-1 mobile-nav-scroll">
+            <div className="lg:col-span-4 z-30">
+              <div ref={navRef} className="flex lg:sticky lg:top-24 lg:flex-col overflow-x-auto overscroll-x-contain lg:overflow-visible bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-[32px] p-2 pr-5 lg:pr-2 gap-1 mobile-nav-scroll lg:self-start">
                 {branches.map((b) => (
                   <button
                     key={b.key}
