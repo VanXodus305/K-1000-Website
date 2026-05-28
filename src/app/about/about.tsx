@@ -6,8 +6,16 @@ import { leadership } from "@/data/leadership";
 import SharedHeader from "../../components/ui/SharedHeader";
 import Footer from "../../components/footer/Footer";
 import CubeBackground from "../../components/ui/CubeBackground";
+import LeadershipProfileCard from "../../components/about/LeadershipProfileCard";
 
 const conthrax = "font-['Conthrax',_Arial]";
+
+const leadershipStyleMap: Record<number, string> = {
+  1: "lg:grid-cols-2 max-w-[920px]",
+  2: "lg:grid-cols-2 max-w-[920px]",
+  3: "lg:grid-cols-3 max-w-[1280px]",
+  4: "lg:grid-cols-3 max-w-[1280px]",
+};
 
 type BoardMember = {
   id: string;
@@ -26,6 +34,9 @@ export default function AboutPage() {
 
   useEffect(() => {
     document.body.style.overflow = selectedMember ? "hidden" : "unset";
+    return () => {
+      document.body.style.overflow = "unset";
+    };
   }, [selectedMember]);
 
   const board = useMemo(() => [
@@ -113,7 +124,7 @@ export default function AboutPage() {
         </section>
 
         {/* BOARD MEMBERS SECTION */}
-        <section className="w-full max-w-7xl px-6 md:px-10 py-16 md:py-24 flex flex-col items-center">
+        <section className="w-full max-w-7xl px-6 md:px-10 py-14 md:py-20 flex flex-col items-center">
           <h2 className={`${conthrax} text-2xl md:text-4xl text-center tracking-[0.2em] md:tracking-[0.3em] text-cyan-400 mb-12 md:mb-16 uppercase font-black`}>
             Board Members
           </h2>
@@ -136,29 +147,28 @@ export default function AboutPage() {
         </section>
 
         {/* CORE TEAM SECTION */}
-        <section className="w-full max-w-[1400px] px-6 py-16 md:py-24 border-t border-white/5">
-          <h2 className={`${conthrax} text-center text-4xl md:text-7xl mb-16 md:mb-24 text-white uppercase tracking-tighter font-black`}>
+        <section className="w-full max-w-[1480px] px-4 sm:px-6 py-12 md:py-20 border-t border-white/5">
+          <h2 className={`${conthrax} text-center text-3xl sm:text-4xl md:text-7xl mb-10 md:mb-16 text-white uppercase tracking-tighter font-black`}>
             CORE <span className="text-cyan-400">TEAM</span>
           </h2>
           {leadership.hierarchy.map((grp, gi) => (
-            <div key={gi} className="w-full flex flex-col items-center mb-20 md:mb-32">
-              <h3 className={`${conthrax} text-sm md:text-xl mb-12 text-white/90 border-b border-cyan-500/20 pb-3 px-8 tracking-[0.2em] uppercase text-center font-black`}>
-                {grp.title}
-              </h3>
-              <div className={`grid grid-cols-1 sm:grid-cols-2 ${grp.title.toLowerCase().includes("executive") ? "lg:grid-cols-2 max-w-[800px]" : "lg:grid-cols-3 max-w-[1200px]"} gap-12 md:gap-16 w-full`}>
+            <div key={gi} className="w-full flex flex-col items-center mb-12 md:mb-20">
+              <div className="mb-8 md:mb-10 flex flex-col items-center gap-3 text-center">
+                <h3 className={`${conthrax} text-xl md:text-3xl text-white uppercase tracking-[0.16em] font-black`}>
+                  {grp.title}
+                </h3>
+                <div className="h-px w-24 bg-gradient-to-r from-transparent via-cyan-400/80 to-transparent shadow-[0_0_12px_rgba(0,247,255,0.45)]" />
+              </div>
+              <div className={`grid grid-cols-1 sm:grid-cols-2 ${leadershipStyleMap[grp.level] || "lg:grid-cols-3 max-w-[1280px]"} gap-5 md:gap-8 w-full`}>
                 {grp.members.map((m, mi) => (
-                  <div key={mi} className="flex flex-col items-center text-center group">
-                    <div className="w-44 h-44 sm:w-52 sm:h-52 md:w-60 md:h-60 rounded-[28px] md:rounded-[40px] overflow-hidden border border-white/5 group-hover:border-cyan-400 transition-all duration-500 shadow-2xl bg-[#0a0a0a]/60 backdrop-blur-sm">
-                      <img src={m.image} className="size-full object-cover object-[center_20%] brightness-90 group-hover:scale-110 transition-all duration-700 will-change-transform" alt={m.name} />
-                    </div>
-                    <div className="mt-6 space-y-2">
-                      <h4 className={`${conthrax} text-sm md:text-lg text-white tracking-wide group-hover:text-cyan-400 transition-colors uppercase font-black`}>{m.name}</h4>
-                      <p className={`${conthrax} text-cyan-400 text-[9px] md:text-[12px] tracking-[0.15em] uppercase font-bold`}>{m.position}</p>
-                      {m.branch && (
-                        <p className={`${conthrax} text-white/30 text-[8px] md:text-[9px] uppercase tracking-widest font-bold`}>{m.branch}</p>
-                      )}
-                    </div>
-                  </div>
+                  <LeadershipProfileCard
+                    key={mi}
+                    name={m.name}
+                    position={m.position}
+                    image={m.image}
+                    branch={m.branch}
+                    variant={grp.level <= 2 ? "executive" : "standard"}
+                  />
                 ))}
               </div>
             </div>

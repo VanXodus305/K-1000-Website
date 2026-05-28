@@ -98,7 +98,7 @@ export default function BenefitsPage() {
           <h2 className={`${conthrax} text-2xl md:text-4xl text-white uppercase tracking-widest font-black`}>
             The <span className="text-cyan-400">Ecosystem</span>
           </h2>
-          <p className="text-sm md:text-lg text-white/50 leading-relaxed font-light tracking-wide mx-auto max-w-2xl">
+          <p className="text-base md:text-xl text-white/60 leading-relaxed font-normal tracking-wide mx-auto max-w-2xl">
             The K-1000 initiative is more than a program; it&apos;s a launchpad. By integrating technical rigor with research excellence, we prepare students for the highest tiers of global industry and academia.
           </p>
         </section>
@@ -127,7 +127,7 @@ export default function BenefitsPage() {
           {benefit.title}
         </h3>
         
-        <p className="text-white/60 text-xs md:text-xl leading-relaxed font-medium mb-8">
+        <p className="text-white/72 text-sm md:text-lg leading-relaxed font-medium mb-8">
           {benefit.desc}
         </p>
         

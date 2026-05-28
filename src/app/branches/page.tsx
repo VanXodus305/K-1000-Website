@@ -105,7 +105,7 @@ export default function BranchesPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:items-start">
             
-            <div className="lg:col-span-4 lg:sticky lg:top-24 lg:self-start z-30">
+            <div className="lg:col-span-4 lg:sticky lg:top-24 lg:self-start lg:h-fit z-30">
               <div ref={navRef} className="flex lg:flex-col overflow-x-auto overscroll-x-contain lg:overflow-visible bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-[32px] p-2 pr-5 lg:pr-2 gap-1 mobile-nav-scroll">
                 {branches.map((b) => (
                   <button
@@ -137,7 +137,7 @@ export default function BranchesPage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.5, ease: "circOut" }}
-                  className="p-8 md:p-10 rounded-[32px] bg-white/[0.03] border border-white/10"
+                  className="p-8 md:p-10 rounded-[32px] bg-white/[0.03] backdrop-blur-xl border border-white/10"
                 >
                   <p className="text-lg md:text-xl text-white/90 italic mb-8 border-l-2 border-cyan-500 pl-4">&quot;{activeDomain.missionStatement}&quot;</p>
                   <p className="text-white/60 leading-relaxed mb-10 text-sm md:text-base">{activeDomain.description}</p>

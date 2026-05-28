@@ -184,7 +184,7 @@ export const leadership: LeadershipData = {
           position: "Deputy Chief Technical Officer",
           branch: "Office of Technology & Innovation",
           image:
-            "http://res.cloudinary.com/e-labs-members/image/upload/w_1024,ar_1:1,c_auto,g_auto,f_auto/v1741880378/snqcicj3nkzfqur9clsh.jpg",
+            "https://res.cloudinary.com/e-labs-members/image/upload/w_1024,ar_3:4,c_fill,g_face,f_auto/v1741880378/snqcicj3nkzfqur9clsh.jpg",
         },
         {
           name: "Sourav Basak",

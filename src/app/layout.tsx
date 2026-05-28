@@ -21,8 +21,34 @@ const orbitron = Orbitron({
 });
 
 export const metadata: Metadata = {
-  title: "K-1000",
-  description: "KIIT's Elite Engineering Guild",
+  metadataBase: new URL("https://k1000.kiit.ac.in"),
+  title: "K-1000 | Official R&D Society of KIIT",
+  description:
+    "K-1000 is the official R&D society of KIIT, fostering research, innovation, technical growth, and high-impact student engineering culture.",
+  openGraph: {
+    title: "K-1000 | Official R&D Society of KIIT",
+    description:
+      "K-1000 is the official R&D society of KIIT, fostering research, innovation, technical growth, and high-impact student engineering culture.",
+    url: "https://k1000.kiit.ac.in",
+    siteName: "K-1000",
+    images: [
+      {
+        url: "/og-preview.jpeg",
+        width: 1200,
+        height: 630,
+        alt: "K-1000 Open Graph Preview",
+      },
+    ],
+    locale: "en_IN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "K-1000 | Official R&D Society of KIIT",
+    description:
+      "K-1000 is the official R&D society of KIIT, fostering research, innovation, technical growth, and high-impact student engineering culture.",
+    images: ["/og-preview.jpeg"],
+  },
 };
 
 export default function RootLayout({
