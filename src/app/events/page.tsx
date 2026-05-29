@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence, useScroll, useSpring } from "framer-motion";
 import Image from "next/image";
 import { EVENTS, K1000Event } from "@/data/event";
-import { Calendar, ExternalLink, Activity, ShieldCheck, ChevronRight, Zap } from "lucide-react";
+import { Calendar, ExternalLink, ShieldCheck, ChevronRight, Zap } from "lucide-react";
 import SharedHeader from "../../components/ui/SharedHeader";
 import Footer from "../../components/footer/Footer";
 import CubeBackground from "../../components/ui/CubeBackground";
@@ -57,7 +57,7 @@ const Events = () => {
         style={{ scaleX }}
       />
 
-      <main className="relative z-10 max-w-[1600px] mx-auto pt-24 md:pt-32 pb-20 px-4 md:px-10">
+      <main className="relative z-10 max-w-[1600px] mx-auto pt-24 md:pt-32 pb-16 md:pb-24 px-4 md:px-10">
 
         {/* ── PAGE HEADER ── */}
         <div className="mb-10 md:mb-20 flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -195,46 +195,48 @@ const Events = () => {
                 </div>
 
                 {/* ── INFO + HIGHLIGHTS ── */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+                <div className="rounded-[28px] sm:rounded-[36px] lg:rounded-[40px] bg-white/[0.025] backdrop-blur-md border border-white/10 p-6 sm:p-8 lg:p-10 shadow-[0_0_30px_rgba(0,0,0,0.18)]">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
 
-                  {/* Mission Briefing */}
-                  <div className="space-y-5">
-                    <div className="flex items-center gap-3 text-cyan-500/60">
-                      <ShieldCheck size={18} />
-                      <span className={`${conthrax} text-[9px] sm:text-[10px] uppercase font-black tracking-widest`}>
-                        Mission Briefing
-                      </span>
+                    {/* Mission Briefing */}
+                    <div className="space-y-6">
+                      <div className="flex items-center gap-3 text-cyan-500/60">
+                        <ShieldCheck size={18} />
+                        <span className={`${conthrax} text-[9px] sm:text-[10px] uppercase font-black tracking-widest`}>
+                          Mission Briefing
+                        </span>
+                      </div>
+                      <p className="text-white/60 text-base sm:text-lg md:text-xl leading-relaxed font-light italic border-l-2 border-cyan-500/20 pl-5 whitespace-pre-line">
+                        {selectedEvent.description}
+                      </p>
+                      <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-black/20 border border-white/5 flex items-center gap-4">
+                        <Calendar className="text-cyan-400 flex-shrink-0" size={18} />
+                        <span className={`${orbitron} text-[10px] sm:text-xs font-black uppercase tracking-widest`}>
+                          Recorded: {selectedEvent.date}
+                        </span>
+                      </div>
                     </div>
-                    <p className="text-white/60 text-base sm:text-lg md:text-xl leading-relaxed font-light italic border-l-2 border-cyan-500/20 pl-5">
-                      {selectedEvent.description}
-                    </p>
-                    <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-white/[0.02] border border-white/5 flex items-center gap-4">
-                      <Calendar className="text-cyan-400 flex-shrink-0" size={18} />
-                      <span className={`${orbitron} text-[10px] sm:text-xs font-black uppercase tracking-widest`}>
-                        Recorded: {selectedEvent.date}
-                      </span>
+
+                    {/* Critical Highlights */}
+                    <div className="bg-cyan-500/[0.015] border border-cyan-500/10 rounded-[28px] sm:rounded-[36px] lg:rounded-[40px] p-6 sm:p-8 lg:p-10">
+                      <h4
+                        className={`${conthrax} text-[9px] sm:text-[10px] text-cyan-400 uppercase tracking-[0.4em] sm:tracking-[0.5em] mb-6 lg:mb-8 font-black`}
+                      >
+                        Critical Highlights
+                      </h4>
+                      <div className="space-y-4 sm:space-y-6">
+                        {selectedEvent.highlights.map((point, i) => (
+                          <div key={i} className="flex gap-3 sm:gap-4 group">
+                            <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 mt-[5px] shrink-0 shadow-[0_0_10px_#00f7ff] group-hover:scale-150 transition-transform" />
+                            <p className="text-white/50 text-sm sm:text-sm md:text-base leading-snug font-light group-hover:text-white transition-colors whitespace-pre-line">
+                              {point}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
                     </div>
+
                   </div>
-
-                  {/* Critical Highlights */}
-                  <div className="bg-cyan-500/[0.02] border border-cyan-500/10 rounded-[28px] sm:rounded-[36px] lg:rounded-[40px] p-6 sm:p-8 lg:p-10">
-                    <h4
-                      className={`${conthrax} text-[9px] sm:text-[10px] text-cyan-400 uppercase tracking-[0.4em] sm:tracking-[0.5em] mb-6 lg:mb-8 font-black`}
-                    >
-                      Critical Highlights
-                    </h4>
-                    <div className="space-y-4 sm:space-y-6">
-                      {selectedEvent.highlights.map((point, i) => (
-                        <div key={i} className="flex gap-3 sm:gap-4 group">
-                          <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 mt-[5px] shrink-0 shadow-[0_0_10px_#00f7ff] group-hover:scale-150 transition-transform" />
-                          <p className="text-white/50 text-sm sm:text-sm md:text-base leading-snug font-light group-hover:text-white transition-colors">
-                            {point}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
                 </div>
               </motion.div>
             </AnimatePresence>
@@ -242,13 +244,6 @@ const Events = () => {
 
         </div>
       </main>
-
-      <footer className="py-16 sm:py-20 flex flex-col items-center justify-center opacity-10">
-        <Activity size={36} className="text-cyan-400 mb-4" />
-        <p className={`${conthrax} text-[8px] uppercase tracking-[1.5em] font-black`}>
-          End of Registry
-        </p>
-      </footer>
 
       <Footer />
 

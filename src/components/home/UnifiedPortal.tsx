@@ -60,6 +60,74 @@ type Particle = {
   vy: number;
 };
 
+type StatItem = {
+  value: number;
+  suffix: string;
+  label: string;
+};
+
+const AnimatedStat = ({
+  value,
+  suffix,
+  label,
+}: StatItem) => {
+  const statRef = useRef<HTMLDivElement>(null);
+  const [displayValue, setDisplayValue] = useState(0);
+  const [hasAnimated, setHasAnimated] = useState(false);
+
+  useEffect(() => {
+    const element = statRef.current;
+    if (!element || hasAnimated) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+
+        setHasAnimated(true);
+        const duration = 1200;
+        const start = performance.now();
+
+        const tick = (now: number) => {
+          const progress = Math.min((now - start) / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          setDisplayValue(Math.round(value * eased));
+
+          if (progress < 1) {
+            requestAnimationFrame(tick);
+          }
+        };
+
+        requestAnimationFrame(tick);
+        observer.disconnect();
+      },
+      { threshold: 0.35 }
+    );
+
+    observer.observe(element);
+
+    return () => observer.disconnect();
+  }, [hasAnimated, value]);
+
+  return (
+    <div
+      ref={statRef}
+      className="flex flex-col items-center py-4 lg:py-8 bg-white/[0.02] rounded-xl border border-white/5 group"
+    >
+      <span
+        className={`${conthrax} text-xl lg:text-6xl text-cyan-400 font-black tabular-nums`}
+      >
+        {displayValue}
+        {suffix}
+      </span>
+      <span
+        className={`text-[6px] lg:text-[11px] uppercase tracking-widest text-white/40 font-black text-center ${conthrax}`}
+      >
+        {label}
+      </span>
+    </div>
+  );
+};
+
 const CubeBackground = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
@@ -250,11 +318,11 @@ export default function UnifiedPortal() {
     setHoveredNode(null);
   };
 
-  const stats = [
-    { number: "100+", label: "Projects" },
-    { number: "50+", label: "Publications" },
-    { number: "20+", label: "Patents Filed" },
-    { number: "20+", label: "Collaborations" },
+  const stats: StatItem[] = [
+    { value: 100, suffix: "+", label: "Projects" },
+    { value: 50, suffix: "+", label: "Publications" },
+    { value: 20, suffix: "+", label: "Patents Filed" },
+    { value: 20, suffix: "+", label: "Collaborations" },
   ];
 
   return (
@@ -536,22 +604,13 @@ export default function UnifiedPortal() {
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-6 lg:mt-24 w-full max-w-7xl mx-auto pb-10 px-2">
-            {stats.map((stat, i) => (
-              <div
-                key={i}
-                className="flex flex-col items-center py-4 lg:py-8 bg-white/[0.02] rounded-xl border border-white/5 group"
-              >
-                <span
-                  className={`${conthrax} text-xl lg:text-6xl text-cyan-400 font-black`}
-                >
-                  {stat.number}
-                </span>
-                <span
-                  className={`text-[6px] lg:text-[11px] uppercase tracking-widest text-white/40 font-black text-center ${conthrax}`}
-                >
-                  {stat.label}
-                </span>
-              </div>
+            {stats.map((stat) => (
+              <AnimatedStat
+                key={stat.label}
+                value={stat.value}
+                suffix={stat.suffix}
+                label={stat.label}
+              />
             ))}
           </div>
         </section>
@@ -566,13 +625,14 @@ export default function UnifiedPortal() {
               className="mb-24 w-full text-center"
             >
               <h2
-                className={`${conthrax} text-5xl md:text-8xl text-white uppercase tracking-tighter leading-none font-black`}
+                className={`${conthrax} text-5xl md:text-8xl text-white uppercase tracking-tight leading-none font-black`}
               >
                 About{" "}
-                <span className="text-cyan-400 brightness-110 drop-shadow-[0_0_15px_rgba(0,247,255,0.5)]">
+                <span className="text-cyan-400 brightness-110 drop-shadow-[0_0_18px_rgba(0,247,255,0.55)]">
                   K-1000
                 </span>
               </h2>
+              <div className="mx-auto mt-5 h-px w-28 bg-gradient-to-r from-transparent via-cyan-400/90 to-transparent shadow-[0_0_14px_rgba(0,247,255,0.45)]" />
             </motion.div>
 
             <div className="grid lg:grid-cols-2 gap-16 items-start mb-16">

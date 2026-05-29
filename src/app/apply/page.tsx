@@ -4,7 +4,7 @@ import React, { useEffect } from "react";
 import { motion } from "framer-motion";
 import type { IconType } from "react-icons";
 import { FaInstagram, FaLinkedinIn, FaWhatsapp } from "react-icons/fa6";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import SharedHeader from "../../components/ui/SharedHeader";
 import Footer from "../../components/footer/Footer";
 import CubeBackground from "../../components/ui/CubeBackground";
@@ -75,7 +75,7 @@ const ApplicationForm = () => {
       <CubeBackground disableLinesOnMobile />
       <div className="fixed inset-0 bg-[radial-gradient(circle_at_50%_50%,#0ea5e90a_0%,transparent_50%)] pointer-events-none z-[2]" />
 
-      <main className="relative z-10 w-full max-w-5xl px-6 pt-32 md:pt-52 flex flex-col items-center text-center">
+      <main className="relative z-10 w-full max-w-5xl pt-28 md:pt-44 flex flex-col items-center text-center scale-[0.9] origin-top">
         
         {/* ─── MAIN CONTENT ─── */}
         <motion.div
@@ -84,15 +84,6 @@ const ApplicationForm = () => {
           transition={{ duration: 0.8 }}
           className="space-y-6 md:space-y-8"
         >
-          <div className="flex justify-center">
-            <div className="flex items-center gap-2 px-3 py-1 md:px-4 md:py-1 rounded-full border border-white/10 bg-white/5 backdrop-blur-md">
-              <Sparkles size={10} className="text-cyan-400" />
-              <span className={`${conthrax} text-[7px] md:text-[9px] tracking-[0.2em] md:tracking-[0.3em] uppercase font-black text-white/60`}>
-                Enrollment Closed
-              </span>
-            </div>
-          </div>
-
           <h1 className={`${conthrax} text-4xl sm:text-5xl md:text-8xl font-black uppercase tracking-tight leading-tight md:leading-none`}>
             Apply for <br />
             <span className="text-cyan-400 drop-shadow-[0_0_15px_rgba(0,247,255,0.4)]">K-1000</span>
@@ -118,7 +109,7 @@ const ApplicationForm = () => {
         </motion.div>
 
         {/* ─── SOCIAL CONNECT GRID ─── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 w-full mt-16 md:mt-24 mb-20 md:mb-32">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 w-full mt-12 md:mt-16 mb-10 md:mb-16">
           {socialsData.map((social, index) => (
             <a 
               key={index} 

@@ -48,7 +48,7 @@ const Contact = () => {
               </h1>
 
               <p className="text-white/40 text-lg md:text-xl font-light leading-relaxed max-w-md">
-                Reach out for high-fidelity research collaborations, technical inquiries, and academic excellence opportunities.
+                Reach out for research collaborations, technical inquiries, and academic excellence opportunities.
               </p>
             </div>
           </motion.div>
