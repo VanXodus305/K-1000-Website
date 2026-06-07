@@ -1,0 +1,47 @@
+:root {
+  --dna-color: rgba(0, 255, 255, 0.45);
+}
+
+/* DNA Bars */
+.dna-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+}
+
+.dna-bar {
+  width: 180px;
+  height: 2px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--dna-color),
+    transparent
+  );
+  border-radius: 50%;
+  animation: dna-wave 1.4s infinite ease-in-out;
+  opacity: 0.7;
+}
+
+@keyframes dna-wave {
+  0% { transform: scaleX(0.2) translateY(-10px); opacity: 0.4; }
+  50% { transform: scaleX(1) translateY(10px); opacity: 1; }
+  100% { transform: scaleX(0.2) translateY(-10px); opacity: 0.4; }
+}
+
+/* Spin Helper */
+.animate-spin-slow {
+  animation: spin 16s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Orbitron Font Class */
+.font-orbitron {
+  font-family: 'Orbitron', sans-serif;
+}
