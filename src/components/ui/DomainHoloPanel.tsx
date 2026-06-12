@@ -5,44 +5,9 @@ import { motion } from "framer-motion";
 import { Shield, ChevronRight, X, Cpu, Layers } from "lucide-react";
 import { leadership, type LeadershipMember } from "../../data/leadership";
 import type { K1000DomainWithApplyLink } from "../../data/domain";
+import { findLeadershipPair } from "../../lib/leadership-utils";
 
 const conthrax = "font-['Conthrax',_sans-serif]";
-
-/* ─────────── HELPERS ─────────── */
-const cleanString = (s: string) =>
-  s
-    .toLowerCase()
-    .replace(/&/g, "and")
-    .replace(/management/g, "organization")
-    .replace(/\s+/g, "")
-    .trim();
-
-function useDecryptText(text: string, speed = 25) {
-  const [out, setOut] = useState("");
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-
-  useEffect(() => {
-    let frame = 0;
-    const id = setInterval(() => {
-      frame++;
-      setOut(
-        text
-          .split("")
-          .map((c, i) =>
-            i < frame / 2 ? c : chars[Math.floor(Math.random() * chars.length)],
-          )
-          .join(""),
-      );
-      if (frame > text.length * 2) {
-        setOut(text);
-        clearInterval(id);
-      }
-    }, speed);
-    return () => clearInterval(id);
-  }, [text, speed]);
-
-  return out;
-}
 
 export default function DomainHoloPanel({
   domain,
@@ -51,7 +16,7 @@ export default function DomainHoloPanel({
   domain: K1000DomainWithApplyLink;
   onClose: () => void;
 }) {
-  const titleDecrypted = useDecryptText(domain.title);
+  const isInternshipPanel = domain.key === "internship";
 
   useEffect(() => {
     const scrollY = window.scrollY;
@@ -93,28 +58,8 @@ export default function DomainHoloPanel({
     window.dispatchEvent(mouseEvent);
     onClose();
   };
-  const { director, deputy } = useMemo(() => {
-    const directors =
-      leadership.hierarchy.find((entry) => entry.level === 3)?.members ?? [];
-    const deputies =
-      leadership.hierarchy.find((entry) => entry.level === 4)?.members ?? [];
-    const domainTitleCleaned = cleanString(domain.title);
-  
-    const branchMapping: Record<string, string> = {
-      academicinternshipandplacement: "academicinternshipandplacementguidance",
-      eventmanagement: "eventmanagement", 
-      researchandpublications: "researchandpublications",
-      projectwing: "projectwing",
-      trainingprogram: "trainingprogram",
-      higherstudies: "higherstudies",
-    };
-
-    const targetKey = branchMapping[domainTitleCleaned] || domainTitleCleaned;
-
-    return {
-      director: directors.find((member) => cleanString(member.branch) === targetKey),
-      deputy: deputies.find((member) => cleanString(member.branch) === targetKey),
-    };
+  const { primaryLeader, secondaryLeader } = useMemo(() => {
+    return findLeadershipPair(leadership.hierarchy, domain.title);
   }, [domain.title]);
 
   return (
@@ -132,7 +77,9 @@ export default function DomainHoloPanel({
       <motion.div
         initial={{ y: 50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="relative w-full max-w-6xl h-full md:h-[82vh] bg-[#050505] border-t md:border border-white/10 shadow-[0_0_100px_rgba(0,0,0,1)] overflow-hidden flex flex-col md:flex-row overscroll-contain"
+        className={`relative w-full max-w-6xl h-full bg-[#050505] border-t md:border border-white/10 shadow-[0_0_100px_rgba(0,0,0,1)] overflow-hidden flex flex-col md:flex-row overscroll-contain ${
+          isInternshipPanel ? "md:h-[86vh]" : "md:h-[82vh]"
+        }`}
       >
         {/* Close Button */}
         <button
@@ -144,15 +91,19 @@ export default function DomainHoloPanel({
 
         {/* LEFT Sidebar */}
         <div className="w-full md:w-[280px] lg:w-[320px] border-b md:border-b-0 md:border-r border-white/5 bg-black flex flex-col shrink-0">
-          <div className="p-5 md:p-6 border-b border-white/5 pr-14 md:pr-6">
+          <div className={`border-b border-white/5 pr-14 md:pr-6 ${isInternshipPanel ? "p-4 md:p-5" : "p-5 md:p-6"}`}>
             <div className="flex items-center gap-2 mb-2 md:mb-3">
               <Shield size={10} className="text-cyan-500" />
               <span className={`${conthrax} text-[7px] md:text-[9px] text-cyan-500 tracking-[0.3em] font-black uppercase`}>
                 Leadership
               </span>
             </div>
-            <h1 className={`${conthrax} text-lg md:text-xl text-white uppercase leading-tight tracking-tighter font-black`}>
-              {titleDecrypted}
+            <h1 className={`${conthrax} text-white uppercase leading-tight tracking-tighter font-black ${
+              isInternshipPanel
+                ? "text-base md:text-[1.05rem] min-h-[2.9rem] md:min-h-[3.2rem]"
+                : "text-lg md:text-xl min-h-[3.1rem] md:min-h-[3.6rem]"
+            }`}>
+              {domain.title}
             </h1>
           </div>
 
@@ -162,15 +113,15 @@ export default function DomainHoloPanel({
           >
             <div className="min-w-[140px] flex-1 md:min-w-full">
               <h3 className={`${conthrax} text-[7px] md:text-[9px] text-white/30 tracking-[0.2em] uppercase mb-2 font-black`}>
-                Director
+                {primaryLeader?.position || "Senior Executive Lead"}
               </h3>
-              {director ? <LeaderCard leader={director} /> : <EmptySlot label="TBD" />}
+              {primaryLeader ? <LeaderCard leader={primaryLeader} /> : <EmptySlot label="TBD" />}
             </div>
             <div className="min-w-[140px] flex-1 md:min-w-full">
               <h3 className={`${conthrax} text-[7px] md:text-[9px] text-white/30 tracking-[0.2em] uppercase mb-2 font-black`}>
-                Deputy Director
+                {secondaryLeader?.position || "Junior Executive Lead"}
               </h3>
-              {deputy ? <LeaderCard leader={deputy} /> : <EmptySlot label="TBD" />}
+              {secondaryLeader ? <LeaderCard leader={secondaryLeader} /> : <EmptySlot label="TBD" />}
             </div>
           </div>
         </div>
@@ -178,17 +129,23 @@ export default function DomainHoloPanel({
         {/* RIGHT - Content Area */}
         <div
           data-lenis-prevent
-          className="flex-1 overflow-y-auto p-6 md:p-12 lg:p-14 bg-[#020202] relative custom-scroll"
+          className={`flex-1 overflow-y-auto bg-[#020202] relative custom-scroll ${
+            isInternshipPanel ? "p-5 md:p-9 lg:p-10" : "p-6 md:p-12 lg:p-14"
+          }`}
         >
-          <div className="max-w-3xl space-y-8 md:space-y-12 pb-12 md:pb-0">
-            <section className="space-y-4 md:space-y-6">
+          <div className={`max-w-3xl pb-12 md:pb-0 ${isInternshipPanel ? "space-y-6 md:space-y-8" : "space-y-8 md:space-y-12"}`}>
+            <section className={isInternshipPanel ? "space-y-3 md:space-y-4" : "space-y-4 md:space-y-6"}>
               <div className="flex items-center gap-4">
                 <Cpu size={14} className="text-cyan-500" />
                 <h2 className={`${conthrax} text-[8px] md:text-[10px] tracking-[0.4em] text-cyan-500 uppercase font-black`}>
                   Domain Overview
                 </h2>
               </div>
-              <p className="text-white/80 text-xs md:text-lg leading-relaxed font-light pl-4 md:pl-6 border-l border-cyan-500/20">
+              <p className={`text-white/80 font-light border-l border-cyan-500/20 ${
+                isInternshipPanel
+                  ? "text-xs md:text-base leading-relaxed pl-4 md:pl-5"
+                  : "text-xs md:text-lg leading-relaxed pl-4 md:pl-6"
+              }`}>
                 {domain.overview}
               </p>
             </section>
@@ -198,11 +155,13 @@ export default function DomainHoloPanel({
                 <h2 className={`${conthrax} text-[8px] md:text-[10px] tracking-[0.4em] text-white/30 uppercase mb-4 font-black`}>
                   Focus Areas
                 </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
+                <div className={`grid grid-cols-1 sm:grid-cols-2 ${isInternshipPanel ? "gap-2" : "gap-2 md:gap-3"}`}>
                   {domain.focusAreas.map((area, i) => (
                     <div
                       key={i}
-                      className="p-3 md:p-4 bg-white/[0.02] border border-white/5 flex items-center gap-3 md:gap-4 hover:border-cyan-500/30 transition-all group"
+                      className={`bg-white/[0.02] border border-white/5 flex items-center hover:border-cyan-500/30 transition-all group ${
+                        isInternshipPanel ? "p-3 gap-3" : "p-3 md:p-4 gap-3 md:gap-4"
+                      }`}
                     >
                       <Layers size={10} className="text-cyan-500/40 group-hover:text-cyan-500 transition-colors" />
                       <span className={`${conthrax} text-[8px] md:text-[10px] text-white/70 uppercase tracking-[0.15em] font-black`}>
@@ -214,11 +173,13 @@ export default function DomainHoloPanel({
               </section>
             )}
 
-            <section className="p-5 md:p-6 bg-white/[0.01] border border-white/5 rounded-2xl relative">
+            <section className={`bg-white/[0.01] border border-white/5 rounded-2xl relative ${isInternshipPanel ? "p-4 md:p-5" : "p-5 md:p-6"}`}>
               <h2 className={`${conthrax} text-[7px] md:text-[9px] text-white/20 tracking-[0.3em] uppercase mb-3 font-black`}>
                 Operational Description
               </h2>
-              <p className="text-white/60 text-[11px] md:text-base leading-relaxed whitespace-pre-line font-light text-justify">
+              <p className={`text-white/60 whitespace-pre-line font-light text-justify ${
+                isInternshipPanel ? "text-[11px] md:text-[15px] leading-relaxed" : "text-[11px] md:text-base leading-relaxed"
+              }`}>
                 {domain.description}
               </p>
             </section>
@@ -247,6 +208,8 @@ export default function DomainHoloPanel({
 }
 
 function LeaderCard({ leader }: { leader: LeadershipMember }) {
+  const isPlaceholder = leader.image === "/k1000-small.png";
+
   return (
     <div className="group relative w-full h-24 sm:h-32 md:h-48 overflow-hidden border border-white/10 rounded-xl md:rounded-2xl bg-[#080808] transition-all duration-500 hover:border-cyan-500/40 will-change-transform">
       <div className="absolute inset-0 bg-cyan-950/5" />
@@ -255,8 +218,10 @@ function LeaderCard({ leader }: { leader: LeadershipMember }) {
         <img
           src={leader.image}
           alt={leader.name}
-          className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-700 group-hover:scale-105"
-          style={{ objectPosition: "center 15%" }}
+          className={`absolute inset-0 w-full h-full opacity-80 group-hover:opacity-100 transition-all duration-700 group-hover:scale-105 ${
+            isPlaceholder ? "object-contain p-4 bg-black/80" : "object-cover"
+          }`}
+          style={isPlaceholder ? undefined : { objectPosition: "center 15%" }}
         />
       )}
 

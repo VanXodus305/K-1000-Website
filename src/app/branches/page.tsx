@@ -8,17 +8,9 @@ import Footer from "../../components/footer/Footer";
 import { leadership } from "../../data/leadership";
 import { domains } from "../../data/domain";
 import CubeBackground from "../../components/ui/CubeBackground";
+import { findLeadershipPair } from "../../lib/leadership-utils";
 
 /* ─────────── CONFIG & MAPPING ─────────── */
-const branchMapping: Record<string, string> = {
-  internship: "academicinternshipandplacementguidance",
-  eventorganization: "eventorganization",
-  researchandpublications: "researchandpublications",
-  projectwing: "projectwing",
-  trainingprogram: "trainingprogram",
-  higherstudies: "higherstudies",
-};
-
 const iconMap: Record<string, React.ReactNode> = {
   training: <Cpu size={14} />,
   research: <BookOpen size={14} />,
@@ -26,6 +18,9 @@ const iconMap: Record<string, React.ReactNode> = {
   events: <Users size={14} />,
   internship: <Briefcase size={14} />,
   higher: <GraduationCap size={14} />,
+  finance: <Briefcase size={14} />,
+  content: <BookOpen size={14} />,
+  campus: <Users size={14} />,
 };
 
 const domainImages = [
@@ -34,12 +29,18 @@ const domainImages = [
   "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=1600",
   "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=1600",
   "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1600",
-  "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1600&auto=format&fit=crop"
+  "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1554224155-6726b3ff858f?q=80&w=1600",
+  "https://images.unsplash.com/photo-1516321497487-e288fb19713f?q=80&w=1600",
+  "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1600",
 ];
 
-const branches = domains.map((d, index) => ({
+const branchUnits = domains.filter(
+  (domain) => !["finance", "content", "campus"].includes(domain.key),
+);
+
+const branches = branchUnits.map((d, index) => ({
   ...d,
-  title: d.key === 'events' ? 'Event Management' : d.key === 'internship' ? 'Academic Internship & Placement' : d.title,
   tag: `Unit: ${d.title}`,
   icon: iconMap[d.key] || <Layers size={14} />,
   image: domainImages[index] || domainImages[0],
@@ -48,7 +49,6 @@ const branches = domains.map((d, index) => ({
 
 const conthrax = "font-['Conthrax',_sans-serif]";
 const orbitron = "font-['Orbitron',_sans-serif]";
-const cleanString = (s: string) => s.toLowerCase().replace(/&/g, "and").replace(/management/g, "organization").replace(/\s+/g, "").trim();
 
 /* ─────────── MAIN PAGE ─────────── */
 export default function BranchesPage() {
@@ -71,16 +71,8 @@ export default function BranchesPage() {
     }
   }, [activeTab]);
 
-  const { director, deputy } = useMemo(() => {
-    const directors =
-      leadership.hierarchy.find((entry) => entry.level === 3)?.members ?? [];
-    const deputies =
-      leadership.hierarchy.find((entry) => entry.level === 4)?.members ?? [];
-    const targetKey = branchMapping[activeDomain.key] || cleanString(activeDomain.title);
-    return {
-      director: directors.find((member) => cleanString(member.branch) === targetKey),
-      deputy: deputies.find((member) => cleanString(member.branch) === targetKey),
-    };
+  const { primaryLeader, secondaryLeader } = useMemo(() => {
+    return findLeadershipPair(leadership.hierarchy, activeDomain.title);
   }, [activeDomain]);
 
   return (
@@ -155,15 +147,27 @@ export default function BranchesPage() {
 
                   <h4 className={`${conthrax} text-[10px] text-white/30 uppercase mb-6`}>Unit Leadership</h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                    {[director, deputy].map((leader, i) => (
-                      <div key={i} className="flex flex-col gap-4">
-                        <p className="text-[10px] uppercase text-white/40">{i === 0 ? "Director" : "Deputy Director"}</p>
+                    {[primaryLeader, secondaryLeader].map((leader, i) => {
+                      const isPlaceholder = leader?.image === "/k1000-small.png";
+                      return (
+                        <div key={i} className="flex flex-col gap-4">
+                        <p className="text-[10px] uppercase text-white/40">
+                          {leader?.position || (i === 0 ? "Senior Executive Lead" : "Junior Executive Lead")}
+                        </p>
                         <div className="w-full aspect-square md:aspect-auto md:h-72 rounded-2xl overflow-hidden border border-white/10 bg-white/5">
-                          {leader ? <img src={leader.image} alt={leader.name} className="w-full h-full object-cover object-[center_20%]" /> : <div className="h-full flex items-center justify-center text-white/10">TBD</div>}
+                          {leader ? <img src={leader.image} alt={leader.name} className={`w-full h-full ${isPlaceholder ? "object-contain p-8 bg-black/80" : "object-cover object-[center_20%]"}`} /> : <div className="h-full flex items-center justify-center text-white/10">TBD</div>}
                         </div>
-                        <p className={`${conthrax} text-sm`}>{leader?.name || "TBD"}</p>
-                      </div>
-                    ))}
+                        <div className="space-y-1">
+                          <p className={`${conthrax} text-sm`}>{leader?.name || "TBD"}</p>
+                          {leader?.branch ? (
+                            <p className="text-[10px] uppercase tracking-[0.2em] text-white/35">
+                              {leader.branch}
+                            </p>
+                          ) : null}
+                        </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </motion.div>
               </AnimatePresence>

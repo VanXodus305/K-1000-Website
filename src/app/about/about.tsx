@@ -10,11 +10,16 @@ import LeadershipProfileCard from "../../components/about/LeadershipProfileCard"
 
 const conthrax = "font-['Conthrax',_Arial]";
 
-const leadershipStyleMap: Record<number, string> = {
-  1: "lg:grid-cols-2 max-w-[920px]",
-  2: "lg:grid-cols-2 max-w-[920px]",
-  3: "lg:grid-cols-3 max-w-[1280px]",
-  4: "lg:grid-cols-3 max-w-[1280px]",
+const councilContainerMap: Record<number, string> = {
+  1: "flex flex-wrap justify-center gap-5 md:gap-8 max-w-[1040px]",
+  2: "flex flex-wrap justify-center gap-5 md:gap-8 max-w-[1360px]",
+  3: "flex flex-wrap justify-center gap-5 md:gap-8 max-w-[1360px]",
+};
+
+const councilItemMap: Record<number, string> = {
+  1: "w-full max-w-[420px] sm:w-[calc(50%-0.625rem)]",
+  2: "w-full max-w-[420px] sm:w-[calc(50%-0.625rem)] xl:w-[calc(33.333%-1.334rem)]",
+  3: "w-full max-w-[420px] sm:w-[calc(50%-0.625rem)] xl:w-[calc(33.333%-1.334rem)]",
 };
 
 type BoardMember = {
@@ -159,16 +164,17 @@ export default function AboutPage() {
                 </h3>
                 <div className="h-px w-24 bg-gradient-to-r from-transparent via-cyan-400/80 to-transparent shadow-[0_0_12px_rgba(0,247,255,0.45)]" />
               </div>
-              <div className={`grid grid-cols-1 sm:grid-cols-2 ${leadershipStyleMap[grp.level] || "lg:grid-cols-3 max-w-[1280px]"} gap-5 md:gap-8 w-full`}>
+              <div className={`${councilContainerMap[grp.level] || "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-8 max-w-[1280px]"} w-full`}>
                 {grp.members.map((m, mi) => (
-                  <LeadershipProfileCard
-                    key={mi}
-                    name={m.name}
-                    position={m.position}
-                    image={m.image}
-                    branch={m.branch}
-                    variant={grp.level <= 2 ? "executive" : "standard"}
-                  />
+                  <div key={mi} className={councilItemMap[grp.level]}>
+                    <LeadershipProfileCard
+                      name={m.name}
+                      position={m.position}
+                      image={m.image}
+                      branch={m.branch}
+                      variant="standard"
+                    />
+                  </div>
                 ))}
               </div>
             </div>

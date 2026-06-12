@@ -18,6 +18,7 @@ export default function LeadershipProfileCard({
   variant = "standard",
 }: LeadershipProfileCardProps) {
   const isExecutive = variant === "executive";
+  const isPlaceholder = image === "/k1000-small.png";
 
   return (
     <div
@@ -34,8 +35,10 @@ export default function LeadershipProfileCard({
       >
         <img
           src={image}
-          className={`absolute inset-0 size-full object-cover brightness-95 transition-all duration-700 will-change-transform group-hover:scale-105 ${
-            isExecutive ? "object-[center_24%]" : "object-[center_24%]"
+          className={`absolute inset-0 size-full brightness-95 transition-all duration-700 will-change-transform group-hover:scale-105 ${
+            isPlaceholder
+              ? "object-contain p-8 bg-black/80"
+              : `object-cover ${isExecutive ? "object-[center_24%]" : "object-[center_24%]"}`
           }`}
           alt={name}
           loading="lazy"
