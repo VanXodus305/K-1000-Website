@@ -17,9 +17,9 @@ const councilContainerMap: Record<number, string> = {
 };
 
 const councilItemMap: Record<number, string> = {
-  1: "w-full max-w-[420px] sm:w-[calc(50%-0.625rem)]",
-  2: "w-full max-w-[420px] sm:w-[calc(50%-0.625rem)] xl:w-[calc(33.333%-1.334rem)]",
-  3: "w-full max-w-[420px] sm:w-[calc(50%-0.625rem)] xl:w-[calc(33.333%-1.334rem)]",
+  1: "w-full max-w-[380px] sm:w-[calc(50%-0.625rem)]",
+  2: "w-full max-w-[380px] sm:w-[calc(50%-0.625rem)] xl:w-[calc(33.333%-1.334rem)]",
+  3: "w-full max-w-[380px] sm:w-[calc(50%-0.625rem)] xl:w-[calc(33.333%-1.334rem)]",
 };
 
 type BoardMember = {
