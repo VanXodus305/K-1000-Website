@@ -12,14 +12,14 @@ const conthrax = "font-['Conthrax',_Arial]";
 
 const councilContainerMap: Record<number, string> = {
   1: "flex flex-wrap justify-center gap-5 md:gap-8 max-w-[1040px]",
-  2: "flex flex-wrap justify-center gap-5 md:gap-8 max-w-[1360px]",
-  3: "flex flex-wrap justify-center gap-5 md:gap-8 max-w-[1360px]",
+  2: "flex flex-wrap justify-center gap-5 md:gap-8 max-w-[1560px]",
+  3: "flex flex-wrap justify-center gap-5 md:gap-8 max-w-[1560px]",
 };
 
 const councilItemMap: Record<number, string> = {
   1: "w-full max-w-[380px] sm:w-[calc(50%-0.625rem)]",
-  2: "w-full max-w-[380px] sm:w-[calc(50%-0.625rem)] xl:w-[calc(33.333%-1.334rem)]",
-  3: "w-full max-w-[380px] sm:w-[calc(50%-0.625rem)] xl:w-[calc(33.333%-1.334rem)]",
+  2: "w-full max-w-[340px] sm:w-[calc(50%-0.625rem)] xl:w-[calc(25%-1.5rem)]",
+  3: "w-full max-w-[340px] sm:w-[calc(50%-0.625rem)] xl:w-[calc(25%-1.5rem)]",
 };
 
 type BoardMember = {
