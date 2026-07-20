@@ -13,13 +13,13 @@ export const ROUTES = {
   branches: "/branches",
   departments: "/departments",
   events: "/events",
-  apply: "/apply",
+  register: "/register",
   contact: "/contact",
 } as const;
 
 export type NavKey = keyof typeof ROUTES;
 
-const NAV_ITEMS: NavKey[] = ["home", "about", "benefits", "branches", "departments", "events", "apply", "contact"];
+const NAV_ITEMS: NavKey[] = ["home", "about", "benefits", "branches", "departments", "events", "register", "contact"];
 
 const NAV_LABELS: Record<NavKey, string> = {
   home: "Home", 
@@ -28,7 +28,7 @@ const NAV_LABELS: Record<NavKey, string> = {
   branches: "Branches",
   departments: "Departments", 
   events: "Events", 
-  apply: "Apply", 
+  register: "Register",
   contact: "Contact",
 };
 
