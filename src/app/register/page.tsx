@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, Send, RotateCcw, Plus, ChevronRight, ChevronLeft, Quote } from "lucide-react";
+import QRCode from "qrcode";
 import SharedHeader from "../../components/ui/SharedHeader";
 import Footer from "../../components/footer/Footer";
 import CubeBackground from "../../components/ui/CubeBackground";
@@ -107,6 +108,8 @@ export default function RegisterPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [regId, setRegId] = useState<number | null>(null);
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [toast, setToast] = useState<{ type: string; text: string } | null>(null);
   const [customSkill, setCustomSkill] = useState("");
   const [flashMsg, setFlashMsg] = useState<string | null>(null);
@@ -115,6 +118,17 @@ export default function RegisterPage() {
 
   useEffect(() => { window.scrollTo(0, 0); }, [step]);
   useEffect(() => () => { if (flashTimer.current) clearTimeout(flashTimer.current); }, []);
+
+  const downloadQR = async (id: number) => {
+    try {
+      const url = await QRCode.toDataURL(String(id), { width: 400, margin: 2, color: { dark: "#000", light: "#fff" } });
+      setQrDataUrl(url);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `k1000-registration-${id}.png`;
+      a.click();
+    } catch { /* silent */ }
+  };
 
   const update = (field: keyof FormData, value: string | string[]) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -185,7 +199,7 @@ export default function RegisterPage() {
         body: JSON.stringify(form),
       });
       const result = await res.json();
-      if (result.success) { setSubmitted(true); setToast({ type: "success", text: "Registration submitted successfully!" }); setForm(initialForm); setStep(1); setTimeout(() => setSubmitted(false), 5000); }
+      if (result.success) { setSubmitted(true); setRegId(result.data?.id ?? null); setToast({ type: "success", text: "Registration submitted successfully!" }); setForm(initialForm); setStep(1); setTimeout(() => setSubmitted(false), 5000); if (result.data?.id) downloadQR(result.data.id); }
       else if (result.errors) { const fe: Record<string, string> = {}; result.errors.forEach((e: { field: string; message: string }) => { fe[e.field] = e.message; }); setErrors(fe); setToast({ type: "error", text: "Please fix the highlighted errors." }); }
       else { setToast({ type: "error", text: result.message || "Submission failed." }); }
     } catch { setToast({ type: "error", text: "Cannot reach server. Ensure the backend is running on port 8080." }); }
@@ -213,9 +227,16 @@ export default function RegisterPage() {
           <div className="p-6 md:p-10 rounded-[24px] md:rounded-[32px] bg-white/[0.03] backdrop-blur-xl border border-cyan-500/30 text-center max-w-md w-full">
             <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-cyan-500/20 flex items-center justify-center mx-auto mb-4 md:mb-6"><Check size={24} className="text-cyan-400 md:w-8 md:h-8" /></div>
             <h2 className={`${conthrax} text-lg md:text-xl mb-2 md:mb-3 text-cyan-400 uppercase tracking-wider`}>Application Received</h2>
-            <p className="text-white/60 text-xs md:text-sm leading-relaxed">Your registration has been submitted successfully. The team will reach out via email.</p>
+            <p className="text-white/60 text-xs md:text-sm leading-relaxed mb-4">Your registration has been submitted successfully.</p>
+            {qrDataUrl && (
+              <div className="flex flex-col items-center gap-2 mb-4">
+                <img src={qrDataUrl} alt="QR Code" className="w-32 h-32 md:w-40 md:h-40 rounded-lg bg-white p-1" />
+                <button onClick={() => { const a = document.createElement("a"); a.href = qrDataUrl; a.download = `k1000-registration-${regId}.png`; a.click(); }}
+                  className={`${conthrax} px-5 py-2 border border-cyan-400/50 text-cyan-400 rounded-full text-[9px] tracking-[0.2em] uppercase hover:bg-cyan-400 hover:text-black transition-all cursor-pointer`}>Download QR</button>
+              </div>
+            )}
             <button onClick={() => setSubmitted(false)}
-              className={`${conthrax} mt-5 md:mt-6 px-6 md:px-8 py-2.5 md:py-3 border border-cyan-400 text-cyan-400 rounded-full text-[9px] md:text-[10px] tracking-[0.3em] uppercase hover:bg-cyan-400 hover:text-black transition-all cursor-pointer`}>Close</button>
+              className={`${conthrax} mt-1 px-6 md:px-8 py-2.5 md:py-3 border border-cyan-400 text-cyan-400 rounded-full text-[9px] md:text-[10px] tracking-[0.3em] uppercase hover:bg-cyan-400 hover:text-black transition-all cursor-pointer`}>Close</button>
           </div>
         </motion.div>
       )}

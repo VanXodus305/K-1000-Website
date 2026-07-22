@@ -8,10 +8,7 @@ const conthrax = "font-['Conthrax',_sans-serif]";
 
 export default function BootSequence() {
   const [stage, setStage] = useState<"charging" | "ready">(() =>
-    typeof window !== "undefined" &&
-    window.sessionStorage.getItem("k1000_system_booted")
-      ? "ready"
-      : "charging",
+    window.sessionStorage.getItem("k1000_system_booted") ? "ready" : "charging"
   );
   const [status, setStatus] = useState("CORE_STANDBY");
 
