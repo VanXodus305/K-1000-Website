@@ -67,9 +67,9 @@ const offices = [
   {
     key: "occ",
     short: "OCC",
-    title: "Office of Content & Communication",
+    title: "Office of Content & Communications",
     tag: "Documentation & Internal Comms",
-    description: "The Office of Communication & Content is the central communication and documentation hub of K-1000. It is responsible for maintaining the voice, tone, and consistency of all official communications. The branch manages documentation, MoUs, event agendas, result reports, social media content, and formal correspondence, while ensuring that all communication aligns with K-1000's objectives and standards.",
+    description: "The Office of Content & Communications is the central communication and documentation hub of K-1000. It is responsible for maintaining the voice, tone, and consistency of all official communications. The branch manages documentation, MoUs, event agendas, result reports, social media content, and formal correspondence, while ensuring that all communication aligns with K-1000's objectives and standards.",
   },
 ].map((o, i) => ({ ...o, image: officeImages[i] || officeImages[0], icon: iconMap[o.key] || <Building2 size={14} /> }));
 

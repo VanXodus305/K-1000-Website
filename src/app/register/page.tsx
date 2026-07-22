@@ -31,7 +31,7 @@ const skillOptions = [
   "Cybersecurity", "Mobile Dev",
 ];
 
-const allDomains = [...domains, { key: "finance" as const, title: "Finance & Entrepreneurship" }];
+const allDomains = domains;
 
 const branchMessages: Record<string, string> = {
   events: `"We look for individuals who plan with precision, execute with passion, and bring every event to life for the K-1000 community."`,
@@ -59,7 +59,7 @@ const designations: Record<string, string> = {
 const offices = [
   { id: "relations", title: "Office of Public & Corporate Relations", message: "We bridge K-1000 with the external world — building relationships with industry partners, managing public communications, and creating opportunities for students to engage with leading organizations." },
   { id: "creative", title: "Office of Creativity & Design", message: "Creativity is at the heart of innovation. We shape K-1000's visual identity, build compelling narratives, and ensure our brand reflects the caliber of our research community." },
-  { id: "comms", title: "Office of Communications & Content", message: "Every great research program has a great story. We amplify K-1000's impact through strategic storytelling, social media, and content that inspires the next generation of innovators." },
+  { id: "comms", title: "Office of Content & Communications", message: "Every great research program has a great story. We amplify K-1000's impact through strategic storytelling, social media, and content that inspires the next generation of innovators." },
 ];
 
 const steps = [
