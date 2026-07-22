@@ -1,23 +1,12 @@
 "use client";
 
-import React, { useState, useMemo, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Cpu, Target, Layers, BookOpen, Briefcase, GraduationCap, Users, ChevronRight } from "lucide-react";
+import { Cpu, Target, Layers, BookOpen, Briefcase, GraduationCap, Users, ChevronRight, DollarSign } from "lucide-react";
 import SharedHeader from "../../components/ui/SharedHeader";
 import Footer from "../../components/footer/Footer";
-import { leadership } from "../../data/leadership";
 import { domains } from "../../data/domain";
 import CubeBackground from "../../components/ui/CubeBackground";
-
-/* ─────────── CONFIG & MAPPING ─────────── */
-const branchMapping: Record<string, string> = {
-  internship: "academicinternshipandplacementguidance",
-  eventorganization: "eventorganization",
-  researchandpublications: "researchandpublications",
-  projectwing: "projectwing",
-  trainingprogram: "trainingprogram",
-  higherstudies: "higherstudies",
-};
 
 const iconMap: Record<string, React.ReactNode> = {
   training: <Cpu size={14} />,
@@ -26,6 +15,7 @@ const iconMap: Record<string, React.ReactNode> = {
   events: <Users size={14} />,
   internship: <Briefcase size={14} />,
   higher: <GraduationCap size={14} />,
+  finance: <DollarSign size={14} />,
 };
 
 const domainImages = [
@@ -34,7 +24,8 @@ const domainImages = [
   "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=1600",
   "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=1600",
   "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1600",
-  "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1600&auto=format&fit=crop"
+  "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?q=80&w=1600"
 ];
 
 const branches = domains.map((d, index) => ({
@@ -48,9 +39,7 @@ const branches = domains.map((d, index) => ({
 
 const conthrax = "font-['Conthrax',_sans-serif]";
 const orbitron = "font-['Orbitron',_sans-serif]";
-const cleanString = (s: string) => s.toLowerCase().replace(/&/g, "and").replace(/management/g, "organization").replace(/\s+/g, "").trim();
 
-/* ─────────── MAIN PAGE ─────────── */
 export default function BranchesPage() {
   const [activeTab, setActiveTab] = useState(branches[0].key);
   const navRef = useRef<HTMLDivElement>(null);
@@ -61,27 +50,12 @@ export default function BranchesPage() {
       const activeBtn = navRef.current.querySelector(`[data-key="${activeTab}"]`) as HTMLElement;
       if (activeBtn) {
         navRef.current.scrollTo({
-          left:
-            activeBtn.offsetLeft -
-            navRef.current.clientWidth / 2 +
-            activeBtn.clientWidth / 2,
+          left: activeBtn.offsetLeft - navRef.current.clientWidth / 2 + activeBtn.clientWidth / 2,
           behavior: "smooth",
         });
       }
     }
   }, [activeTab]);
-
-  const { director, deputy } = useMemo(() => {
-    const directors =
-      leadership.hierarchy.find((entry) => entry.level === 3)?.members ?? [];
-    const deputies =
-      leadership.hierarchy.find((entry) => entry.level === 4)?.members ?? [];
-    const targetKey = branchMapping[activeDomain.key] || cleanString(activeDomain.title);
-    return {
-      director: directors.find((member) => cleanString(member.branch) === targetKey),
-      deputy: deputies.find((member) => cleanString(member.branch) === targetKey),
-    };
-  }, [activeDomain]);
 
   return (
     <div className="flex flex-col w-full bg-[#020202] text-white min-h-screen relative cursor-default">
@@ -155,13 +129,13 @@ export default function BranchesPage() {
 
                   <h4 className={`${conthrax} text-[10px] text-white/30 uppercase mb-6`}>Unit Leadership</h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                    {[director, deputy].map((leader, i) => (
+                    {["Director", "Deputy Director"].map((title, i) => (
                       <div key={i} className="flex flex-col gap-4">
-                        <p className="text-[10px] uppercase text-white/40">{i === 0 ? "Director" : "Deputy Director"}</p>
-                        <div className="w-full aspect-square md:aspect-auto md:h-72 rounded-2xl overflow-hidden border border-white/10 bg-white/5">
-                          {leader ? <img src={leader.image} alt={leader.name} className="w-full h-full object-cover object-[center_20%]" /> : <div className="h-full flex items-center justify-center text-white/10">TBD</div>}
+                        <p className="text-[10px] uppercase text-white/40">{title}</p>
+                        <div className="w-full aspect-square md:aspect-auto md:h-72 rounded-2xl overflow-hidden border border-white/10 bg-white/5 flex items-center justify-center text-white/10">
+                          <span className={`${conthrax} text-xs`}>TBD</span>
                         </div>
-                        <p className={`${conthrax} text-sm`}>{leader?.name || "TBD"}</p>
+                        <p className={`${conthrax} text-sm text-white/40`}>TBD</p>
                       </div>
                     ))}
                   </div>
