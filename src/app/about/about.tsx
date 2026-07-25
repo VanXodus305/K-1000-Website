@@ -7,6 +7,7 @@ import SharedHeader from "../../components/ui/SharedHeader";
 import Footer from "../../components/footer/Footer";
 import CubeBackground from "../../components/ui/CubeBackground";
 import LeadershipProfileCard from "../../components/about/LeadershipProfileCard";
+import { SITE_TAGLINE } from "../../data/site";
 
 const conthrax = "font-['Conthrax',_Arial]";
 
@@ -85,7 +86,7 @@ export default function AboutPage() {
                 ABOUT <span className="text-cyan-400 drop-shadow-[0_0_15px_#00f7ff]">K-1000</span>
               </h1>
               <p className={`${conthrax} text-cyan-400/50 mt-4 tracking-[0.2em] md:tracking-[0.5em] text-[10px] md:text-sm uppercase font-bold`}>
-                Vision • Innovation • Excellence
+                {SITE_TAGLINE}
               </p>
             </div>
           </div>

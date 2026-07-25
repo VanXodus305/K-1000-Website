@@ -36,6 +36,7 @@ import Footer from "../footer/Footer";
 import { domains, type K1000Domain } from "../../data/domain";
 import DomainHoloPanel from "../ui/DomainHoloPanel";
 import data from "@/data/data.json";
+import { SITE_TAGLINE } from "../../data/site";
 
 const conthrax = "font-['Conthrax',_sans-serif]";
 const DOMAIN_HOLO_PANEL_ENABLED = false;
@@ -400,7 +401,7 @@ export default function UnifiedPortal() {
                       <div
                         className={`text-[7px] tracking-[0.4em] text-cyan-400/70 font-black uppercase text-center drop-shadow-[0_0_5px_#00f7ff] ${conthrax}`}
                       >
-                        Train • Transform • Transcend
+                        {SITE_TAGLINE}
                       </div>
                     </div>
                   </div>
@@ -458,7 +459,7 @@ export default function UnifiedPortal() {
                       <div
                         className={`mt-20 translate-x-10 translate-y-8 text-[18px] tracking-[1.4em] text-cyan-400 font-black uppercase text-center drop-shadow-[0_0_12px_#00f7ff] brightness-110 ${conthrax}`}
                       >
-                        Train • Transform • Transcend
+                        {SITE_TAGLINE}
                       </div>
                     </div>
 
@@ -595,7 +596,7 @@ export default function UnifiedPortal() {
 
               <div className="flex flex-col sm:flex-row gap-3 w-full max-w-[280px] sm:max-w-none justify-center">
                 <Link
-                  href="/apply"
+                  href="/register"
                   className={`px-6 py-3 bg-cyan-400 text-black uppercase text-[9px] tracking-widest rounded-full font-black text-center ${conthrax}`}
                 >
                   Apply Now

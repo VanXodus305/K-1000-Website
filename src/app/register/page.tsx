@@ -2,13 +2,15 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, Send, RotateCcw, Plus, ChevronRight, ChevronLeft, ChevronDown, Quote } from "lucide-react";
+import { Check, Send, RotateCcw, ChevronRight, ChevronLeft, ChevronDown, Quote } from "lucide-react";
 import QRCode from "qrcode";
+import Link from "next/link";
 import SharedHeader from "../../components/ui/SharedHeader";
 import Footer from "../../components/footer/Footer";
 import CubeBackground from "../../components/ui/CubeBackground";
 import { domains } from "../../data/domain";
 import { offices } from "../../data/offices";
+import { SITE_TAGLINE } from "../../data/site";
 
 const conthrax = "font-['Conthrax',_sans-serif]";
 const orbitron = "font-['Orbitron',_sans-serif]";
@@ -57,12 +59,6 @@ const referralOptions = [
   "College Notice Board", "KIIT Website", "WhatsApp Group", "Campus Event", "Other",
 ];
 
-const skillOptions = [
-  "Python", "JavaScript", "Java", "C++", "Go", "React", "AI/ML",
-  "Data Science", "UI/UX", "DevOps", "Blockchain", "IoT", "Cloud",
-  "Cybersecurity", "Mobile Dev",
-];
-
 const branchDomains = domains;
 
 const branchMessages: Record<string, string> = {
@@ -73,33 +69,29 @@ const branchMessages: Record<string, string> = {
   training: `"Every expert starts as a beginner. Whether you're new to a domain or looking to sharpen your skills, the K-1000 Training Program welcomes curious minds ready to learn, build, and grow. Join us and take the next step in your learning journey."`,
 };
 
-const officeMessages: Record<string, string> = {
-  relations: `"We look for individuals who communicate with purpose, build relationships with intent, bring in the support that powers every event, and represent K-1000 with pride in every room they walk into."`,
-  creative: `"The Office of Creativity & Design seeks individuals who lead with creativity, design with purpose, and leave a lasting visual impact across the KIIT community."`,
-};
-
 const designations: Record<string, string> = {
   events: "~Director & Deputy Director | Event Management",
   higher: "~Deputy Director | Higher Studies",
   research: "~Director & Deputy Director | Research & Publications Wing",
   projects: "~Director & Deputy Director | Project Wing",
   training: "~Deputy Director | Training Program",
-  relations: "~Director | OPCR",
-  creative: "~Deputy Director, OCD",
 };
 
-const officeChoices = offices.map((office) => ({
-  id: office.key,
-  title: office.title,
-  message: office.overview,
-}));
+const recruitingOfficeKeys = new Set(["ocd", "opcr", "oca", "occ"]);
+const officeChoices = offices
+  .filter((office) => recruitingOfficeKeys.has(office.key))
+  .map((office) => ({
+    id: office.key,
+    title: office.title,
+    message: office.overview,
+  }));
 
 const steps = [
   { id: 1, label: "Personal", title: "Personal Information" },
   { id: 2, label: "Academic", title: "Academic Details" },
-  { id: 3, label: "Skills", title: "Skills & Experience" },
+  { id: 3, label: "Experience", title: "Experience & Motivation" },
   { id: 4, label: "Domain", title: "Choose Your Domain" },
-  { id: 5, label: "Review", title: "Referral & Submit" },
+  { id: 5, label: "Review", title: "Review & Submit" },
 ];
 
 type FormData = {
@@ -116,6 +108,27 @@ const initialForm: FormData = {
   domain_choice: "", motivation: "", experience: "",
   skills: [], referral_source: "",
 };
+
+const REGISTRATION_RECEIPT_KEY = "k1000-registration-receipt-v1";
+
+type RegistrationReceipt = {
+  id: number | null;
+  email: string;
+  submittedAt: string;
+};
+
+function readRegistrationReceipt(): RegistrationReceipt | null {
+  try {
+    const storedReceipt = window.localStorage.getItem(REGISTRATION_RECEIPT_KEY);
+    if (!storedReceipt) return null;
+
+    const parsedReceipt = JSON.parse(storedReceipt) as RegistrationReceipt;
+    if (!parsedReceipt.email || !parsedReceipt.submittedAt) return null;
+    return parsedReceipt;
+  } catch {
+    return null;
+  }
+}
 
 const inputCls = "w-full bg-[#020606]/80 border border-white/10 rounded-[18px] px-4 py-3.5 text-sm text-white placeholder-white/20 outline-none focus:border-cyan-400/80 focus:bg-cyan-500/[0.025] focus:shadow-[0_0_0_3px_rgba(0,247,255,0.08),0_0_28px_rgba(0,247,255,0.08)] transition-all";
 
@@ -243,6 +256,8 @@ function CustomSelect({
             }
             transition={{ duration: 0.16, ease: "easeOut" }}
             className={`${inlineMenu ? "relative" : "absolute left-0 right-0 top-full z-50 mt-1.5 origin-top"} max-h-64 overflow-y-auto overscroll-contain rounded-[18px] border border-cyan-400/20 bg-[#040909]/95 p-1.5 shadow-[0_18px_55px_rgba(0,0,0,0.72),0_0_28px_rgba(0,247,255,0.07)] backdrop-blur-2xl [scrollbar-color:rgba(0,247,255,0.35)_rgba(255,255,255,0.04)] [scrollbar-gutter:stable] [scrollbar-width:thin]`}
+            data-lenis-prevent
+            onWheel={(event) => event.stopPropagation()}
           >
             {options.map((option, index) => {
               const isSelected = option.value === value;
@@ -279,7 +294,9 @@ function CustomSelect({
 function getDomainLabel(key: string) {
   if (key === "events") return "Event Management";
   if (key === "finance") return "Finance & Entrepreneurship";
-  return domains.find(d => d.key === key)?.title ?? key;
+  return domains.find((domain) => domain.key === key)?.title
+    ?? offices.find((office) => office.key === key)?.title
+    ?? key;
 }
 
 function getDomainMsg(key: string) {
@@ -298,10 +315,16 @@ export default function RegisterPage() {
   const [regId, setRegId] = useState<number | null>(null);
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [toast, setToast] = useState<{ type: string; text: string } | null>(null);
-  const [customSkill, setCustomSkill] = useState("");
   const [customCourse, setCustomCourse] = useState("");
   const [flashMsg, setFlashMsg] = useState<string | null>(null);
   const [flashLabel, setFlashLabel] = useState("");
+  const [storedRegistration, setStoredRegistration] = useState<RegistrationReceipt | null>(null);
+  const [registrationCacheReady, setRegistrationCacheReady] = useState(false);
+
+  useEffect(() => {
+    setStoredRegistration(readRegistrationReceipt());
+    setRegistrationCacheReady(true);
+  }, []);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -326,23 +349,8 @@ export default function RegisterPage() {
     setToast(null);
   };
 
-  const toggleSkill = (skill: string) => {
-    setForm((prev) => ({
-      ...prev,
-      skills: prev.skills.includes(skill) ? prev.skills.filter((s) => s !== skill) : [...prev.skills, skill],
-    }));
-  };
-
-  const addCustomSkill = () => {
-    const s = customSkill.trim();
-    if (s && !form.skills.includes(s)) {
-      setForm((prev) => ({ ...prev, skills: [...prev.skills, s] }));
-    }
-    setCustomSkill("");
-  };
-
   const showFlash = (key: string, label: string) => {
-    const msg = getDomainMsg(key) || officeMessages[key] || officeChoices.find(o => o.id === key)?.message || "";
+    const msg = getDomainMsg(key) || officeChoices.find((office) => office.id === key)?.message || "";
     if (!msg) return;
     setFlashLabel(designations[key] || label);
     setFlashMsg(msg);
@@ -380,8 +388,6 @@ export default function RegisterPage() {
       if (!form.motivation.trim() || form.motivation.trim().length < 20) errs.motivation = "Motivation must be at least 20 characters";
     } else if (step === 4) {
       if (!form.domain_choice) errs.domain_choice = "Select a domain (max 3)";
-    } else if (step === 5) {
-      if (!form.referral_source) errs.referral_source = "Select how you heard about K-1000";
     }
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -407,7 +413,11 @@ export default function RegisterPage() {
     setSubmitting(true);
     setToast(null);
     try {
-      const payload = { ...form };
+      const payload = {
+        ...form,
+        skills: [],
+        referral_source: form.referral_source || "Not specified",
+      };
       if (form.course === "Others") payload.course = customCourse.trim();
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/registration`, {
@@ -415,9 +425,31 @@ export default function RegisterPage() {
         body: JSON.stringify(payload),
       });
       const result = await res.json();
-      if (result.success) { setSubmitted(true); setRegId(result.data?.id ?? null); setToast({ type: "success", text: "Registration submitted successfully!" }); setForm(initialForm); setStep(1); if (result.data?.id) downloadQR(result.data.id); }
-      else if (result.errors) { const fe: Record<string, string> = {}; result.errors.forEach((e: { field: string; message: string }) => { fe[e.field] = e.message; }); setErrors(fe); setToast({ type: "error", text: "Please fix the highlighted errors." }); }
-      else { setToast({ type: "error", text: result.message || "Submission failed." }); }
+      if (result.success) {
+        const registrationId = result.data?.id ?? null;
+        const receipt: RegistrationReceipt = {
+          id: registrationId,
+          email: form.kiit_email,
+          submittedAt: new Date().toISOString(),
+        };
+
+        window.localStorage.setItem(REGISTRATION_RECEIPT_KEY, JSON.stringify(receipt));
+        setSubmitted(true);
+        setRegId(registrationId);
+        setToast({ type: "success", text: "Registration submitted successfully!" });
+        setForm(initialForm);
+        setStep(1);
+        if (registrationId) downloadQR(registrationId);
+      } else if (result.errors) {
+        const fieldErrors: Record<string, string> = {};
+        result.errors.forEach((error: { field: string; message: string }) => {
+          fieldErrors[error.field] = error.message;
+        });
+        setErrors(fieldErrors);
+        setToast({ type: "error", text: "Please fix the highlighted errors." });
+      } else {
+        setToast({ type: "error", text: result.message || "Submission failed." });
+      }
     } catch { setToast({ type: "error", text: "Cannot reach the server. Please check your internet connection or try again." }); }
     finally { setSubmitting(false); }
   };
@@ -426,6 +458,14 @@ export default function RegisterPage() {
 
   const currentStep = steps[step - 1];
   const selectedDomains = form.domain_choice ? form.domain_choice.split(",").filter(Boolean) : [];
+
+  if (!registrationCacheReady) {
+    return <div className="min-h-screen bg-[#020202]" />;
+  }
+
+  if (storedRegistration) {
+    return <AlreadyRegistered receipt={storedRegistration} />;
+  }
 
   return (
     <div className="relative w-full min-h-screen bg-[#020202] text-white selection:bg-cyan-500/30 flex flex-col overflow-x-hidden cursor-default">
@@ -455,7 +495,11 @@ export default function RegisterPage() {
                   className={`${conthrax} px-5 py-2 border border-cyan-400/50 text-cyan-400 rounded-full text-[9px] tracking-[0.2em] uppercase hover:bg-cyan-400 hover:text-black transition-all cursor-pointer`}>Download QR</button>
               </div>
             )}
-            <button onClick={() => setSubmitted(false)}
+            <button
+              onClick={() => {
+                setSubmitted(false);
+                setStoredRegistration(readRegistrationReceipt());
+              }}
               className={`${conthrax} mt-1 px-6 md:px-8 py-2.5 md:py-3 border border-cyan-400 text-cyan-400 rounded-full text-[9px] md:text-[10px] tracking-[0.3em] uppercase hover:bg-cyan-400 hover:text-black transition-all cursor-pointer`}>Close</button>
           </div>
         </motion.div>
@@ -561,8 +605,8 @@ export default function RegisterPage() {
                   <p className={`${conthrax} mt-1.5 text-xs text-cyan-300`}>{selectedDomains.length}/3</p>
                 </div>
                 <div className="rounded-2xl border border-white/10 bg-black/30 p-3">
-                  <p className={`${orbitron} text-[7px] uppercase tracking-[0.22em] text-white/25`}>Skills</p>
-                  <p className={`${conthrax} mt-1.5 text-xs text-cyan-300`}>{form.skills.length}</p>
+                  <p className={`${orbitron} text-[7px] uppercase tracking-[0.22em] text-white/25`}>Year</p>
+                  <p className={`${conthrax} mt-1.5 truncate text-[9px] text-cyan-300`}>{form.academic_year || "—"}</p>
                 </div>
               </div>
               <div className="h-2 w-full overflow-hidden rounded-full bg-white/[0.06] sm:hidden">
@@ -630,40 +674,12 @@ export default function RegisterPage() {
                   </div>
                 )}
 
-                {/* STEP 3: Skills & Experience */}
+                {/* STEP 3: Experience & Motivation */}
                 {step === 3 && (
                   <div>
                     <div className="mb-4">
-                      <label className={`${conthrax} block text-[10px] text-white/45 uppercase tracking-[0.22em] mb-3`}>Skills / Areas</label>
-                      <div className="flex flex-wrap gap-1.5 md:gap-2 mb-3">
-                        {skillOptions.map((skill) => (
-                          <button key={skill} type="button" onClick={() => toggleSkill(skill)}
-                            className={`px-3 py-2 rounded-xl text-[10px] md:text-[11px] border transition-all duration-300 cursor-pointer ${
-                              form.skills.includes(skill) ? "bg-cyan-500/10 border-cyan-400/70 text-cyan-300 shadow-[0_0_18px_rgba(0,247,255,0.08)]" : "bg-white/[0.025] border-white/10 text-white/50 hover:border-cyan-500/35 hover:text-white/80 hover:bg-white/[0.04]"
-                            }`}>
-                            {form.skills.includes(skill) && <Check size={10} className="inline mr-0.5 md:mr-1" />}{skill}
-                          </button>
-                        ))}
-                        {form.skills.filter((s) => !skillOptions.includes(s)).map((skill) => (
-                          <button key={skill} type="button" onClick={() => toggleSkill(skill)}
-                            className="px-3 py-2 rounded-xl text-[10px] md:text-[11px] border bg-cyan-500/10 border-cyan-400/70 text-cyan-300 transition-all cursor-pointer">
-                            <Check size={10} className="inline mr-0.5 md:mr-1" />{skill}
-                          </button>
-                        ))}
-                      </div>
-                      <div className="flex gap-2">
-                        <input type="text" value={customSkill} onChange={(e) => setCustomSkill(e.target.value)}
-                          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCustomSkill(); } }}
-                          placeholder="Add a custom skill..." className={inputCls} />
-                        <button type="button" onClick={addCustomSkill} disabled={!customSkill.trim()}
-                          className="px-4 rounded-[18px] border border-cyan-400/50 text-cyan-300 text-[11px] hover:bg-cyan-400 hover:text-black transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer">
-                          <Plus size={14} />
-                        </button>
-                      </div>
-                    </div>
-                    <div className="mb-4">
                       <label className={`${conthrax} block text-[10px] text-white/45 uppercase tracking-[0.22em] mb-2`}>Previous Experience <span className="text-white/20 normal-case tracking-normal font-normal">(optional)</span></label>
-                      <textarea value={form.experience} onChange={(e) => update("experience", e.target.value)} placeholder="Describe any prior research, projects, internships, publications..." className={`${inputCls} min-h-[90px] resize-y`} />
+                      <textarea value={form.experience} onChange={(e) => update("experience", e.target.value)} placeholder="Share any previous experience that is relevant to the branch or office you want to join..." className={`${inputCls} min-h-[120px] resize-y`} />
                     </div>
                     <Field label="Why join K-1000?" error={errors.motivation}>
                       <textarea value={form.motivation} onChange={(e) => update("motivation", e.target.value)} placeholder="Tell us about your motivation, goals, and how K-1000 fits into your journey..." className={`${inputCls} min-h-[120px] resize-y`} />
@@ -711,15 +727,16 @@ export default function RegisterPage() {
                   </div>
                 )}
 
-                {/* STEP 5: Referral & Submit */}
+                {/* STEP 5: Review & Submit */}
                 {step === 5 && (
                   <div>
-                    <Field label="How did you hear about K-1000?" error={errors.referral_source}>
+                    <Field label="How did you hear about K-1000?" required={false}>
                       <CustomSelect
                         value={form.referral_source}
                         options={referralOptions.map((source) => ({ value: source, label: source }))}
-                        placeholder="Select source"
+                        placeholder="Select source (optional)"
                         ariaLabel="Referral source"
+                        inlineMenu
                         onChange={(value) => update("referral_source", value)}
                       />
                     </Field>
@@ -728,8 +745,8 @@ export default function RegisterPage() {
                       <div className="grid grid-cols-2 gap-2 text-[11px] md:text-xs text-white/50">
                         <span className="text-white/30">Name:</span><span className="text-white/70">{form.full_name || "—"}</span>
                         <span className="text-white/30">Email:</span><span className="text-white/70">{form.kiit_email || "—"}</span>
-                        <span className="text-white/30">Domains:</span><span className="text-white/70">{form.domain_choice ? form.domain_choice.split(",").map(getDomainLabel).join(", ") : "—"}</span>
-                        <span className="text-white/30">Skills:</span><span className="text-white/70">{form.skills.length || "—"}</span>
+                        <span className="text-white/30">Branches / Offices:</span>
+                        <span className="text-white/70 capitalize">{form.domain_choice ? form.domain_choice.split(",").map(getDomainLabel).join(", ") : "—"}</span>
                       </div>
                     </div>
                   </div>
@@ -788,23 +805,31 @@ export default function RegisterPage() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 30, scale: 0.95 }}
             transition={{ type: "spring", damping: 20, stiffness: 300 }}
-            className="fixed bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 z-[200] w-[calc(100vw-32px)] max-w-lg"
+            className="fixed inset-0 z-[200] flex items-end justify-center bg-black/70 p-3 md:pointer-events-none md:bg-transparent md:p-6"
           >
-            <div className="relative p-4 md:p-5 rounded-2xl bg-black/90 backdrop-blur-xl border border-cyan-400/30 shadow-[0_0_40px_rgba(0,247,255,0.15)]">
-              <div className="flex gap-3">
-                <Quote size={24} className="text-cyan-400/40 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-base md:text-lg text-white/70 leading-relaxed italic">{flashMsg}</p>
-                  <p className={`${conthrax} text-xs md:text-sm text-cyan-400/60 mt-2 uppercase tracking-wider`}>&mdash; {flashLabel}</p>
+            <div className="pointer-events-auto flex max-h-[calc(100dvh-1.5rem)] w-full max-w-lg flex-col overflow-hidden rounded-[24px] border border-cyan-400/30 bg-black/95 shadow-[0_0_40px_rgba(0,247,255,0.15)] backdrop-blur-xl md:max-h-[75vh]">
+              <div
+                data-lenis-prevent
+                onWheel={(event) => event.stopPropagation()}
+                className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 [scrollbar-color:rgba(0,247,255,0.35)_rgba(255,255,255,0.04)] [scrollbar-width:thin] md:p-5"
+              >
+                <div className="flex items-start gap-3">
+                  <Quote size={21} className="mt-0.5 shrink-0 text-cyan-400/40 md:h-6 md:w-6" />
+                  <div className="min-w-0">
+                    <p className="break-words text-sm leading-relaxed text-white/70 italic md:text-lg">{flashMsg}</p>
+                    <p className={`${conthrax} mt-3 break-words text-[9px] uppercase leading-relaxed tracking-wider text-cyan-400/60 md:text-xs`}>&mdash; {flashLabel}</p>
+                  </div>
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={() => setFlashMsg(null)}
-                className={`${conthrax} mt-4 flex w-full items-center justify-center rounded-[14px] border border-cyan-400/35 bg-cyan-400/[0.06] px-4 py-3 text-[9px] uppercase tracking-[0.24em] text-cyan-300 transition-all hover:border-cyan-300/70 hover:bg-cyan-400/12 active:scale-[0.98]`}
-              >
-                Close message to continue
-              </button>
+              <div className="shrink-0 border-t border-white/10 bg-black/80 p-3 md:p-4">
+                <button
+                  type="button"
+                  onClick={() => setFlashMsg(null)}
+                  className={`${conthrax} flex w-full items-center justify-center rounded-[14px] border border-cyan-400/35 bg-cyan-400/[0.06] px-4 py-3 text-[8px] uppercase tracking-[0.18em] text-cyan-300 transition-all hover:border-cyan-300/70 hover:bg-cyan-400/12 active:scale-[0.98] md:text-[9px] md:tracking-[0.24em]`}
+                >
+                  Close message to continue
+                </button>
+              </div>
             </div>
           </motion.div>
         )}
@@ -815,10 +840,87 @@ export default function RegisterPage() {
   );
 }
 
-function Field({ label, error, helper, children }: { label: string; error?: string; helper?: string; children: React.ReactNode }) {
+function AlreadyRegistered({ receipt }: { receipt: RegistrationReceipt }) {
+  const submittedDate = new Date(receipt.submittedAt);
+  const formattedDate = Number.isNaN(submittedDate.getTime())
+    ? "Previously submitted"
+    : new Intl.DateTimeFormat("en-IN", {
+        dateStyle: "medium",
+        timeStyle: "short",
+      }).format(submittedDate);
+
+  return (
+    <div className="relative flex min-h-screen w-full flex-col overflow-hidden bg-[#020202] text-white">
+      <CubeBackground zIndex={0} disableLinesOnMobile />
+      <SharedHeader />
+      <main className="relative z-10 flex flex-1 items-center justify-center px-4 pb-16 pt-28 md:pt-36">
+        <motion.section
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative w-full max-w-xl overflow-hidden rounded-[32px] border border-cyan-400/25 bg-black/65 p-6 text-center shadow-[0_0_70px_rgba(0,247,255,0.1)] backdrop-blur-2xl md:p-10"
+        >
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300 to-transparent" />
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-[18px] border border-cyan-400/35 bg-cyan-400/10 text-cyan-300">
+            <Check size={24} />
+          </div>
+          <p className={`${orbitron} mt-6 text-[8px] uppercase tracking-[0.35em] text-cyan-300/55`}>
+            Registration receipt found
+          </p>
+          <h1 className={`${conthrax} mt-3 text-xl uppercase text-white md:text-3xl`}>
+            Already Registered
+          </h1>
+          <p className="mx-auto mt-4 max-w-md text-xs leading-relaxed text-white/50 md:text-sm">
+            This browser already contains a successful K-1000 registration receipt.
+          </p>
+          <div className="mt-7 rounded-[20px] border border-white/10 bg-white/[0.025] p-4 text-left">
+            <div className="grid grid-cols-[90px_1fr] gap-2 text-[10px] md:grid-cols-[120px_1fr] md:text-xs">
+              <span className="text-white/30">KIIT account</span>
+              <span className="break-all text-white/70">{receipt.email}</span>
+              <span className="text-white/30">Signal ID</span>
+              <span className="text-cyan-300">{receipt.id ? `#${receipt.id}` : "Recorded"}</span>
+              <span className="text-white/30">Submitted</span>
+              <span className="text-white/70">{formattedDate}</span>
+            </div>
+          </div>
+          <Link
+            href="/"
+            className={`${conthrax} mt-7 inline-flex items-center gap-2 rounded-full border border-cyan-400/50 px-6 py-3 text-[9px] uppercase tracking-[0.2em] text-cyan-300 transition-all hover:bg-cyan-400 hover:text-black`}
+          >
+            Return Home <ChevronRight size={13} />
+          </Link>
+          <p className={`${conthrax} mt-7 text-[7px] uppercase tracking-[0.35em] text-cyan-400/35`}>
+            {SITE_TAGLINE}
+          </p>
+        </motion.section>
+      </main>
+      <Footer />
+    </div>
+  );
+}
+
+function Field({
+  label,
+  error,
+  helper,
+  required = true,
+  children,
+}: {
+  label: string;
+  error?: string;
+  helper?: string;
+  required?: boolean;
+  children: React.ReactNode;
+}) {
   return (
     <div className="mb-3 md:mb-4">
-      <label className="block text-[10px] md:text-[11px] font-semibold text-white/50 uppercase tracking-wider mb-1.5 md:mb-2">{label} <span className="text-cyan-400">*</span></label>
+      <label className="block text-[10px] md:text-[11px] font-semibold text-white/50 uppercase tracking-wider mb-1.5 md:mb-2">
+        {label}{" "}
+        {required ? (
+          <span className="text-cyan-400">*</span>
+        ) : (
+          <span className="text-white/25 normal-case tracking-normal">(optional)</span>
+        )}
+      </label>
       {children}
       {helper && !error && <p className="mt-1.5 text-[10px] leading-relaxed text-cyan-200/45 md:text-[11px]">{helper}</p>}
       {error && <p className="text-red-400 text-[10px] md:text-[11px] mt-1">{error}</p>}

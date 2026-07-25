@@ -59,7 +59,7 @@ export const leadership: LeadershipData = {
         {
           name: "Abhishek Singhal",
           position: "Director",
-          branch: "Training Programme",
+          branch: "Training Program",
           image:
             "https://res.cloudinary.com/vanxodus305/image/upload/w_1024,ar_1:1,c_auto,g_auto/v1754423643/K-1000/IMG20250329151257_4_fvcs88.jpg",
         },
@@ -152,7 +152,7 @@ export const leadership: LeadershipData = {
         {
           name: "Shaambhavi Narayan",
           position: "Deputy Director",
-          branch: "Training Programme",
+          branch: "Training Program",
           image:PLACEHOLDER_IMAGE,
         },
         {

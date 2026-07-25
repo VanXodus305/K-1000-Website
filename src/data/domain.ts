@@ -1,12 +1,12 @@
 export const domains = [
   {
     key: "training",
-    title: "Training Programme",
+    title: "Training Program",
     yearOfFormation: 2022,
     overview:
-      "The Training Programme serves as the foundational learning pillar of K-1000, designed to upskill students through a structured, peer-driven learning ecosystem.",
+      "The Training Program serves as the foundational learning pillar of K-1000, designed to upskill students through a structured, peer-driven learning ecosystem.",
     description:
-      "The K-1000 Training Programme focuses on equipping students with both technical and professional competencies required in real-world environments. Through curated learning tracks, interactive workshops, and mentorship-driven sessions, students are introduced to core concepts in programming, system design, communication, and teamwork. The programme emphasizes experiential learning, where participants actively apply concepts through guided exercises and collaborative problem-solving. Over time, students develop confidence, discipline, and adaptability essential for academic success, research, and industry readiness.",
+      "The K-1000 Training Program focuses on equipping students with both technical and professional competencies required in real-world environments. Through curated learning tracks, interactive workshops, and mentorship-driven sessions, students are introduced to core concepts in programming, system design, communication, and teamwork. The program emphasizes experiential learning, where participants actively apply concepts through guided exercises and collaborative problem-solving. Over time, students develop confidence, discipline, and adaptability essential for academic success, research, and industry readiness.",
     focusAreas: [
       "Core Programming & Technical Foundations",
       "Communication, Presentation & Soft Skills",

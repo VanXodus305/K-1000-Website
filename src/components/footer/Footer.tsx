@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { MapPin, Phone, Mail, ChevronRight } from "lucide-react";
 import { FaLinkedinIn, FaWhatsapp, FaInstagram } from "react-icons/fa6";
 import styles from "./Footer.module.scss";
+import { SITE_TAGLINE } from "../../data/site";
 
 const conthrax = "font-['Conthrax',_sans-serif]";
 
@@ -18,7 +19,7 @@ const Footer = () => {
     { title: "About Program", path: "/about" },
     { title: "Benefits", path: "/benefits" },
     { title: "Branches", path: "/branches" },
-    { title: "Apply Now", path: "/apply" },
+    { title: "Apply Now", path: "/register" },
     { title: "Contact", path: "/contact" },
   ];
 
@@ -160,7 +161,7 @@ const Footer = () => {
             © {new Date().getFullYear()} KIIT University.
           </p>
           <div className={`${conthrax} text-[7px] text-cyan-500/60 tracking-[0.8em] font-black uppercase text-center md:text-right w-full md:w-auto`}>
-            Train . Transform . Transcend
+            {SITE_TAGLINE}
           </div>
         </div>
       </div>
