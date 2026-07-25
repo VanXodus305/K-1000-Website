@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Cpu, Target, Layers, BookOpen, Briefcase, GraduationCap, Users, ChevronRight, DollarSign } from "lucide-react";
 import SharedHeader from "../../components/ui/SharedHeader";
@@ -8,11 +8,9 @@ import Footer from "../../components/footer/Footer";
 import { domains } from "../../data/domain";
 import CubeBackground from "../../components/ui/CubeBackground";
 import { findLeadershipPair } from "../../lib/leadership-utils";
+import { leadership } from "../../data/leadership";
 
-<<<<<<< HEAD
 /* ─────────── CONFIG & MAPPING ─────────── */
-=======
->>>>>>> experiment
 const iconMap: Record<string, React.ReactNode> = {
   training: <Cpu size={14} />,
   research: <BookOpen size={14} />,
@@ -20,13 +18,9 @@ const iconMap: Record<string, React.ReactNode> = {
   events: <Users size={14} />,
   internship: <Briefcase size={14} />,
   higher: <GraduationCap size={14} />,
-<<<<<<< HEAD
-  finance: <Briefcase size={14} />,
+  finance: <DollarSign size={14} />,
   content: <BookOpen size={14} />,
   campus: <Users size={14} />,
-=======
-  finance: <DollarSign size={14} />,
->>>>>>> experiment
 };
 
 const domainImages = [
@@ -36,13 +30,9 @@ const domainImages = [
   "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=1600",
   "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1600",
   "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1600&auto=format&fit=crop",
-<<<<<<< HEAD
-  "https://images.unsplash.com/photo-1554224155-6726b3ff858f?q=80&w=1600",
+  "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?q=80&w=1600",
   "https://images.unsplash.com/photo-1516321497487-e288fb19713f?q=80&w=1600",
   "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1600",
-=======
-  "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?q=80&w=1600"
->>>>>>> experiment
 ];
 
 const branchUnits = domains.filter(
@@ -77,13 +67,9 @@ export default function BranchesPage() {
     }
   }, [activeTab]);
 
-<<<<<<< HEAD
   const { primaryLeader, secondaryLeader } = useMemo(() => {
     return findLeadershipPair(leadership.hierarchy, activeDomain.title);
   }, [activeDomain]);
-
-=======
->>>>>>> experiment
   return (
     <div className="flex flex-col w-full bg-[#020202] text-white min-h-screen relative cursor-default">
       <CubeBackground zIndex={0} disableLinesOnMobile />
@@ -156,7 +142,6 @@ export default function BranchesPage() {
 
                   <h4 className={`${conthrax} text-[10px] text-white/30 uppercase mb-6`}>Unit Leadership</h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-<<<<<<< HEAD
                     {[primaryLeader, secondaryLeader].map((leader, i) => {
                       const isPlaceholder = leader?.image === "/k1000-small.png";
                       return (
@@ -178,17 +163,6 @@ export default function BranchesPage() {
                         </div>
                       );
                     })}
-=======
-                    {["Director", "Deputy Director"].map((title, i) => (
-                      <div key={i} className="flex flex-col gap-4">
-                        <p className="text-[10px] uppercase text-white/40">{title}</p>
-                        <div className="w-full aspect-square md:aspect-auto md:h-72 rounded-2xl overflow-hidden border border-white/10 bg-white/5 flex items-center justify-center text-white/10">
-                          <span className={`${conthrax} text-xs`}>TBD</span>
-                        </div>
-                        <p className={`${conthrax} text-sm text-white/40`}>TBD</p>
-                      </div>
-                    ))}
->>>>>>> experiment
                   </div>
                 </motion.div>
               </AnimatePresence>

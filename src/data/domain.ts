@@ -137,29 +137,28 @@ export const domains = [
     baseColor: "#0f766e",
     accentColor: "#5eead4",
   },
-<<<<<<< HEAD
   {
     key: "finance",
     title: "Finance & Entrepreneurship",
-    yearOfFormation: 2026,
+    yearOfFormation: 2024,
     overview:
-      "The Finance & Entrepreneurship unit strengthens business literacy, resource planning, and entrepreneurial thinking inside K-1000.",
+      "The Finance and Entrepreneurship branch focuses on building a strong entrepreneurial and financial ecosystem within KIIT University.",
     description:
-      "This unit supports members in understanding budgeting, sponsorship strategy, startup thinking, and financial planning for projects and events. Students learn how to frame ideas sustainably, evaluate feasibility, and build entrepreneurial confidence alongside technical execution. The unit also contributes to funding discipline, partnership awareness, and innovation with practical commercial understanding.",
+      "The Finance and Entrepreneurship branch focuses on building a strong entrepreneurial and financial ecosystem within KIIT University. It supports student-led ventures through mentorship, financial planning, operational support, partnerships, compliance awareness, and strategic execution. The branch aims to create financially literate leaders, scalable student startups, and sustainable long-term impact through structured growth and real-world business exposure.",
     focusAreas: [
-      "Budgeting & Financial Planning",
-      "Sponsorship Strategy & Funding Awareness",
-      "Entrepreneurial Thinking & Validation",
-      "Business Communication & Feasibility Analysis",
+      "Entrepreneurial Mentorship & Strategy",
+      "Financial Planning & Resource Management",
+      "Partnership Development & Compliance",
+      "Real-world Business Exposure",
     ],
     outcomes: [
-      "Stronger project budgeting skills",
-      "Exposure to startup and innovation thinking",
-      "Better sponsorship and funding readiness",
-      "Improved business-facing communication",
+      "Scalable student-led startups",
+      "Financial literacy and leadership skills",
+      "Strategic partnerships and industry connections",
+      "Sustainable long-term impact",
     ],
-    baseColor: "#8b5e00",
-    accentColor: "#facc15",
+    baseColor: "#047857",
+    accentColor: "#6ee7b7",
   },
   {
     key: "content",
@@ -206,31 +205,6 @@ export const domains = [
     ],
     baseColor: "#1d4ed8",
     accentColor: "#93c5fd",
-=======
-
-  {
-    key: "finance",
-    title: "Finance & Entrepreneurship",
-    yearOfFormation: 2024,
-    overview:
-      "The Finance and Entrepreneurship branch focuses on building a strong entrepreneurial and financial ecosystem within KIIT University.",
-    description:
-      "The Finance and Entrepreneurship branch focuses on building a strong entrepreneurial and financial ecosystem within KIIT University. It supports student-led ventures through mentorship, financial planning, operational support, partnerships, compliance awareness, and strategic execution. The branch aims to create financially literate leaders, scalable student startups, and sustainable long-term impact through structured growth and real-world business exposure.",
-    focusAreas: [
-      "Entrepreneurial Mentorship & Strategy",
-      "Financial Planning & Resource Management",
-      "Partnership Development & Compliance",
-      "Real-world Business Exposure",
-    ],
-    outcomes: [
-      "Scalable student-led startups",
-      "Financial literacy and leadership skills",
-      "Strategic partnerships and industry connections",
-      "Sustainable long-term impact",
-    ],
-    baseColor: "#047857",
-    accentColor: "#6ee7b7",
->>>>>>> experiment
   },
 ];
 
