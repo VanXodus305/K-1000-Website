@@ -151,8 +151,9 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* CORE TEAM SECTION */}
-        <section className="w-full max-w-[1480px] px-4 sm:px-6 py-12 md:py-20 border-t border-white/5">
+        {/* CORE TEAM SECTION — hidden */}
+
+        <section className="hidden w-full max-w-[1480px] px-4 sm:px-6 py-12 md:py-20 border-t border-white/5">
           <h2 className={`${conthrax} text-center text-3xl sm:text-4xl md:text-7xl mb-10 md:mb-16 text-white uppercase tracking-tighter font-black`}>
             CORE <span className="text-cyan-400">TEAM</span>
           </h2>

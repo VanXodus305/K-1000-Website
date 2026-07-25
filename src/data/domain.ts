@@ -137,6 +137,7 @@ export const domains = [
     baseColor: "#0f766e",
     accentColor: "#5eead4",
   },
+<<<<<<< HEAD
   {
     key: "finance",
     title: "Finance & Entrepreneurship",
@@ -205,6 +206,31 @@ export const domains = [
     ],
     baseColor: "#1d4ed8",
     accentColor: "#93c5fd",
+=======
+
+  {
+    key: "finance",
+    title: "Finance & Entrepreneurship",
+    yearOfFormation: 2024,
+    overview:
+      "The Finance and Entrepreneurship branch focuses on building a strong entrepreneurial and financial ecosystem within KIIT University.",
+    description:
+      "The Finance and Entrepreneurship branch focuses on building a strong entrepreneurial and financial ecosystem within KIIT University. It supports student-led ventures through mentorship, financial planning, operational support, partnerships, compliance awareness, and strategic execution. The branch aims to create financially literate leaders, scalable student startups, and sustainable long-term impact through structured growth and real-world business exposure.",
+    focusAreas: [
+      "Entrepreneurial Mentorship & Strategy",
+      "Financial Planning & Resource Management",
+      "Partnership Development & Compliance",
+      "Real-world Business Exposure",
+    ],
+    outcomes: [
+      "Scalable student-led startups",
+      "Financial literacy and leadership skills",
+      "Strategic partnerships and industry connections",
+      "Sustainable long-term impact",
+    ],
+    baseColor: "#047857",
+    accentColor: "#6ee7b7",
+>>>>>>> experiment
   },
 ];
 

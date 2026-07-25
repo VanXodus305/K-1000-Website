@@ -1,0 +1,131 @@
+- generic [active] [ref=f2e1]:
+  - generic [ref=f2e2]:
+    - banner [ref=f2e3]:
+      - button [ref=f2e5] [cursor=pointer]:
+        - img "K-1000" [ref=f2e6]
+      - navigation [ref=f2e7] [cursor=pointer]:
+        - button "Home" [ref=f2e8]
+        - button "About" [ref=f2e9]
+        - button "Benefits" [ref=f2e10]
+        - button "Branches" [ref=f2e11]
+        - button "Departments" [ref=f2e12]
+        - button "Events" [ref=f2e13]
+        - button "Apply" [ref=f2e14]
+        - button "Contact" [ref=f2e15]
+      - img "KIIT" [ref=f2e17] [cursor=pointer]
+    - main [ref=f2e18]:
+      - heading "Event Registry" [level=1] [ref=f2e21]
+      - generic [ref=f2e22]:
+        - generic [ref=f2e24]:
+          - button "AUGUST 2025 Ignithon" [ref=f2e25] [cursor=pointer]:
+            - generic [ref=f2e28]:
+              - generic [ref=f2e29]: AUGUST 2025
+              - generic [ref=f2e30]: Ignithon
+          - button "SEPTEMBER 2025 Kampus Konversations Ep.1" [ref=f2e31] [cursor=pointer]:
+            - generic [ref=f2e33]:
+              - generic [ref=f2e34]: SEPTEMBER 2025
+              - generic [ref=f2e35]: Kampus Konversations Ep.1
+          - button "DECEMBER 2025 Shark-A-Thon" [ref=f2e36] [cursor=pointer]:
+            - generic [ref=f2e38]:
+              - generic [ref=f2e39]: DECEMBER 2025
+              - generic [ref=f2e40]: Shark-A-Thon
+          - button "JANUARY 2026 Dark Route" [ref=f2e41] [cursor=pointer]:
+            - generic [ref=f2e43]:
+              - generic [ref=f2e44]: JANUARY 2026
+              - generic [ref=f2e45]: Dark Route
+          - button "FEBRUARY 2026 Kampus Konversations Ep.2" [ref=f2e46] [cursor=pointer]:
+            - generic [ref=f2e48]:
+              - generic [ref=f2e49]: FEBRUARY 2026
+              - generic [ref=f2e50]: Kampus Konversations Ep.2
+          - button "MARCH 2026 Open Source Forge" [ref=f2e51] [cursor=pointer]:
+            - generic [ref=f2e53]:
+              - generic [ref=f2e54]: MARCH 2026
+              - generic [ref=f2e55]: Open Source Forge
+        - generic [ref=f2e57]:
+          - generic [ref=f2e58]:
+            - img "Ignithon" [ref=f2e59]
+            - generic [ref=f2e61]:
+              - generic [ref=f2e62]:
+                - generic [ref=f2e63]: Hackathon
+                - heading "Ignithon" [level=2] [ref=f2e67]
+              - link "Launch Report" [ref=f2e68] [cursor=pointer]:
+                - /url: https://www.linkedin.com/posts/k1000-kiit_k1000-ignithon-hackathon-activity-7364154401197838336-UPhb
+          - generic [ref=f2e75]:
+            - generic [ref=f2e76]:
+              - generic [ref=f2e77]: Mission Briefing
+              - paragraph [ref=f2e82]: K-1000's inaugural 12-hour hackathon, Ignithon, challenged participants to build functional solutions from scratch across three difficulty tiers.
+              - generic [ref=f2e83]: "Recorded: August 2025"
+            - generic [ref=f2e87]:
+              - heading "Critical Highlights" [level=4] [ref=f2e88]
+              - generic [ref=f2e89]:
+                - paragraph [ref=f2e92]: "12-Hour Sprint: Rapid prototyping from ideation to deployment."
+                - paragraph [ref=f2e95]: Tiered tracks for Beginner, Intermediate, and Advanced developers.
+                - paragraph [ref=f2e98]: Over 1000+ registration interests across the campus.
+                - paragraph [ref=f2e101]: Felicitation by the Vice Chancellor and Registrar of KIIT.
+    - contentinfo [ref=f2e102]:
+      - generic [ref=f2e104]:
+        - generic [ref=f2e105]:
+          - generic [ref=f2e106]:
+            - generic [ref=f2e107]:
+              - img "KIIT Logo" [ref=f2e109]
+              - img "K-1000 Logo" [ref=f2e110]
+            - paragraph [ref=f2e111]: K-1000 is KIIT's premier R&D initiative, empowering 1000 exceptional students through innovative research.
+          - generic [ref=f2e112]:
+            - heading "Quick Links" [level=3] [ref=f2e113]
+            - list [ref=f2e114]:
+              - listitem [ref=f2e115]:
+                - link "Home" [ref=f2e116] [cursor=pointer]:
+                  - /url: /
+              - listitem [ref=f2e119]:
+                - link "About Program" [ref=f2e120] [cursor=pointer]:
+                  - /url: /about
+              - listitem [ref=f2e123]:
+                - link "Benefits" [ref=f2e124] [cursor=pointer]:
+                  - /url: /benefits
+              - listitem [ref=f2e127]:
+                - link "Branches" [ref=f2e128] [cursor=pointer]:
+                  - /url: /branches
+              - listitem [ref=f2e131]:
+                - link "Apply Now" [ref=f2e132] [cursor=pointer]:
+                  - /url: /apply
+              - listitem [ref=f2e135]:
+                - link "Contact" [ref=f2e136] [cursor=pointer]:
+                  - /url: /contact
+          - generic [ref=f2e139]:
+            - heading "Departments" [level=3] [ref=f2e140]
+            - list [ref=f2e141]:
+              - listitem [ref=f2e142]:
+                - link "Engineering & Technology" [ref=f2e143] [cursor=pointer]:
+                  - /url: /departments#DEPT-ENG-01
+              - listitem [ref=f2e146]:
+                - link "Sciences & Applied Sciences" [ref=f2e147] [cursor=pointer]:
+                  - /url: /departments#DEPT-SCI-02
+              - listitem [ref=f2e150]:
+                - link "Management & Social Sciences" [ref=f2e151] [cursor=pointer]:
+                  - /url: /departments#DEPT-MGMT-03
+              - listitem [ref=f2e154]:
+                - link "Medical & Health Sciences" [ref=f2e155] [cursor=pointer]:
+                  - /url: /departments#DEPT-MED-04
+              - listitem [ref=f2e158]:
+                - link "Law & Public Policy" [ref=f2e159] [cursor=pointer]:
+                  - /url: /departments#DEPT-LAW-05
+              - listitem [ref=f2e162]:
+                - link "Sports & Tourism" [ref=f2e163] [cursor=pointer]:
+                  - /url: /departments#DEPT-SPR-06
+          - generic [ref=f2e166]:
+            - heading "Connect" [level=3] [ref=f2e167]
+            - generic [ref=f2e168]:
+              - link [ref=f2e169] [cursor=pointer]:
+                - /url: https://www.linkedin.com/company/k1000-kiit
+              - link [ref=f2e172] [cursor=pointer]:
+                - /url: https://www.instagram.com/k1000_kiit
+              - link [ref=f2e175] [cursor=pointer]:
+                - /url: https://chat.whatsapp.com/CAM4B9Qf0mN6i4CvJaVKi3
+            - generic [ref=f2e178]:
+              - generic [ref=f2e179]: KIIT University, Bhubaneswar,Odisha 751024
+              - generic [ref=f2e184]: Dr. Ajit Kumar Pasayat+91 7008588187
+              - generic [ref=f2e188]: k.1000@kiit.ac.in
+        - generic [ref=f2e193]:
+          - paragraph [ref=f2e194]: © 2026 KIIT University.
+          - generic [ref=f2e195]: Train . Transform . Transcend
+  - button "Open Next.js Dev Tools" [ref=f2e201] [cursor=pointer]

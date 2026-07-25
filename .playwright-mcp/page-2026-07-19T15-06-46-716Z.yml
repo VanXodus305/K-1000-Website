@@ -1,0 +1,6 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e8]:
+      - img "K-1000" [ref=e15]
+      - generic [ref=e17]: CORE_STANDBY
+  - button "Open Next.js Dev Tools" [ref=e31] [cursor=pointer]

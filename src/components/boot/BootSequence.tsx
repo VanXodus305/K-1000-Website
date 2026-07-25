@@ -1,21 +1,25 @@
-"use client";
+  "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import UnifiedPortal from "../home/UnifiedPortal";
 
 const conthrax = "font-['Conthrax',_sans-serif]";
 
 export default function BootSequence() {
-  const [stage, setStage] = useState<"charging" | "ready">(() =>
-    typeof window !== "undefined" &&
-    window.sessionStorage.getItem("k1000_system_booted")
-      ? "ready"
-      : "charging",
-  );
+  const [stage, setStage] = useState<"charging" | "ready">("charging");
+  const readyRef = useRef(false);
   const [status, setStatus] = useState("CORE_STANDBY");
 
   useEffect(() => {
+    if (sessionStorage.getItem("k1000_system_booted")) {
+      readyRef.current = true;
+      requestAnimationFrame(() => setStage("ready"));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (readyRef.current) return;
     if (stage === "charging") {
       const statusSequence = [
         { t: 400, msg: "CORE POWER STABLE" },
