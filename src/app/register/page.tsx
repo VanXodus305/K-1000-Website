@@ -255,7 +255,7 @@ export default function RegisterPage() {
       if (result.success) { setSubmitted(true); setRegId(result.data?.id ?? null); setToast({ type: "success", text: "Registration submitted successfully!" }); setForm(initialForm); setStep(1); if (result.data?.id) downloadQR(result.data.id); }
       else if (result.errors) { const fe: Record<string, string> = {}; result.errors.forEach((e: { field: string; message: string }) => { fe[e.field] = e.message; }); setErrors(fe); setToast({ type: "error", text: "Please fix the highlighted errors." }); }
       else { setToast({ type: "error", text: result.message || "Submission failed." }); }
-    } catch { setToast({ type: "error", text: "Cannot reach server. Ensure the backend is running on port 8080." }); }
+    } catch { setToast({ type: "error", text: "Cannot reach the server. Please check your internet connection or try again." }); }
     finally { setSubmitting(false); }
   };
 
