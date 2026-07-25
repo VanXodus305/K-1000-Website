@@ -160,52 +160,6 @@ export const domains = [
     baseColor: "#047857",
     accentColor: "#6ee7b7",
   },
-  {
-    key: "content",
-    title: "Office of Content & Communication",
-    yearOfFormation: 2026,
-    overview:
-      "The Office of Content & Communication shapes K-1000’s voice, storytelling, and internal-external communication systems.",
-    description:
-      "This office is responsible for messaging, written content, editorial direction, event coverage, and communication clarity across K-1000. Members develop skills in technical writing, campaign planning, copy development, and structured communication. The office ensures that achievements, updates, and opportunities are communicated with consistency, accuracy, and strong narrative impact.",
-    focusAreas: [
-      "Editorial Planning & Copy Development",
-      "Technical and Public-facing Communication",
-      "Campaign Messaging & Coverage",
-      "Narrative Framing & Brand Consistency",
-    ],
-    outcomes: [
-      "Clearer organizational communication",
-      "Stronger written and storytelling skills",
-      "Higher quality event and project coverage",
-      "Consistent content systems across platforms",
-    ],
-    baseColor: "#155e75",
-    accentColor: "#67e8f9",
-  },
-  {
-    key: "campus",
-    title: "Office of Campus Ambassador",
-    yearOfFormation: 2026,
-    overview:
-      "The Office of Campus Ambassador expands K-1000’s reach through student representation, outreach, and campus-level community building.",
-    description:
-      "This office builds awareness and engagement around K-1000 initiatives by coordinating ambassadors, student touchpoints, and community visibility efforts. Members work on outreach planning, peer activation, cross-campus presence, and building stronger student connections. The office helps translate K-1000’s initiatives into a wider campus movement through structured representation and communication.",
-    focusAreas: [
-      "Campus Outreach & Representation",
-      "Student Community Activation",
-      "Programme Awareness Campaigns",
-      "Peer Engagement & Network Building",
-    ],
-    outcomes: [
-      "Stronger campus-wide awareness",
-      "Improved outreach and ambassador coordination",
-      "Higher student engagement in initiatives",
-      "A broader and more connected K-1000 community",
-    ],
-    baseColor: "#1d4ed8",
-    accentColor: "#93c5fd",
-  },
 ];
 
 export type K1000Domain = (typeof domains)[number];

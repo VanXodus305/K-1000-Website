@@ -20,9 +20,7 @@ const domainImages = [
   "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1600",
 ];
 
-const branchUnits = domains.filter(
-  (domain) => !["finance", "content", "campus"].includes(domain.key),
-);
+const branchUnits = domains;
 
 const branches = branchUnits.map((d, index) => ({
   ...d,

@@ -8,6 +8,7 @@ import SharedHeader from "../../components/ui/SharedHeader";
 import Footer from "../../components/footer/Footer";
 import CubeBackground from "../../components/ui/CubeBackground";
 import { domains } from "../../data/domain";
+import { offices } from "../../data/offices";
 
 const conthrax = "font-['Conthrax',_sans-serif]";
 const orbitron = "font-['Orbitron',_sans-serif]";
@@ -62,8 +63,7 @@ const skillOptions = [
   "Cybersecurity", "Mobile Dev",
 ];
 
-const branchDomains = domains.filter((domain) => !domain.title.toLowerCase().startsWith("office"));
-const domainOffices = domains.filter((domain) => domain.title.toLowerCase().startsWith("office"));
+const branchDomains = domains;
 
 const branchMessages: Record<string, string> = {
   events: `"We look for individuals who plan with precision, execute with passion, and bring every event to life for the K-1000 community."`,
@@ -88,19 +88,11 @@ const designations: Record<string, string> = {
   creative: "~Deputy Director, OCD",
 };
 
-const supplementalOffices = [
-  { id: "relations", title: "Office of Public & Corporate Relations", message: "We bridge K-1000 with the external world — building relationships with industry partners, managing public communications, and creating opportunities for students to engage with leading organizations." },
-  { id: "creative", title: "Office of Creativity & Design", message: "Creativity is at the heart of innovation. We shape K-1000's visual identity, build compelling narratives, and ensure our brand reflects the caliber of our research community." },
-];
-
-const officeChoices = [
-  ...domainOffices.map((domain) => ({
-    id: domain.key,
-    title: domain.title,
-    message: domain.overview,
-  })),
-  ...supplementalOffices,
-];
+const officeChoices = offices.map((office) => ({
+  id: office.key,
+  title: office.title,
+  message: office.overview,
+}));
 
 const steps = [
   { id: 1, label: "Personal", title: "Personal Information" },
@@ -138,12 +130,14 @@ function CustomSelect({
   placeholder,
   onChange,
   ariaLabel,
+  inlineMenu = false,
 }: {
   value: string;
   options: SelectOption[];
   placeholder: string;
   onChange: (value: string) => void;
   ariaLabel: string;
+  inlineMenu?: boolean;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -232,11 +226,23 @@ function CustomSelect({
           <motion.div
             id={`${ariaLabel.replace(/\s+/g, "-").toLowerCase()}-options`}
             role="listbox"
-            initial={{ opacity: 0, height: 0, marginTop: 0 }}
-            animate={{ opacity: 1, height: "auto", marginTop: 6 }}
-            exit={{ opacity: 0, height: 0, marginTop: 0 }}
+            initial={
+              inlineMenu
+                ? { opacity: 0, height: 0, marginTop: 0 }
+                : { opacity: 0, y: -8, scale: 0.98 }
+            }
+            animate={
+              inlineMenu
+                ? { opacity: 1, height: "auto", marginTop: 6 }
+                : { opacity: 1, y: 0, scale: 1 }
+            }
+            exit={
+              inlineMenu
+                ? { opacity: 0, height: 0, marginTop: 0 }
+                : { opacity: 0, y: -6, scale: 0.98 }
+            }
             transition={{ duration: 0.16, ease: "easeOut" }}
-            className="relative max-h-64 overflow-y-auto overscroll-contain rounded-[18px] border border-cyan-400/20 bg-[#040909]/95 p-1.5 shadow-[0_18px_55px_rgba(0,0,0,0.72),0_0_28px_rgba(0,247,255,0.07)] backdrop-blur-2xl"
+            className={`${inlineMenu ? "relative" : "absolute left-0 right-0 top-full z-50 mt-1.5 origin-top"} max-h-64 overflow-y-auto overscroll-contain rounded-[18px] border border-cyan-400/20 bg-[#040909]/95 p-1.5 shadow-[0_18px_55px_rgba(0,0,0,0.72),0_0_28px_rgba(0,247,255,0.07)] backdrop-blur-2xl [scrollbar-color:rgba(0,247,255,0.35)_rgba(255,255,255,0.04)] [scrollbar-gutter:stable] [scrollbar-width:thin]`}
           >
             {options.map((option, index) => {
               const isSelected = option.value === value;
@@ -297,7 +303,11 @@ export default function RegisterPage() {
   const [flashMsg, setFlashMsg] = useState<string | null>(null);
   const [flashLabel, setFlashLabel] = useState("");
 
-  useEffect(() => { window.scrollTo(0, 0); }, [step]);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    setErrors({});
+    setToast(null);
+  }, [step]);
 
   const downloadQR = async (id: number) => {
     try {
@@ -377,7 +387,13 @@ export default function RegisterPage() {
     return Object.keys(errs).length === 0;
   };
 
-  const next = () => { if (validateStep()) { setStep(s => Math.min(s + 1, 5)); } };
+  const next = () => {
+    if (!validateStep()) return;
+
+    setErrors({});
+    setToast(null);
+    setStep((currentStepNumber) => Math.min(currentStepNumber + 1, 5));
+  };
   const prev = () => { setStep(s => Math.max(s - 1, 1)); setErrors({}); };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -521,7 +537,7 @@ export default function RegisterPage() {
           initial={{ opacity: 0, y: 22 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.65, delay: 0.08, ease: "circOut" }}
-          className="relative overflow-hidden rounded-[28px] md:rounded-[40px] border border-white/10 bg-white/[0.028] backdrop-blur-xl shadow-[0_0_60px_rgba(0,0,0,0.32)]"
+          className="relative overflow-visible rounded-[28px] md:rounded-[40px] border border-white/10 bg-white/[0.028] backdrop-blur-xl shadow-[0_0_60px_rgba(0,0,0,0.32)]"
         >
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-400/70 to-transparent" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_0%,rgba(0,247,255,0.1),transparent_34%)] pointer-events-none" />
@@ -590,6 +606,7 @@ export default function RegisterPage() {
                         options={academicYears.map((year) => ({ value: year, label: year }))}
                         placeholder="Select year"
                         ariaLabel="Academic year"
+                        inlineMenu
                         onChange={(value) => update("academic_year", value)}
                       />
                     </Field>
@@ -599,6 +616,7 @@ export default function RegisterPage() {
                         options={courseOptions.map((course) => ({ value: course, label: course }))}
                         placeholder="Select course"
                         ariaLabel="Course"
+                        inlineMenu
                         onChange={(value) => update("course", value)}
                       />
                     </Field>
@@ -737,12 +755,20 @@ export default function RegisterPage() {
               </div>
               <div>
                 {step < 5 ? (
-                  <button type="button" onClick={next}
-                    className={`${conthrax} flex items-center gap-1.5 px-5 md:px-8 py-2.5 md:py-3 rounded-full border border-cyan-400 text-cyan-400 text-[9px] md:text-[10px] tracking-[0.3em] uppercase hover:bg-cyan-400 hover:text-black transition-all shadow-[0_0_20px_rgba(0,247,255,0.1)] cursor-pointer`}>
+                  <button
+                    key="next-step"
+                    type="button"
+                    disabled={step === 4 && Boolean(flashMsg)}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      next();
+                    }}
+                    className={`${conthrax} flex items-center gap-1.5 px-5 md:px-8 py-2.5 md:py-3 rounded-full border border-cyan-400 text-cyan-400 text-[9px] md:text-[10px] tracking-[0.3em] uppercase hover:bg-cyan-400 hover:text-black transition-all shadow-[0_0_20px_rgba(0,247,255,0.1)] cursor-pointer disabled:cursor-not-allowed disabled:border-white/10 disabled:text-white/20 disabled:shadow-none`}
+                  >
                     Next <ChevronRight size={12} />
                   </button>
                 ) : (
-                  <button type="submit" disabled={submitting}
+                  <button key="submit-registration" type="submit" disabled={submitting}
                     className={`${conthrax} flex items-center gap-1.5 px-5 md:px-8 py-2.5 md:py-3 rounded-full border border-cyan-400 text-cyan-400 text-[9px] md:text-[10px] tracking-[0.3em] uppercase hover:bg-cyan-400 hover:text-black transition-all shadow-[0_0_20px_rgba(0,247,255,0.1)] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer`}>
                     {submitting ? "Submitting..." : <><Send size={12} /> Submit</>}
                   </button>
@@ -777,7 +803,7 @@ export default function RegisterPage() {
                 onClick={() => setFlashMsg(null)}
                 className={`${conthrax} mt-4 flex w-full items-center justify-center rounded-[14px] border border-cyan-400/35 bg-cyan-400/[0.06] px-4 py-3 text-[9px] uppercase tracking-[0.24em] text-cyan-300 transition-all hover:border-cyan-300/70 hover:bg-cyan-400/12 active:scale-[0.98]`}
               >
-                Close message
+                Close message to continue
               </button>
             </div>
           </motion.div>
