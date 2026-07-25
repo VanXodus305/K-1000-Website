@@ -38,6 +38,7 @@ import DomainHoloPanel from "../ui/DomainHoloPanel";
 import data from "@/data/data.json";
 
 const conthrax = "font-['Conthrax',_sans-serif]";
+const DOMAIN_HOLO_PANEL_ENABLED = false;
 
 const iconMap: Record<string, LucideIcon> = {
   Rocket,
@@ -318,6 +319,13 @@ export default function UnifiedPortal() {
     setHoveredNode(null);
   };
 
+  const openDomainPanel = (domainKey: string) => {
+    if (!DOMAIN_HOLO_PANEL_ENABLED) return;
+
+    setActiveDomainKey(domainKey);
+    setHoveredNode(null);
+  };
+
   const stats: StatItem[] = [
     { value: 100, suffix: "+", label: "Projects" },
     { value: 50, suffix: "+", label: "Publications" },
@@ -366,8 +374,9 @@ export default function UnifiedPortal() {
                       {allNodes.map((node) => (
                         <button
                           key={node.key}
-                          onClick={() => setActiveDomainKey(node.key)}
-                          className="w-full bg-black/40 backdrop-blur-xl border border-cyan-400/30 p-3 flex justify-between items-center shadow-[0_0_10px_rgba(0,247,255,0.05)] active:scale-[0.98] transition-all rounded-lg group"
+                          onClick={() => openDomainPanel(node.key)}
+                          aria-disabled={!DOMAIN_HOLO_PANEL_ENABLED}
+                          className="w-full cursor-default bg-black/40 backdrop-blur-xl border border-cyan-400/30 p-3 flex justify-between items-center shadow-[0_0_10px_rgba(0,247,255,0.05)] transition-all rounded-lg group"
                         >
                           <div
                             className={`flex items-center gap-3 text-cyan-400 ${conthrax}`}
@@ -460,11 +469,9 @@ export default function UnifiedPortal() {
                           key={node.key}
                           onMouseEnter={() => setHoveredNode(node.key)}
                           onMouseLeave={() => setHoveredNode(null)}
-                          onClick={() => {
-                            setActiveDomainKey(node.key);
-                            setHoveredNode(null);
-                          }}
-                          className={`absolute flex items-center cursor-pointer group z-30 ${isLeft ? "flex-row-reverse" : "flex-row"}`}
+                          onClick={() => openDomainPanel(node.key)}
+                          aria-disabled={!DOMAIN_HOLO_PANEL_ENABLED}
+                          className={`absolute flex items-center cursor-default group z-30 ${isLeft ? "flex-row-reverse" : "flex-row"}`}
                           style={{
                             top: `${node.y}%`,
                             left: `${node.x}%`,
@@ -732,7 +739,7 @@ export default function UnifiedPortal() {
       </div>
 
       <AnimatePresence mode="wait">
-        {activeDomain && (
+        {DOMAIN_HOLO_PANEL_ENABLED && activeDomain && (
           <DomainHoloPanel
             domain={activeDomain as K1000Domain}
             onClose={handlePanelClose}

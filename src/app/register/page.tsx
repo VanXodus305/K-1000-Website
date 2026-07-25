@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, Send, RotateCcw, Plus, ChevronRight, ChevronLeft, Quote } from "lucide-react";
+import { Check, Send, RotateCcw, Plus, ChevronRight, ChevronLeft, ChevronDown, Quote } from "lucide-react";
 import QRCode from "qrcode";
 import SharedHeader from "../../components/ui/SharedHeader";
 import Footer from "../../components/footer/Footer";
@@ -62,7 +62,8 @@ const skillOptions = [
   "Cybersecurity", "Mobile Dev",
 ];
 
-const allDomains = domains;
+const branchDomains = domains.filter((domain) => !domain.title.toLowerCase().startsWith("office"));
+const domainOffices = domains.filter((domain) => domain.title.toLowerCase().startsWith("office"));
 
 const branchMessages: Record<string, string> = {
   events: `"We look for individuals who plan with precision, execute with passion, and bring every event to life for the K-1000 community."`,
@@ -87,10 +88,18 @@ const designations: Record<string, string> = {
   creative: "~Deputy Director, OCD",
 };
 
-const offices = [
+const supplementalOffices = [
   { id: "relations", title: "Office of Public & Corporate Relations", message: "We bridge K-1000 with the external world — building relationships with industry partners, managing public communications, and creating opportunities for students to engage with leading organizations." },
   { id: "creative", title: "Office of Creativity & Design", message: "Creativity is at the heart of innovation. We shape K-1000's visual identity, build compelling narratives, and ensure our brand reflects the caliber of our research community." },
-  { id: "comms", title: "Office of Content & Communications", message: "Every great research program has a great story. We amplify K-1000's impact through strategic storytelling, social media, and content that inspires the next generation of innovators." },
+];
+
+const officeChoices = [
+  ...domainOffices.map((domain) => ({
+    id: domain.key,
+    title: domain.title,
+    message: domain.overview,
+  })),
+  ...supplementalOffices,
 ];
 
 const steps = [
@@ -116,8 +125,150 @@ const initialForm: FormData = {
   skills: [], referral_source: "",
 };
 
-const inputCls = "w-full bg-black/40 border border-white/10 rounded-xl px-3 md:px-4 py-2.5 md:py-3 text-sm text-white placeholder-white/20 outline-none focus:border-cyan-400 focus:shadow-[0_0_0_3px_rgba(0,247,255,0.1)] transition-all";
-const selectCls = "w-full bg-black/40 border border-white/10 rounded-xl px-3 md:px-4 py-2.5 md:py-3 text-sm text-white outline-none focus:border-cyan-400 focus:shadow-[0_0_0_3px_rgba(0,247,255,0.1)] transition-all appearance-none cursor-pointer";
+const inputCls = "w-full bg-[#020606]/80 border border-white/10 rounded-[18px] px-4 py-3.5 text-sm text-white placeholder-white/20 outline-none focus:border-cyan-400/80 focus:bg-cyan-500/[0.025] focus:shadow-[0_0_0_3px_rgba(0,247,255,0.08),0_0_28px_rgba(0,247,255,0.08)] transition-all";
+
+type SelectOption = {
+  value: string;
+  label: string;
+};
+
+function CustomSelect({
+  value,
+  options,
+  placeholder,
+  onChange,
+  ariaLabel,
+}: {
+  value: string;
+  options: SelectOption[];
+  placeholder: string;
+  onChange: (value: string) => void;
+  ariaLabel: string;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(-1);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const selectedOption = options.find((option) => option.value === value);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const closeOnOutsideClick = (event: MouseEvent) => {
+      if (!rootRef.current?.contains(event.target as Node)) setIsOpen(false);
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsOpen(false);
+    };
+
+    document.addEventListener("mousedown", closeOnOutsideClick);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("mousedown", closeOnOutsideClick);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [isOpen]);
+
+  const openSelect = () => {
+    const selectedIndex = options.findIndex((option) => option.value === value);
+    setActiveIndex(selectedIndex >= 0 ? selectedIndex : 0);
+    setIsOpen(true);
+  };
+
+  const chooseOption = (option: SelectOption) => {
+    onChange(option.value);
+    setIsOpen(false);
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      event.preventDefault();
+      if (!isOpen) {
+        openSelect();
+        return;
+      }
+      const direction = event.key === "ArrowDown" ? 1 : -1;
+      setActiveIndex((current) => {
+        const startingIndex = current < 0 ? 0 : current;
+        return (startingIndex + direction + options.length) % options.length;
+      });
+    }
+
+    if (event.key === "Enter" && isOpen && activeIndex >= 0) {
+      event.preventDefault();
+      chooseOption(options[activeIndex]);
+    }
+  };
+
+  return (
+    <div ref={rootRef} className={`relative ${isOpen ? "z-40" : "z-0"}`}>
+      <button
+        type="button"
+        role="combobox"
+        aria-label={ariaLabel}
+        aria-expanded={isOpen}
+        aria-controls={`${ariaLabel.replace(/\s+/g, "-").toLowerCase()}-options`}
+        onClick={() => (isOpen ? setIsOpen(false) : openSelect())}
+        onKeyDown={handleKeyDown}
+        className={`group flex w-full items-center justify-between gap-3 rounded-[18px] border bg-[#020606]/80 px-4 py-3.5 text-left text-sm outline-none transition-all ${
+          isOpen
+            ? "border-cyan-400/80 bg-cyan-500/[0.025] shadow-[0_0_0_3px_rgba(0,247,255,0.08),0_0_28px_rgba(0,247,255,0.08)]"
+            : "border-white/10 hover:border-white/20"
+        }`}
+      >
+        <span className={`min-w-0 truncate ${selectedOption ? "text-white" : "text-white/25"}`}>
+          {selectedOption?.label ?? placeholder}
+        </span>
+        <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-[10px] border transition-all ${
+          isOpen
+            ? "rotate-180 border-cyan-400/50 bg-cyan-400/10 text-cyan-300"
+            : "border-white/10 bg-white/[0.025] text-white/35 group-hover:text-white/60"
+        }`}>
+          <ChevronDown size={14} strokeWidth={1.8} />
+        </span>
+      </button>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            id={`${ariaLabel.replace(/\s+/g, "-").toLowerCase()}-options`}
+            role="listbox"
+            initial={{ opacity: 0, height: 0, marginTop: 0 }}
+            animate={{ opacity: 1, height: "auto", marginTop: 6 }}
+            exit={{ opacity: 0, height: 0, marginTop: 0 }}
+            transition={{ duration: 0.16, ease: "easeOut" }}
+            className="relative max-h-64 overflow-y-auto overscroll-contain rounded-[18px] border border-cyan-400/20 bg-[#040909]/95 p-1.5 shadow-[0_18px_55px_rgba(0,0,0,0.72),0_0_28px_rgba(0,247,255,0.07)] backdrop-blur-2xl"
+          >
+            {options.map((option, index) => {
+              const isSelected = option.value === value;
+              const isActive = index === activeIndex;
+
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  role="option"
+                  aria-selected={isSelected}
+                  onMouseEnter={() => setActiveIndex(index)}
+                  onClick={() => chooseOption(option)}
+                  className={`flex w-full items-center justify-between gap-3 rounded-[13px] px-3 py-3 text-left text-xs leading-relaxed transition-colors md:text-sm ${
+                    isSelected
+                      ? "bg-cyan-400/10 text-cyan-200"
+                      : isActive
+                        ? "bg-white/[0.055] text-white"
+                        : "text-white/55 hover:bg-white/[0.04] hover:text-white"
+                  }`}
+                >
+                  <span>{option.label}</span>
+                  {isSelected && <Check size={13} className="shrink-0 text-cyan-300" strokeWidth={2} />}
+                </button>
+              );
+            })}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 function getDomainLabel(key: string) {
   if (key === "events") return "Event Management";
@@ -145,10 +296,8 @@ export default function RegisterPage() {
   const [customCourse, setCustomCourse] = useState("");
   const [flashMsg, setFlashMsg] = useState<string | null>(null);
   const [flashLabel, setFlashLabel] = useState("");
-  const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => { window.scrollTo(0, 0); }, [step]);
-  useEffect(() => () => { if (flashTimer.current) clearTimeout(flashTimer.current); }, []);
 
   const downloadQR = async (id: number) => {
     try {
@@ -183,12 +332,10 @@ export default function RegisterPage() {
   };
 
   const showFlash = (key: string, label: string) => {
-    const msg = getDomainMsg(key) || officeMessages[key] || offices.find(o => o.id === key)?.message || "";
+    const msg = getDomainMsg(key) || officeMessages[key] || officeChoices.find(o => o.id === key)?.message || "";
     if (!msg) return;
-    if (flashTimer.current) clearTimeout(flashTimer.current);
     setFlashLabel(designations[key] || label);
     setFlashMsg(msg);
-    flashTimer.current = setTimeout(() => setFlashMsg(null), 12000);
   };
 
   const toggleDomainChoice = (key: string, label: string) => {
@@ -261,11 +408,15 @@ export default function RegisterPage() {
 
   const resetForm = () => { setForm(initialForm); setErrors({}); setToast(null); setStep(1); };
 
+  const currentStep = steps[step - 1];
+  const selectedDomains = form.domain_choice ? form.domain_choice.split(",").filter(Boolean) : [];
+
   return (
-    <div className="relative w-full min-h-screen bg-black text-white selection:bg-cyan-500/30 flex flex-col overflow-x-hidden">
+    <div className="relative w-full min-h-screen bg-[#020202] text-white selection:bg-cyan-500/30 flex flex-col overflow-x-hidden cursor-default">
+      <CubeBackground zIndex={0} disableLinesOnMobile />
       <SharedHeader />
-      <CubeBackground disableLinesOnMobile />
-      <div className="fixed inset-0 bg-[radial-gradient(circle_at_50%_50%,#0ea5e90a_0%,transparent_70%)] pointer-events-none z-[2]" />
+      <div className="fixed inset-0 bg-[radial-gradient(circle_at_20%_18%,rgba(0,247,255,0.08)_0%,transparent_30%),radial-gradient(circle_at_82%_72%,rgba(0,247,255,0.045)_0%,transparent_34%),linear-gradient(180deg,rgba(0,0,0,0.2),#020202_88%)] pointer-events-none z-[1]" />
+      <div className="fixed inset-0 opacity-[0.06] pointer-events-none z-[1] bg-[linear-gradient(rgba(0,247,255,0.18)_1px,transparent_1px),linear-gradient(90deg,rgba(0,247,255,0.18)_1px,transparent_1px)] bg-[size:72px_72px]" />
 
       {toast && (
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}
@@ -294,44 +445,119 @@ export default function RegisterPage() {
         </motion.div>
       )}
 
-      <section className="relative z-10 pt-24 md:pt-32 pb-4 md:pb-6 text-center px-4">
-        <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-          className={`${conthrax} text-xl sm:text-3xl md:text-5xl font-black uppercase tracking-tight leading-tight`}>
-          Recruitment <br className="md:hidden" />
-          <span className="text-cyan-400 drop-shadow-[0_0_15px_rgba(0,247,255,0.4)]">Registration</span>
-        </motion.h1>
+      <section className="relative z-10 pt-24 md:pt-32 pb-5 md:pb-7 text-center px-4">
+        <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: "circOut" }}>
+          <p className={`${orbitron} text-[9px] md:text-[10px] tracking-[0.45em] uppercase text-cyan-300/60 mb-4`}>
+            Intake console
+          </p>
+          <h1 className={`${conthrax} text-2xl sm:text-4xl md:text-6xl font-black uppercase tracking-tighter leading-none`}>
+            Recruitment <br className="md:hidden" />
+            <span className="text-cyan-400 drop-shadow-[0_0_18px_rgba(0,247,255,0.35)]">Registration</span>
+          </h1>
+          <p className="mx-auto mt-5 max-w-2xl text-xs sm:text-sm md:text-base leading-relaxed text-white/45">
+            Complete the recruitment signal with your academic profile, preferred domains, and intent to join KIIT&apos;s official R&amp;D society.
+          </p>
+        </motion.div>
       </section>
 
       {/* ─── STEP INDICATOR ─── */}
-      <div className="relative z-10 max-w-2xl mx-auto w-full px-4 mb-6 md:mb-8">
-        <div className="flex items-center justify-between">
-          {steps.map((s, i) => (
-            <div key={s.id} className="flex items-center">
-              <div className="flex flex-col items-center">
-                <div className={`w-7 h-7 md:w-9 md:h-9 rounded-full flex items-center justify-center text-[10px] md:text-xs font-bold transition-all duration-300 ${
-                  step === s.id ? "bg-cyan-400 text-black shadow-[0_0_12px_rgba(0,247,255,0.4)]" :
-                  step > s.id ? "bg-cyan-500/20 text-cyan-400 border border-cyan-400/50" :
-                  "bg-white/[0.03] text-white/30 border border-white/10"
-                }`}>{step > s.id ? <Check size={14} /> : s.id}</div>
-                <span className={`mt-1.5 text-[7px] md:text-[9px] uppercase tracking-wider hidden md:block ${
-                  step === s.id ? "text-cyan-400" : "text-white/30"
-                }`}>{s.label}</span>
-              </div>
-              {i < steps.length - 1 && (
-                <div className={`h-px flex-1 mx-2 md:mx-3 ${
-                  step > s.id ? "bg-cyan-400/50" : "bg-white/10"
-                }`} />
-              )}
-            </div>
-          ))}
+      <div className="relative z-10 max-w-3xl mx-auto w-full px-4 mb-6 md:mb-8">
+        <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-[#030707]/70 backdrop-blur-xl p-3.5 md:p-5 shadow-[0_0_40px_rgba(0,0,0,0.22)]">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(0,247,255,0.1),transparent_48%)] pointer-events-none" />
+          <div className="relative z-10 grid grid-cols-5 gap-1.5 sm:gap-2">
+            {steps.map((s) => {
+              const isActive = step === s.id;
+              const isComplete = step > s.id;
+              const isReachable = s.id <= step;
+
+              return (
+                <button
+                  key={s.id}
+                  type="button"
+                  aria-label={`${s.label} step`}
+                  onClick={() => {
+                    if (isReachable) setStep(s.id);
+                  }}
+                  className={`group relative min-w-0 overflow-hidden rounded-[20px] border px-1.5 py-2.5 text-center transition-all duration-300 sm:px-2 sm:py-3 ${
+                    isActive
+                      ? "border-cyan-400/45 bg-cyan-500/[0.09] shadow-[inset_0_0_20px_rgba(0,247,255,0.04)]"
+                      : isComplete
+                        ? "border-cyan-400/15 bg-cyan-500/[0.025] hover:border-cyan-400/30 hover:bg-cyan-500/[0.04]"
+                        : "border-white/5 bg-white/[0.015]"
+                  } ${isReachable ? "cursor-pointer" : "cursor-default"}`}
+                >
+                  {isActive && (
+                    <motion.div layoutId="registerNumberBarActive" className="absolute inset-0 bg-cyan-400/[0.04] blur-xl" />
+                  )}
+                  <div className="relative z-10 flex flex-col items-center gap-2">
+                    <div className={`flex h-8 w-8 items-center justify-center rounded-[12px] border text-[10px] font-black tabular-nums transition-all duration-300 md:h-10 md:w-10 md:rounded-[14px] md:text-xs ${
+                      isActive
+                        ? "border-cyan-300 bg-cyan-400 text-black shadow-[0_0_18px_rgba(0,247,255,0.55)]"
+                        : isComplete
+                          ? "border-cyan-400/45 bg-cyan-500/10 text-cyan-300"
+                          : "border-white/10 bg-black/35 text-white/25"
+                    }`}>
+                      {isComplete ? <Check size={14} /> : `0${s.id}`}
+                    </div>
+                    <span className={`${conthrax} hidden max-w-full truncate text-[7px] uppercase tracking-[0.16em] sm:block md:text-[8px] ${
+                      isActive ? "text-cyan-300" : isComplete ? "text-white/45" : "text-white/22"
+                    }`}>
+                      {s.label}
+                    </span>
+                    <span className={`h-1 w-1 rounded-full transition-all duration-300 sm:hidden ${
+                      isActive ? "bg-cyan-300 shadow-[0_0_8px_rgba(0,247,255,0.8)]" : isComplete ? "bg-cyan-500/50" : "bg-white/15"
+                    }`} />
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
       {/* ─── FORM ─── */}
-      <div className="relative z-10 max-w-2xl mx-auto w-full px-4 pb-16 md:pb-20">
-        <div className="p-4 md:p-8 rounded-[24px] md:rounded-[32px] bg-white/[0.03] backdrop-blur-xl border border-white/10 transition-all duration-500">
-          <h2 className={`${conthrax} text-[10px] md:text-sm tracking-[0.25em] uppercase text-white/30 mb-5 md:mb-6`}>Step {step} &mdash; {steps[step - 1].title}</h2>
-          <form onSubmit={handleSubmit}>
+      <div className="relative z-10 max-w-3xl mx-auto w-full px-4 pb-16 md:pb-20">
+        <motion.div
+          initial={{ opacity: 0, y: 22 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.65, delay: 0.08, ease: "circOut" }}
+          className="relative overflow-hidden rounded-[28px] md:rounded-[40px] border border-white/10 bg-white/[0.028] backdrop-blur-xl shadow-[0_0_60px_rgba(0,0,0,0.32)]"
+        >
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-400/70 to-transparent" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_0%,rgba(0,247,255,0.1),transparent_34%)] pointer-events-none" />
+          <div className="relative z-10 p-5 sm:p-7 md:p-9">
+            <div className="mb-7 flex flex-col gap-4 border-b border-white/10 pb-6 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className={`${orbitron} text-[9px] tracking-[0.4em] uppercase text-cyan-300/60`}>
+                  Step 0{step}/05
+                </p>
+                <h2 className={`${conthrax} mt-3 text-lg sm:text-2xl md:text-3xl uppercase tracking-tight text-white`}>
+                  {currentStep.title}
+                </h2>
+              </div>
+              <div className="grid grid-cols-3 gap-2 sm:w-[260px]">
+                <div className="rounded-2xl border border-white/10 bg-black/30 p-3">
+                  <p className={`${orbitron} text-[7px] uppercase tracking-[0.22em] text-white/25`}>Phase</p>
+                  <p className={`${conthrax} mt-1.5 text-xs text-cyan-300`}>0{step}</p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-black/30 p-3">
+                  <p className={`${orbitron} text-[7px] uppercase tracking-[0.22em] text-white/25`}>Domains</p>
+                  <p className={`${conthrax} mt-1.5 text-xs text-cyan-300`}>{selectedDomains.length}/3</p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-black/30 p-3">
+                  <p className={`${orbitron} text-[7px] uppercase tracking-[0.22em] text-white/25`}>Skills</p>
+                  <p className={`${conthrax} mt-1.5 text-xs text-cyan-300`}>{form.skills.length}</p>
+                </div>
+              </div>
+              <div className="h-2 w-full overflow-hidden rounded-full bg-white/[0.06] sm:hidden">
+                <motion.div
+                  className="h-full rounded-full bg-cyan-400 shadow-[0_0_16px_rgba(0,247,255,0.55)]"
+                  animate={{ width: `${(step / steps.length) * 100}%` }}
+                  transition={{ duration: 0.35, ease: "circOut" }}
+                />
+              </div>
+            </div>
+            <form onSubmit={handleSubmit}>
             <AnimatePresence mode="wait">
               <motion.div key={step} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}>
 
@@ -339,21 +565,42 @@ export default function RegisterPage() {
                 {step === 1 && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                     <Field label="Full Name" error={errors.full_name}><input type="text" value={form.full_name} onChange={(e) => update("full_name", e.target.value)} placeholder="e.g. John Doe" className={inputCls} /></Field>
-                    <Field label="Gender" error={errors.gender}><select value={form.gender} onChange={(e) => update("gender", e.target.value)} className={selectCls}><option value="" className="bg-black">Select gender</option>{genderOptions.map((o) => <option key={o.value} value={o.value} className="bg-black">{o.label}</option>)}</select></Field>
+                    <Field label="Gender" error={errors.gender}>
+                      <CustomSelect
+                        value={form.gender}
+                        options={genderOptions}
+                        placeholder="Select gender"
+                        ariaLabel="Gender"
+                        onChange={(value) => update("gender", value)}
+                      />
+                    </Field>
                     <Field label="Phone" error={errors.phone}><input type="tel" value={form.phone} onChange={(e) => update("phone", e.target.value)} placeholder="+91 9876543210" className={inputCls} /></Field>
-                    <Field label="Email" error={errors.kiit_email}><input type="email" value={form.kiit_email} onChange={(e) => update("kiit_email", e.target.value)} placeholder="john@kiit.ac.in" className={inputCls} /></Field>
+                    <Field label="Email" error={errors.kiit_email} helper="Use your official KIIT account ending in @kiit.ac.in.">
+                      <input type="email" value={form.kiit_email} onChange={(e) => update("kiit_email", e.target.value)} placeholder="john@kiit.ac.in" className={inputCls} />
+                    </Field>
                   </div>
                 )}
 
                 {/* STEP 2: Academic Details */}
                 {step === 2 && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-                    <Field label="Academic Year" error={errors.academic_year}><select value={form.academic_year} onChange={(e) => update("academic_year", e.target.value)} className={selectCls}><option value="" className="bg-black">Select year</option>{academicYears.map((y) => <option key={y} value={y} className="bg-black">{y}</option>)}</select></Field>
+                    <Field label="Academic Year" error={errors.academic_year}>
+                      <CustomSelect
+                        value={form.academic_year}
+                        options={academicYears.map((year) => ({ value: year, label: year }))}
+                        placeholder="Select year"
+                        ariaLabel="Academic year"
+                        onChange={(value) => update("academic_year", value)}
+                      />
+                    </Field>
                     <Field label="Course" error={errors.course}>
-                      <select value={form.course} onChange={(e) => update("course", e.target.value)} className={selectCls}>
-                        <option value="" className="bg-black">Select course</option>
-                        {courseOptions.map((c) => <option key={c} value={c} className="bg-black">{c}</option>)}
-                      </select>
+                      <CustomSelect
+                        value={form.course}
+                        options={courseOptions.map((course) => ({ value: course, label: course }))}
+                        placeholder="Select course"
+                        ariaLabel="Course"
+                        onChange={(value) => update("course", value)}
+                      />
                     </Field>
                     {form.course === "Others" && (
                       <div className="md:col-span-2">
@@ -369,19 +616,19 @@ export default function RegisterPage() {
                 {step === 3 && (
                   <div>
                     <div className="mb-4">
-                      <label className="block text-[11px] font-semibold text-white/50 uppercase tracking-wider mb-3">Skills / Areas</label>
+                      <label className={`${conthrax} block text-[10px] text-white/45 uppercase tracking-[0.22em] mb-3`}>Skills / Areas</label>
                       <div className="flex flex-wrap gap-1.5 md:gap-2 mb-3">
                         {skillOptions.map((skill) => (
                           <button key={skill} type="button" onClick={() => toggleSkill(skill)}
-                            className={`px-2.5 md:px-3 py-1.5 rounded-lg text-[10px] md:text-[11px] border transition-all cursor-pointer ${
-                              form.skills.includes(skill) ? "bg-cyan-500/10 border-cyan-400 text-cyan-400" : "bg-white/[0.03] border-white/10 text-white/50 hover:border-cyan-500/30 hover:text-white/70"
+                            className={`px-3 py-2 rounded-xl text-[10px] md:text-[11px] border transition-all duration-300 cursor-pointer ${
+                              form.skills.includes(skill) ? "bg-cyan-500/10 border-cyan-400/70 text-cyan-300 shadow-[0_0_18px_rgba(0,247,255,0.08)]" : "bg-white/[0.025] border-white/10 text-white/50 hover:border-cyan-500/35 hover:text-white/80 hover:bg-white/[0.04]"
                             }`}>
                             {form.skills.includes(skill) && <Check size={10} className="inline mr-0.5 md:mr-1" />}{skill}
                           </button>
                         ))}
                         {form.skills.filter((s) => !skillOptions.includes(s)).map((skill) => (
                           <button key={skill} type="button" onClick={() => toggleSkill(skill)}
-                            className="px-2.5 md:px-3 py-1.5 rounded-lg text-[10px] md:text-[11px] border bg-cyan-500/10 border-cyan-400 text-cyan-400 transition-all cursor-pointer">
+                            className="px-3 py-2 rounded-xl text-[10px] md:text-[11px] border bg-cyan-500/10 border-cyan-400/70 text-cyan-300 transition-all cursor-pointer">
                             <Check size={10} className="inline mr-0.5 md:mr-1" />{skill}
                           </button>
                         ))}
@@ -389,19 +636,19 @@ export default function RegisterPage() {
                       <div className="flex gap-2">
                         <input type="text" value={customSkill} onChange={(e) => setCustomSkill(e.target.value)}
                           onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCustomSkill(); } }}
-                          placeholder="Add a custom skill..." className="flex-1 bg-black/40 border border-white/10 rounded-xl px-3 md:px-4 py-2 md:py-2.5 text-sm text-white placeholder-white/20 outline-none focus:border-cyan-400 transition-all" />
+                          placeholder="Add a custom skill..." className={inputCls} />
                         <button type="button" onClick={addCustomSkill} disabled={!customSkill.trim()}
-                          className="px-3 md:px-4 py-2 md:py-2.5 rounded-xl border border-cyan-400/50 text-cyan-400 text-[11px] hover:bg-cyan-400 hover:text-black transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer">
+                          className="px-4 rounded-[18px] border border-cyan-400/50 text-cyan-300 text-[11px] hover:bg-cyan-400 hover:text-black transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer">
                           <Plus size={14} />
                         </button>
                       </div>
                     </div>
                     <div className="mb-4">
-                      <label className="block text-[11px] font-semibold text-white/50 uppercase tracking-wider mb-2">Previous Experience <span className="text-white/20 normal-case tracking-normal font-normal">(optional)</span></label>
-                      <textarea value={form.experience} onChange={(e) => update("experience", e.target.value)} placeholder="Describe any prior research, projects, internships, publications..." className="w-full bg-black/40 border border-white/10 rounded-xl px-3 md:px-4 py-2.5 md:py-3 text-sm text-white placeholder-white/20 outline-none focus:border-cyan-400 focus:shadow-[0_0_0_3px rgba(0,247,255,0.1)] transition-all min-h-[70px] md:min-h-[80px] resize-y" />
+                      <label className={`${conthrax} block text-[10px] text-white/45 uppercase tracking-[0.22em] mb-2`}>Previous Experience <span className="text-white/20 normal-case tracking-normal font-normal">(optional)</span></label>
+                      <textarea value={form.experience} onChange={(e) => update("experience", e.target.value)} placeholder="Describe any prior research, projects, internships, publications..." className={`${inputCls} min-h-[90px] resize-y`} />
                     </div>
                     <Field label="Why join K-1000?" error={errors.motivation}>
-                      <textarea value={form.motivation} onChange={(e) => update("motivation", e.target.value)} placeholder="Tell us about your motivation, goals, and how K-1000 fits into your journey..." className="w-full bg-black/40 border border-white/10 rounded-xl px-3 md:px-4 py-2.5 md:py-3 text-sm text-white placeholder-white/20 outline-none focus:border-cyan-400 focus:shadow-[0_0_0_3px rgba(0,247,255,0.1)] transition-all min-h-[90px] md:min-h-[100px] resize-y" />
+                      <textarea value={form.motivation} onChange={(e) => update("motivation", e.target.value)} placeholder="Tell us about your motivation, goals, and how K-1000 fits into your journey..." className={`${inputCls} min-h-[120px] resize-y`} />
                     </Field>
                   </div>
                 )}
@@ -412,14 +659,14 @@ export default function RegisterPage() {
                     <p className="text-xs md:text-sm text-white/50 mb-4 md:mb-6 leading-relaxed">Select your preferred domain (select up to 3). Tap any branch or office to hear a message from its leadership.</p>
                     <h5 className={`${conthrax} text-[9px] md:text-[10px] tracking-[0.2em] uppercase text-cyan-400/60 mb-3`}>Branches</h5>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3 mb-6">
-                      {allDomains.map((d) => {
+                      {branchDomains.map((d) => {
                         const key = d.key as string;
                         const label = getDomainLabel(key);
                         const selected = (form.domain_choice ? form.domain_choice.split(",") : []).includes(key);
                         return (
                           <button key={key} type="button" onClick={() => toggleDomainChoice(key, label)}
-                            className={`text-left px-3 md:px-4 py-3 md:py-3.5 rounded-xl border text-xs md:text-sm transition-all duration-200 cursor-pointer ${
-                              selected ? "bg-cyan-500/10 border-cyan-400 text-cyan-400 shadow-[0_0_15px_rgba(0,247,255,0.1)]" : "bg-white/[0.03] border-white/10 text-white/60 hover:border-cyan-500/30 hover:text-white/80"
+                            className={`text-left px-4 py-4 rounded-[20px] border text-xs md:text-sm transition-all duration-300 cursor-pointer ${
+                              selected ? "bg-cyan-500/10 border-cyan-400/70 text-cyan-300 shadow-[0_0_18px_rgba(0,247,255,0.1)]" : "bg-white/[0.025] border-white/10 text-white/60 hover:border-cyan-500/35 hover:text-white/85 hover:bg-white/[0.04]"
                             }`}>
                             <div className={`${conthrax} text-[8px] md:text-[9px] tracking-wider mb-1 ${selected ? "text-cyan-400" : "text-white/30"}`}>BRANCH</div>
                             {label}
@@ -429,12 +676,12 @@ export default function RegisterPage() {
                     </div>
                     <h5 className={`${conthrax} text-[9px] md:text-[10px] tracking-[0.2em] uppercase text-cyan-400/60 mb-3`}>Offices</h5>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
-                      {offices.map((o) => {
+                      {officeChoices.map((o) => {
                         const selected = (form.domain_choice ? form.domain_choice.split(",") : []).includes(o.id);
                         return (
                           <button key={o.id} type="button" onClick={() => toggleDomainChoice(o.id, o.title)}
-                            className={`text-left px-3 md:px-4 py-3 md:py-3.5 rounded-xl border text-xs md:text-sm transition-all duration-200 cursor-pointer ${
-                              selected ? "bg-cyan-500/10 border-cyan-400 text-cyan-400 shadow-[0_0_15px_rgba(0,247,255,0.1)]" : "bg-white/[0.03] border-white/10 text-white/60 hover:border-cyan-500/30 hover:text-white/80"
+                            className={`text-left px-4 py-4 rounded-[20px] border text-xs md:text-sm transition-all duration-300 cursor-pointer ${
+                              selected ? "bg-cyan-500/10 border-cyan-400/70 text-cyan-300 shadow-[0_0_18px_rgba(0,247,255,0.1)]" : "bg-white/[0.025] border-white/10 text-white/60 hover:border-cyan-500/35 hover:text-white/85 hover:bg-white/[0.04]"
                             }`}>
                             <div className={`${conthrax} text-[8px] md:text-[9px] tracking-wider mb-1 ${selected ? "text-cyan-400" : "text-white/30"}`}>OFFICE</div>
                             {o.title}
@@ -450,9 +697,15 @@ export default function RegisterPage() {
                 {step === 5 && (
                   <div>
                     <Field label="How did you hear about K-1000?" error={errors.referral_source}>
-                      <select value={form.referral_source} onChange={(e) => update("referral_source", e.target.value)} className={selectCls}><option value="" className="bg-black">Select source</option>{referralOptions.map((o) => <option key={o} value={o} className="bg-black">{o}</option>)}</select>
+                      <CustomSelect
+                        value={form.referral_source}
+                        options={referralOptions.map((source) => ({ value: source, label: source }))}
+                        placeholder="Select source"
+                        ariaLabel="Referral source"
+                        onChange={(value) => update("referral_source", value)}
+                      />
                     </Field>
-                    <div className="mt-6 p-4 md:p-5 rounded-xl bg-white/[0.02] border border-white/10">
+                    <div className="mt-6 p-5 md:p-6 rounded-[24px] bg-cyan-500/[0.018] border border-cyan-500/10">
                       <h5 className={`${conthrax} text-[9px] md:text-[10px] tracking-[0.2em] uppercase text-cyan-400/60 mb-3`}>Application Summary</h5>
                       <div className="grid grid-cols-2 gap-2 text-[11px] md:text-xs text-white/50">
                         <span className="text-white/30">Name:</span><span className="text-white/70">{form.full_name || "—"}</span>
@@ -496,8 +749,9 @@ export default function RegisterPage() {
                 )}
               </div>
             </div>
-          </form>
-        </div>
+            </form>
+          </div>
+        </motion.div>
       </div>
 
       {/* ─── FLASH MESSAGE ─── */}
@@ -511,10 +765,6 @@ export default function RegisterPage() {
             className="fixed bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 z-[200] w-[calc(100vw-32px)] max-w-lg"
           >
             <div className="relative p-4 md:p-5 rounded-2xl bg-black/90 backdrop-blur-xl border border-cyan-400/30 shadow-[0_0_40px_rgba(0,247,255,0.15)]">
-              <button onClick={() => { if (flashTimer.current) clearTimeout(flashTimer.current); setFlashMsg(null); }}
-                className="absolute top-2 right-2 text-white/30 hover:text-white/60 transition-colors cursor-pointer">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6l-12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
-              </button>
               <div className="flex gap-3">
                 <Quote size={24} className="text-cyan-400/40 flex-shrink-0 mt-0.5" />
                 <div>
@@ -522,6 +772,13 @@ export default function RegisterPage() {
                   <p className={`${conthrax} text-xs md:text-sm text-cyan-400/60 mt-2 uppercase tracking-wider`}>&mdash; {flashLabel}</p>
                 </div>
               </div>
+              <button
+                type="button"
+                onClick={() => setFlashMsg(null)}
+                className={`${conthrax} mt-4 flex w-full items-center justify-center rounded-[14px] border border-cyan-400/35 bg-cyan-400/[0.06] px-4 py-3 text-[9px] uppercase tracking-[0.24em] text-cyan-300 transition-all hover:border-cyan-300/70 hover:bg-cyan-400/12 active:scale-[0.98]`}
+              >
+                Close message
+              </button>
             </div>
           </motion.div>
         )}
@@ -532,11 +789,12 @@ export default function RegisterPage() {
   );
 }
 
-function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
+function Field({ label, error, helper, children }: { label: string; error?: string; helper?: string; children: React.ReactNode }) {
   return (
     <div className="mb-3 md:mb-4">
       <label className="block text-[10px] md:text-[11px] font-semibold text-white/50 uppercase tracking-wider mb-1.5 md:mb-2">{label} <span className="text-cyan-400">*</span></label>
       {children}
+      {helper && !error && <p className="mt-1.5 text-[10px] leading-relaxed text-cyan-200/45 md:text-[11px]">{helper}</p>}
       {error && <p className="text-red-400 text-[10px] md:text-[11px] mt-1">{error}</p>}
     </div>
   );
