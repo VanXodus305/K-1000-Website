@@ -106,8 +106,8 @@ export default function AdminPage() {
     if (!data) return [];
     const q = search.toLowerCase();
     return data.filter((r) => {
-      if (q && !r.full_name.toLowerCase().includes(q) && !r.email.toLowerCase().includes(q) && !r.roll_number.toLowerCase().includes(q) && !r.phone.includes(q)) return false;
-      if (domainFilter && r.domain_choice !== domainFilter) return false;
+      if (q && !r.full_name.toLowerCase().includes(q) && !r.kiit_email?.toLowerCase().includes(q) && !r.phone.includes(q)) return false;
+      if (domainFilter && !r.domain_choice.split(",").includes(domainFilter)) return false;
       return true;
     });
   }, [data, search, domainFilter]);
@@ -117,7 +117,7 @@ export default function AdminPage() {
     const q = search.toLowerCase();
     return interviews.filter((iv) => {
       if (q && !iv.full_name?.toLowerCase().includes(q) && !iv.panelist_name?.toLowerCase().includes(q) && !iv.panelist_roll?.toLowerCase().includes(q)) return false;
-      if (domainFilter && iv.domain_choice !== domainFilter) return false;
+      if (domainFilter && !iv.domain_choice.split(",").includes(domainFilter)) return false;
       return true;
     });
   }, [interviews, search, domainFilter]);
@@ -206,7 +206,6 @@ export default function AdminPage() {
                 <tr className="bg-[#1a1a2e] text-left text-gray-300">
                   <th className="p-3 border-b border-gray-800 font-medium">ID</th>
                   <th className="p-3 border-b border-gray-800 font-medium">Candidate</th>
-                  <th className="p-3 border-b border-gray-800 font-medium">Roll</th>
                   <th className="p-3 border-b border-gray-800 font-medium">Panelist</th>
                   <th className="p-3 border-b border-gray-800 font-medium">Panelist Roll</th>
                   <th className="p-3 border-b border-gray-800 font-medium">Branch</th>
@@ -221,7 +220,6 @@ export default function AdminPage() {
                   <tr key={iv.id} className="border-b border-gray-800/50 hover:bg-white/[0.02] transition">
                     <td className="p-3 text-gray-400">{iv.id}</td>
                     <td className="p-3 font-medium">{iv.full_name}</td>
-                    <td className="p-3 text-gray-400">{iv.roll_number}</td>
                     <td className="p-3 text-gray-300">{iv.panelist_name}</td>
                     <td className="p-3 text-gray-400">{iv.panelist_roll}</td>
                     <td className="p-3 text-gray-300">{iv.panelist_branch}</td>
@@ -307,9 +305,7 @@ export default function AdminPage() {
               <tr className="bg-[#1a1a2e] text-left text-gray-300">
                 <th className="p-3 border-b border-gray-800 font-medium">ID</th>
                 <th className="p-3 border-b border-gray-800 font-medium">Name</th>
-                <th className="p-3 border-b border-gray-800 font-medium">Email</th>
-                <th className="p-3 border-b border-gray-800 font-medium">Roll</th>
-                <th className="p-3 border-b border-gray-800 font-medium">Branch</th>
+                <th className="p-3 border-b border-gray-800 font-medium">KIIT Email</th>
                 <th className="p-3 border-b border-gray-800 font-medium">Domain</th>
                 <th className="p-3 border-b border-gray-800 font-medium">Created</th>
               </tr>
@@ -319,16 +315,16 @@ export default function AdminPage() {
                 <tr key={r.id} className="border-b border-gray-800/50 hover:bg-white/[0.02] transition">
                   <td className="p-3 text-gray-400">{r.id}</td>
                   <td className="p-3 font-medium">{r.full_name}</td>
-                  <td className="p-3 text-gray-300">{r.email}</td>
-                  <td className="p-3 text-gray-400">{r.roll_number}</td>
-                  <td className="p-3 text-gray-300">{r.branch}</td>
-                  <td className="p-3 text-gray-300">{domainLabels[r.domain_choice] || r.domain_choice}</td>
+                  <td className="p-3 text-gray-300">{r.kiit_email}</td>
+                  <td className="p-3 text-gray-300">
+                    {r.domain_choice.split(",").map(d => domainLabels[d] || d).join(", ")}
+                  </td>
                   <td className="p-3 text-gray-500 text-xs">{formatDate(r.created_at)}</td>
                 </tr>
               ))}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="p-8 text-center text-gray-500">No registrations match your filters.</td>
+                  <td colSpan={5} className="p-8 text-center text-gray-500">No registrations match your filters.</td>
                 </tr>
               )}
             </tbody>

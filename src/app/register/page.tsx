@@ -17,8 +17,38 @@ const academicYears = ["1st Year", "2nd Year", "3rd Year", "4th Year"];
 const genderOptions = [
   { value: "male", label: "Male" },
   { value: "female", label: "Female" },
-  { value: "other", label: "Other" },
-  { value: "prefer_not_to_say", label: "Prefer not to say" },
+];
+
+const courseOptions = [
+  "Aerospace Engineering",
+  "BCA",
+  "Biotech",
+  "Chemical Engineering",
+  "Civil Engineering",
+  "Computer Science & Communication Engineering",
+  "Computer Science & Engineering",
+  "Computer Science & Systems Engineering",
+  "Computer Science and Engineering with specialization Artificial Intelligence",
+  "Computer Science and Engineering with specialization Artificial Intelligence and Machine Learning",
+  "Computer Science and Engineering with specialization Cyber Security",
+  "Computer Science and Engineering with specialization Data Science",
+  "Computer Science and Engineering with specialization Internet of Things",
+  "Computer Science and Engineering with specialization Internet of Things and Cyber Security Including Block Chain Technology",
+  "Construction Technology",
+  "Electrical and Computer Engineering",
+  "Electrical Engineering",
+  "Electronics & Electrical Engineering",
+  "Electronics & Tele-Communication Engineering",
+  "Electronics and Computer Science Engineering",
+  "Electronics and Instrumentation",
+  "Electronics Engineering VLSI Design and Technology",
+  "Information Technology",
+  "Law",
+  "MCA",
+  "Mechanical Engineering",
+  "Mechanical Engineering (Automobile)",
+  "Mechatronics Engineering",
+  "Others"
 ];
 
 const referralOptions = [
@@ -72,17 +102,17 @@ const steps = [
 ];
 
 type FormData = {
-  full_name: string; email: string; phone: string; kiit_email: string;
-  gender: string; roll_number: string;
-  academic_year: string; course: string; branch: string;
+  full_name: string; phone: string; kiit_email: string;
+  gender: string;
+  academic_year: string; course: string;
   domain_choice: string; motivation: string; experience: string;
   skills: string[]; referral_source: string;
 };
 
 const initialForm: FormData = {
-  full_name: "", email: "", phone: "", kiit_email: "", gender: "",
-  roll_number: "", academic_year: "", course: "",
-  branch: "", domain_choice: "", motivation: "", experience: "",
+  full_name: "", phone: "", kiit_email: "", gender: "",
+  academic_year: "", course: "",
+  domain_choice: "", motivation: "", experience: "",
   skills: [], referral_source: "",
 };
 
@@ -112,6 +142,7 @@ export default function RegisterPage() {
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [toast, setToast] = useState<{ type: string; text: string } | null>(null);
   const [customSkill, setCustomSkill] = useState("");
+  const [customCourse, setCustomCourse] = useState("");
   const [flashMsg, setFlashMsg] = useState<string | null>(null);
   const [flashLabel, setFlashLabel] = useState("");
   const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -160,24 +191,38 @@ export default function RegisterPage() {
     flashTimer.current = setTimeout(() => setFlashMsg(null), 12000);
   };
 
+  const toggleDomainChoice = (key: string, label: string) => {
+    const current = form.domain_choice ? form.domain_choice.split(",").filter(Boolean) : [];
+    let nextDomains: string[];
+    if (current.includes(key)) {
+      nextDomains = current.filter(d => d !== key);
+    } else {
+      if (current.length >= 3) {
+        setToast({ type: "error", text: "You can select up to 3 domains." });
+        return;
+      }
+      nextDomains = [...current, key];
+    }
+    update("domain_choice", nextDomains.join(","));
+    showFlash(key, label);
+  };
+
   const validateStep = (): boolean => {
     const errs: Record<string, string> = {};
     if (step === 1) {
       if (!form.full_name.trim() || form.full_name.trim().length < 3) errs.full_name = "Full name must be at least 3 characters";
-      if (!form.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) errs.email = "Invalid email address";
       if (!form.phone.trim() || !/^\+?[1-9]\d{9,14}$/.test(form.phone)) errs.phone = "Invalid phone number (10-15 digits)";
       if (!form.kiit_email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.kiit_email)) errs.kiit_email = "Invalid email address";
-      else if (!form.kiit_email.toLowerCase().endsWith("@kiit.ac.in") && !form.kiit_email.toLowerCase().endsWith("@kgpian.ac.in")) errs.kiit_email = "Must be a @kiit.ac.in email";
+      else if (!form.kiit_email.toLowerCase().endsWith(".ac.in")) errs.kiit_email = "Must be a valid .ac.in email";
       if (!form.gender) errs.gender = "Select your gender";
     } else if (step === 2) {
-      if (!form.roll_number.trim() || !/^\d{6,10}$/.test(form.roll_number.trim())) errs.roll_number = "Invalid roll number (6-10 digits)";
       if (!form.academic_year) errs.academic_year = "Select your academic year";
-      if (!form.course.trim() || form.course.trim().length < 2) errs.course = "Enter your course name";
-      if (!form.branch.trim() || form.branch.trim().length < 2) errs.branch = "Enter your branch/specialization";
+      if (!form.course) errs.course = "Select your course";
+      else if (form.course === "Others" && !customCourse.trim()) errs.customCourse = "Please specify your course";
     } else if (step === 3) {
       if (!form.motivation.trim() || form.motivation.trim().length < 20) errs.motivation = "Motivation must be at least 20 characters";
     } else if (step === 4) {
-      if (!form.domain_choice) errs.domain_choice = "Select a domain";
+      if (!form.domain_choice) errs.domain_choice = "Select a domain (max 3)";
     } else if (step === 5) {
       if (!form.referral_source) errs.referral_source = "Select how you heard about K-1000";
     }
@@ -190,16 +235,24 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (step < 5) {
+      next();
+      return;
+    }
+    
     if (!validateStep()) { setToast({ type: "error", text: "Please fix the highlighted errors." }); return; }
     setSubmitting(true);
     setToast(null);
     try {
+      const payload = { ...form };
+      if (form.course === "Others") payload.course = customCourse.trim();
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/registration`, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
       const result = await res.json();
-      if (result.success) { setSubmitted(true); setRegId(result.data?.id ?? null); setToast({ type: "success", text: "Registration submitted successfully!" }); setForm(initialForm); setStep(1); setTimeout(() => setSubmitted(false), 5000); if (result.data?.id) downloadQR(result.data.id); }
+      if (result.success) { setSubmitted(true); setRegId(result.data?.id ?? null); setToast({ type: "success", text: "Registration submitted successfully!" }); setForm(initialForm); setStep(1); if (result.data?.id) downloadQR(result.data.id); }
       else if (result.errors) { const fe: Record<string, string> = {}; result.errors.forEach((e: { field: string; message: string }) => { fe[e.field] = e.message; }); setErrors(fe); setToast({ type: "error", text: "Please fix the highlighted errors." }); }
       else { setToast({ type: "error", text: result.message || "Submission failed." }); }
     } catch { setToast({ type: "error", text: "Cannot reach server. Ensure the backend is running on port 8080." }); }
@@ -288,18 +341,27 @@ export default function RegisterPage() {
                     <Field label="Full Name" error={errors.full_name}><input type="text" value={form.full_name} onChange={(e) => update("full_name", e.target.value)} placeholder="e.g. John Doe" className={inputCls} /></Field>
                     <Field label="Gender" error={errors.gender}><select value={form.gender} onChange={(e) => update("gender", e.target.value)} className={selectCls}><option value="" className="bg-black">Select gender</option>{genderOptions.map((o) => <option key={o.value} value={o.value} className="bg-black">{o.label}</option>)}</select></Field>
                     <Field label="Phone" error={errors.phone}><input type="tel" value={form.phone} onChange={(e) => update("phone", e.target.value)} placeholder="+91 9876543210" className={inputCls} /></Field>
-                    <Field label="Email" error={errors.email}><input type="email" value={form.email} onChange={(e) => update("email", e.target.value)} placeholder="john@example.com" className={inputCls} /></Field>
-                    <Field label="KIIT Email" error={errors.kiit_email}><input type="email" value={form.kiit_email} onChange={(e) => update("kiit_email", e.target.value)} placeholder="john@kiit.ac.in" className={inputCls} /></Field>
+                    <Field label="Email" error={errors.kiit_email}><input type="email" value={form.kiit_email} onChange={(e) => update("kiit_email", e.target.value)} placeholder="john@kiit.ac.in" className={inputCls} /></Field>
                   </div>
                 )}
 
                 {/* STEP 2: Academic Details */}
                 {step === 2 && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-                    <Field label="Roll Number" error={errors.roll_number}><input type="text" value={form.roll_number} onChange={(e) => update("roll_number", e.target.value)} placeholder="e.g. 21051234" className={inputCls} /></Field>
                     <Field label="Academic Year" error={errors.academic_year}><select value={form.academic_year} onChange={(e) => update("academic_year", e.target.value)} className={selectCls}><option value="" className="bg-black">Select year</option>{academicYears.map((y) => <option key={y} value={y} className="bg-black">{y}</option>)}</select></Field>
-                    <Field label="Course" error={errors.course}><input type="text" value={form.course} onChange={(e) => update("course", e.target.value)} placeholder="e.g. B.Tech CSE" className={inputCls} /></Field>
-                    <Field label="Branch / Specialization" error={errors.branch}><input type="text" value={form.branch} onChange={(e) => update("branch", e.target.value)} placeholder="e.g. CSE, ECE" className={inputCls} /></Field>
+                    <Field label="Course" error={errors.course}>
+                      <select value={form.course} onChange={(e) => update("course", e.target.value)} className={selectCls}>
+                        <option value="" className="bg-black">Select course</option>
+                        {courseOptions.map((c) => <option key={c} value={c} className="bg-black">{c}</option>)}
+                      </select>
+                    </Field>
+                    {form.course === "Others" && (
+                      <div className="md:col-span-2">
+                        <Field label="Specify Course" error={errors.customCourse}>
+                          <input type="text" value={customCourse} onChange={(e) => { setCustomCourse(e.target.value); setErrors(prev => { const n = { ...prev }; delete n.customCourse; return n; }); }} placeholder="Enter your course name" className={inputCls} />
+                        </Field>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -347,15 +409,15 @@ export default function RegisterPage() {
                 {/* STEP 4: Choose Your Domain */}
                 {step === 4 && (
                   <div>
-                    <p className="text-xs md:text-sm text-white/50 mb-4 md:mb-6 leading-relaxed">Select your preferred domain. Tap any branch or office to hear a message from its leadership.</p>
+                    <p className="text-xs md:text-sm text-white/50 mb-4 md:mb-6 leading-relaxed">Select your preferred domain (select up to 3). Tap any branch or office to hear a message from its leadership.</p>
                     <h5 className={`${conthrax} text-[9px] md:text-[10px] tracking-[0.2em] uppercase text-cyan-400/60 mb-3`}>Branches</h5>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3 mb-6">
                       {allDomains.map((d) => {
                         const key = d.key as string;
                         const label = getDomainLabel(key);
-                        const selected = form.domain_choice === key;
+                        const selected = (form.domain_choice ? form.domain_choice.split(",") : []).includes(key);
                         return (
-                          <button key={key} type="button" onClick={() => { update("domain_choice", key); showFlash(key, label); }}
+                          <button key={key} type="button" onClick={() => toggleDomainChoice(key, label)}
                             className={`text-left px-3 md:px-4 py-3 md:py-3.5 rounded-xl border text-xs md:text-sm transition-all duration-200 cursor-pointer ${
                               selected ? "bg-cyan-500/10 border-cyan-400 text-cyan-400 shadow-[0_0_15px_rgba(0,247,255,0.1)]" : "bg-white/[0.03] border-white/10 text-white/60 hover:border-cyan-500/30 hover:text-white/80"
                             }`}>
@@ -367,15 +429,18 @@ export default function RegisterPage() {
                     </div>
                     <h5 className={`${conthrax} text-[9px] md:text-[10px] tracking-[0.2em] uppercase text-cyan-400/60 mb-3`}>Offices</h5>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
-                      {offices.map((o) => (
-                        <button key={o.id} type="button" onClick={() => { update("domain_choice", o.id); showFlash(o.id, o.title); }}
-                          className={`text-left px-3 md:px-4 py-3 md:py-3.5 rounded-xl border text-xs md:text-sm transition-all duration-200 cursor-pointer ${
-                            form.domain_choice === o.id ? "bg-cyan-500/10 border-cyan-400 text-cyan-400 shadow-[0_0_15px_rgba(0,247,255,0.1)]" : "bg-white/[0.03] border-white/10 text-white/60 hover:border-cyan-500/30 hover:text-white/80"
-                          }`}>
-                          <div className={`${conthrax} text-[8px] md:text-[9px] tracking-wider mb-1 text-white/30`}>OFFICE</div>
-                          {o.title}
-                        </button>
-                      ))}
+                      {offices.map((o) => {
+                        const selected = (form.domain_choice ? form.domain_choice.split(",") : []).includes(o.id);
+                        return (
+                          <button key={o.id} type="button" onClick={() => toggleDomainChoice(o.id, o.title)}
+                            className={`text-left px-3 md:px-4 py-3 md:py-3.5 rounded-xl border text-xs md:text-sm transition-all duration-200 cursor-pointer ${
+                              selected ? "bg-cyan-500/10 border-cyan-400 text-cyan-400 shadow-[0_0_15px_rgba(0,247,255,0.1)]" : "bg-white/[0.03] border-white/10 text-white/60 hover:border-cyan-500/30 hover:text-white/80"
+                            }`}>
+                            <div className={`${conthrax} text-[8px] md:text-[9px] tracking-wider mb-1 ${selected ? "text-cyan-400" : "text-white/30"}`}>OFFICE</div>
+                            {o.title}
+                          </button>
+                        );
+                      })}
                     </div>
                     {errors.domain_choice && <p className="text-red-400 text-xs mt-3">{errors.domain_choice}</p>}
                   </div>
@@ -391,8 +456,8 @@ export default function RegisterPage() {
                       <h5 className={`${conthrax} text-[9px] md:text-[10px] tracking-[0.2em] uppercase text-cyan-400/60 mb-3`}>Application Summary</h5>
                       <div className="grid grid-cols-2 gap-2 text-[11px] md:text-xs text-white/50">
                         <span className="text-white/30">Name:</span><span className="text-white/70">{form.full_name || "—"}</span>
-                        <span className="text-white/30">Roll:</span><span className="text-white/70">{form.roll_number || "—"}</span>
-                        <span className="text-white/30">Domain:</span><span className="text-white/70">{form.domain_choice ? getDomainLabel(form.domain_choice) : "—"}</span>
+                        <span className="text-white/30">Email:</span><span className="text-white/70">{form.kiit_email || "—"}</span>
+                        <span className="text-white/30">Domains:</span><span className="text-white/70">{form.domain_choice ? form.domain_choice.split(",").map(getDomainLabel).join(", ") : "—"}</span>
                         <span className="text-white/30">Skills:</span><span className="text-white/70">{form.skills.length || "—"}</span>
                       </div>
                     </div>
