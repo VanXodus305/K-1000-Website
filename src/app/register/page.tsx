@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, Send, RotateCcw, ChevronRight, ChevronLeft, ChevronDown, Quote } from "lucide-react";
+import { Check, Send, RotateCcw, Plus, ChevronRight, ChevronLeft, ChevronDown, Quote } from "lucide-react";
 import QRCode from "qrcode";
 import Link from "next/link";
 import SharedHeader from "../../components/ui/SharedHeader";
@@ -59,6 +59,46 @@ const referralOptions = [
   "College Notice Board", "KIIT Website", "WhatsApp Group", "Campus Event", "Other",
 ];
 
+const technicalSkillOptions = [
+  "Programming Fundamentals",
+  "Python",
+  "JavaScript / TypeScript",
+  "Java",
+  "C++",
+  "React / Next.js",
+  "Backend Development",
+  "Database Management",
+  "AI / ML",
+  "Data Science",
+  "Cloud & DevOps",
+  "Cybersecurity",
+  "UI / UX Design",
+  "Research Methodology",
+  "Academic Writing",
+  "Resume Building",
+  "Mock Interview Prep",
+  "Financial Planning",
+  "Startup Strategy",
+];
+
+const nonTechnicalSkillOptions = [
+  "Leadership",
+  "Team Coordination",
+  "Communication",
+  "Public Speaking",
+  "Event Planning",
+  "Logistics Management",
+  "Content Writing",
+  "Social Media Handling",
+  "Public Relations",
+  "Sponsorship Outreach",
+  "Campus Outreach",
+  "Creative Direction",
+  "Documentation",
+  "Mentorship",
+  "Problem Solving",
+];
+
 const branchDomains = domains;
 
 const branchMessages: Record<string, string> = {
@@ -99,14 +139,15 @@ type FormData = {
   gender: string;
   academic_year: string; course: string;
   domain_choice: string; motivation: string; experience: string;
-  skills: string[]; referral_source: string;
+  technical_skills: string[]; non_technical_skills: string[];
+  referral_source: string;
 };
 
 const initialForm: FormData = {
   full_name: "", phone: "", kiit_email: "", gender: "",
   academic_year: "", course: "",
   domain_choice: "", motivation: "", experience: "",
-  skills: [], referral_source: "",
+  technical_skills: [], non_technical_skills: [], referral_source: "",
 };
 
 const REGISTRATION_RECEIPT_KEY = "k1000-registration-receipt-v1";
@@ -315,6 +356,8 @@ export default function RegisterPage() {
   const [regId, setRegId] = useState<number | null>(null);
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [toast, setToast] = useState<{ type: string; text: string } | null>(null);
+  const [customTechnicalSkill, setCustomTechnicalSkill] = useState("");
+  const [customNonTechnicalSkill, setCustomNonTechnicalSkill] = useState("");
   const [customCourse, setCustomCourse] = useState("");
   const [flashMsg, setFlashMsg] = useState<string | null>(null);
   const [flashLabel, setFlashLabel] = useState("");
@@ -347,6 +390,21 @@ export default function RegisterPage() {
     setForm((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) setErrors((prev) => { const n = { ...prev }; delete n[field]; return n; });
     setToast(null);
+  };
+
+  const toggleSkill = (field: "technical_skills" | "non_technical_skills", skill: string) => {
+    setForm((prev) => ({
+      ...prev,
+      [field]: prev[field].includes(skill) ? prev[field].filter((s) => s !== skill) : [...prev[field], skill],
+    }));
+  };
+
+  const addCustomSkill = (field: "technical_skills" | "non_technical_skills", value: string, reset: () => void) => {
+    const skill = value.trim();
+    if (skill && !form[field].includes(skill)) {
+      setForm((prev) => ({ ...prev, [field]: [...prev[field], skill] }));
+    }
+    reset();
   };
 
   const showFlash = (key: string, label: string) => {
@@ -413,9 +471,10 @@ export default function RegisterPage() {
     setSubmitting(true);
     setToast(null);
     try {
+      const combinedSkills = [...form.technical_skills, ...form.non_technical_skills];
       const payload = {
         ...form,
-        skills: [],
+        skills: combinedSkills,
         referral_source: form.referral_source || "Not specified",
       };
       if (form.course === "Others") payload.course = customCourse.trim();
@@ -677,6 +736,120 @@ export default function RegisterPage() {
                 {/* STEP 3: Experience & Motivation */}
                 {step === 3 && (
                   <div>
+                    <div className="mb-4 rounded-[24px] border border-white/10 bg-white/[0.02] p-4 md:p-5">
+                      <label className={`${conthrax} block text-[9px] md:text-[10px] text-cyan-400/60 uppercase tracking-[0.2em] mb-3`}>
+                        Technical Strengths
+                      </label>
+                      <div className="flex flex-wrap gap-1.5 md:gap-2 mb-3">
+                        {technicalSkillOptions.map((skill) => (
+                          <button
+                            key={skill}
+                            type="button"
+                            onClick={() => toggleSkill("technical_skills", skill)}
+                            className={`px-3 py-2 rounded-xl text-[10px] md:text-[11px] border transition-all duration-300 cursor-pointer ${
+                              form.technical_skills.includes(skill)
+                                ? "bg-cyan-500/10 border-cyan-400/70 text-cyan-300 shadow-[0_0_18px_rgba(0,247,255,0.08)]"
+                                : "bg-white/[0.025] border-white/10 text-white/50 hover:border-cyan-500/35 hover:text-white/80 hover:bg-white/[0.04]"
+                            }`}
+                          >
+                            {form.technical_skills.includes(skill) && <Check size={10} className="inline mr-0.5 md:mr-1" />}
+                            {skill}
+                          </button>
+                        ))}
+                        {form.technical_skills.filter((skill) => !technicalSkillOptions.includes(skill)).map((skill) => (
+                          <button
+                            key={skill}
+                            type="button"
+                            onClick={() => toggleSkill("technical_skills", skill)}
+                            className="px-3 py-2 rounded-xl text-[10px] md:text-[11px] border bg-cyan-500/10 border-cyan-400/70 text-cyan-300 transition-all cursor-pointer"
+                          >
+                            <Check size={10} className="inline mr-0.5 md:mr-1" />
+                            {skill}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={customTechnicalSkill}
+                          onChange={(e) => setCustomTechnicalSkill(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              addCustomSkill("technical_skills", customTechnicalSkill, () => setCustomTechnicalSkill(""));
+                            }
+                          }}
+                          placeholder="Add a custom technical skill..."
+                          className={inputCls}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => addCustomSkill("technical_skills", customTechnicalSkill, () => setCustomTechnicalSkill(""))}
+                          disabled={!customTechnicalSkill.trim()}
+                          className="px-4 rounded-[18px] border border-cyan-400/50 text-cyan-300 text-[11px] hover:bg-cyan-400 hover:text-black transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                          aria-label="Add custom technical skill"
+                        >
+                          <Plus size={14} />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="mb-4 rounded-[24px] border border-white/10 bg-white/[0.02] p-4 md:p-5">
+                      <label className={`${conthrax} block text-[9px] md:text-[10px] text-cyan-400/60 uppercase tracking-[0.2em] mb-3`}>
+                        Non-Technical Strengths
+                      </label>
+                      <div className="flex flex-wrap gap-1.5 md:gap-2 mb-3">
+                        {nonTechnicalSkillOptions.map((skill) => (
+                          <button
+                            key={skill}
+                            type="button"
+                            onClick={() => toggleSkill("non_technical_skills", skill)}
+                            className={`px-3 py-2 rounded-xl text-[10px] md:text-[11px] border transition-all duration-300 cursor-pointer ${
+                              form.non_technical_skills.includes(skill)
+                                ? "bg-cyan-500/10 border-cyan-400/70 text-cyan-300 shadow-[0_0_18px_rgba(0,247,255,0.08)]"
+                                : "bg-white/[0.025] border-white/10 text-white/50 hover:border-cyan-500/35 hover:text-white/80 hover:bg-white/[0.04]"
+                            }`}
+                          >
+                            {form.non_technical_skills.includes(skill) && <Check size={10} className="inline mr-0.5 md:mr-1" />}
+                            {skill}
+                          </button>
+                        ))}
+                        {form.non_technical_skills.filter((skill) => !nonTechnicalSkillOptions.includes(skill)).map((skill) => (
+                          <button
+                            key={skill}
+                            type="button"
+                            onClick={() => toggleSkill("non_technical_skills", skill)}
+                            className="px-3 py-2 rounded-xl text-[10px] md:text-[11px] border bg-cyan-500/10 border-cyan-400/70 text-cyan-300 transition-all cursor-pointer"
+                          >
+                            <Check size={10} className="inline mr-0.5 md:mr-1" />
+                            {skill}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={customNonTechnicalSkill}
+                          onChange={(e) => setCustomNonTechnicalSkill(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              addCustomSkill("non_technical_skills", customNonTechnicalSkill, () => setCustomNonTechnicalSkill(""));
+                            }
+                          }}
+                          placeholder="Add a custom non-technical skill..."
+                          className={inputCls}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => addCustomSkill("non_technical_skills", customNonTechnicalSkill, () => setCustomNonTechnicalSkill(""))}
+                          disabled={!customNonTechnicalSkill.trim()}
+                          className="px-4 rounded-[18px] border border-cyan-400/50 text-cyan-300 text-[11px] hover:bg-cyan-400 hover:text-black transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                          aria-label="Add custom non-technical skill"
+                        >
+                          <Plus size={14} />
+                        </button>
+                      </div>
+                    </div>
                     <div className="mb-4">
                       <label className={`${conthrax} block text-[10px] text-white/45 uppercase tracking-[0.22em] mb-2`}>Previous Experience <span className="text-white/20 normal-case tracking-normal font-normal">(optional)</span></label>
                       <textarea value={form.experience} onChange={(e) => update("experience", e.target.value)} placeholder="Share any previous experience that is relevant to the branch or office you want to join..." className={`${inputCls} min-h-[120px] resize-y`} />
@@ -747,6 +920,10 @@ export default function RegisterPage() {
                         <span className="text-white/30">Email:</span><span className="text-white/70">{form.kiit_email || "—"}</span>
                         <span className="text-white/30">Branches / Offices:</span>
                         <span className="text-white/70 capitalize">{form.domain_choice ? form.domain_choice.split(",").map(getDomainLabel).join(", ") : "—"}</span>
+                        <span className="text-white/30">Technical Skills:</span>
+                        <span className="text-white/70">{form.technical_skills.length ? form.technical_skills.join(", ") : "—"}</span>
+                        <span className="text-white/30">Non-Technical Skills:</span>
+                        <span className="text-white/70">{form.non_technical_skills.length ? form.non_technical_skills.join(", ") : "—"}</span>
                       </div>
                     </div>
                   </div>
