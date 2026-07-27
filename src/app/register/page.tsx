@@ -107,14 +107,26 @@ const branchMessages: Record<string, string> = {
   research: `"Welcome to the Research & Publications Wing of Team K-1000! Research is a journey of asking meaningful questions, embracing challenges, and growing through collaboration. We encourage you to approach this recruitment process with honesty and confidence. There are no perfect answers, only opportunities to demonstrate how you think."`,
   projects: `"At Project Wing, we build ideas into real-world projects. If you have a basic foundation in your domain and are passionate about building, we'd love to have you on board. We're also looking for AI/ML and Data Analytics Mentors with strong domain knowledge to guide our teams. Ready to build? Join Project Wing!"`,
   training: `"Every expert starts as a beginner. Whether you're new to a domain or looking to sharpen your skills, the K-1000 Training Program welcomes curious minds ready to learn, build, and grow. Join us and take the next step in your learning journey."`,
+  finance: `"We look for individuals who don't just understand finance, they live it. If you think in numbers, speak in ideas, and have the drive to build something that matters, Finance & Entrepreneurship is where you belong."`,
+  internship: `"The Academic Internship and Placement Guidance (AIPG) wing warmly welcomes driven individuals—for both general and management roles—who are passionate about shaping careers and bridging the gap between academia and the professional world. Join us in empowering our peers by training students to successfully meet and exceed industry expectations."`,
+  oca: `"The Office of Campus Ambassadors seeks individuals who lead by influence, inspire through action, and create a meaningful impact within the KIIT community."`,
+  ocd: `"The Office of Creativity & Design seeks individuals who lead with creativity, design with purpose, and leave a lasting visual impact across the KIIT community."`,
+  opcr: `"We look for individuals who communicate with purpose, build relationships with intent, bring in the support that powers every event, and represent K-1000 with pride in every room they walk into."`,
+  occ: `"The Office of Content and Communication seeks dedicated individuals who are willing to contribute their time, work collaboratively, and play an active role in strengthening the functioning of the K1000 Society through commitment, responsibility, and initiative."`,
 };
 
 const designations: Record<string, string> = {
-  events: "~Director & Deputy Director | Event Management",
-  higher: "~Deputy Director | Higher Studies",
-  research: "~Director & Deputy Director | Research & Publications Wing",
-  projects: "~Director & Deputy Director | Project Wing",
-  training: "~Deputy Director | Training Program",
+  events: "Director & Deputy Director | Event Management",
+  higher: "Deputy Director | Higher Studies",
+  research: "Director & Deputy Director | Research & Publications Wing",
+  projects: "Director & Deputy Director | Project Wing",
+  training: "Deputy Director | Training Program",
+  finance: "Director & Deputy Director | Finance & Entrepreneurship",
+  internship: "Director and Deputy Director | AIPG",
+  oca: "Deputy Director, OCA",
+  ocd: "Deputy Director, OCD",
+  opcr: "Director | OPCR",
+  occ: "Deputy Director | OCC",
 };
 
 const recruitingOfficeKeys = new Set(["ocd", "opcr", "oca", "occ"]);
@@ -374,6 +386,14 @@ export default function RegisterPage() {
     setErrors({});
     setToast(null);
   }, [step]);
+
+  useEffect(() => {
+    if (!flashMsg) return;
+    const timer = setTimeout(() => {
+      setFlashMsg(null);
+    }, 8000);
+    return () => clearTimeout(timer);
+  }, [flashMsg]);
 
   const downloadQR = async (id: number) => {
     try {
@@ -952,7 +972,6 @@ export default function RegisterPage() {
                   <button
                     key="next-step"
                     type="button"
-                    disabled={step === 4 && Boolean(flashMsg)}
                     onClick={(event) => {
                       event.preventDefault();
                       next();
@@ -997,15 +1016,6 @@ export default function RegisterPage() {
                     <p className={`${conthrax} mt-3 break-words text-[9px] uppercase leading-relaxed tracking-wider text-cyan-400/60 md:text-xs`}>&mdash; {flashLabel}</p>
                   </div>
                 </div>
-              </div>
-              <div className="shrink-0 border-t border-white/10 bg-black/80 p-3 md:p-4">
-                <button
-                  type="button"
-                  onClick={() => setFlashMsg(null)}
-                  className={`${conthrax} flex w-full items-center justify-center rounded-[14px] border border-cyan-400/35 bg-cyan-400/[0.06] px-4 py-3 text-[8px] uppercase tracking-[0.18em] text-cyan-300 transition-all hover:border-cyan-300/70 hover:bg-cyan-400/12 active:scale-[0.98] md:text-[9px] md:tracking-[0.24em]`}
-                >
-                  Close message to continue
-                </button>
               </div>
             </div>
           </motion.div>
