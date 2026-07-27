@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import SharedHeader from "../../components/ui/SharedHeader";
 import Footer from "../../components/footer/Footer";
 import CubeBackground from "../../components/ui/CubeBackground";
+import { SITE_TAGLINE } from "../../data/site";
 
 const images = [
   "https://cdn.prod.website-files.com/67aa2520eb413205a7dac909/67aa3147b53442d24541b355_KIIT-University-Bhubaneswar.jpeg",
@@ -87,7 +88,7 @@ export default function BenefitsPage() {
                 JOIN <span className="text-cyan-400 drop-shadow-[0_0_15px_#00f7ff]">K-1000</span>
               </motion.h1>
               <p className={`${conthrax} text-cyan-400/50 mt-4 tracking-[0.3em] md:tracking-[0.5em] text-[10px] md:text-sm uppercase font-bold`}>
-                Train • Compete • Publish
+                {SITE_TAGLINE}
               </p>
             </div>
           </div>

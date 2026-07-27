@@ -6,98 +6,57 @@ import { Cpu, Target, Layers, BookOpen, Briefcase, GraduationCap, Users } from "
 import SharedHeader from "../../components/ui/SharedHeader";
 import Footer from "../../components/footer/Footer";
 import { leadership } from "../../data/leadership";
+import { domains } from "../../data/domain";
 import CubeBackground from "../../components/ui/CubeBackground";
+import { findLeadershipPair } from "../../lib/leadership-utils";
 
 /* ─────────── DATA & MAPPING ─────────── */
-const branchMapping: Record<string, string> = {
-  internshipandplacement: "academicinternshipandplacementguidance",
-  eventorganization: "eventorganization",
-  researchandpublications: "researchandpublications",
-  projectwing: "projectwing",
-  trainingprogram: "trainingprogram",
-  higherstudies: "higherstudies",
+const conthrax = "font-['Conthrax',_sans-serif]";
+
+const iconMap: Record<string, React.ReactNode> = {
+  training: <Cpu size={20} />,
+  research: <BookOpen size={20} />,
+  projects: <Layers size={20} />,
+  events: <Users size={20} />,
+  internship: <Briefcase size={20} />,
+  higher: <GraduationCap size={20} />,
+  finance: <Briefcase size={20} />,
+  content: <BookOpen size={20} />,
+  campus: <Users size={20} />,
 };
 
-type Domain = {
-  key: string; title: string; tag: string; overview: string; description: string;
-  focusAreas: string[]; outcomes: string[]; yearOfFormation: number;
-  icon: React.ReactNode; image: string; missionStatement: string;
-};
-
-const branches: Domain[] = [
-  {
-    key: "trainingprogram", title: "Training Program", tag: "Unit: Skill Acquisition",
-    overview: "A peer-to-peer learning initiative focused on technical mastery.",
-    description: "Students engage in workshops and real-world projects to build high-level practical knowledge.",
-    focusAreas: ["Hands-on Workshops", "Peer Mentoring", "Professional Growth"],
-    outcomes: ["Technical Proficiency", "Leadership Development", "Project Readiness"],
-    yearOfFormation: 2022, icon: <Cpu size={20} />, missionStatement: "Mastery through collaborative evolution.",
-    image: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=1600"
-  },
-  {
-    key: "researchandpublications", title: "Research and Publications", tag: "Unit: Academic Innovation",
-    overview: "Supports students in the end-to-end research process.",
-    description: "From topic selection to journal submission, we guide you through every step of the academic lifecycle.",
-    focusAreas: ["Journal Drafting", "Faculty Collaboration", "IPR Support"],
-    outcomes: ["Published Research", "Academic Networking", "Intellectual Property"],
-    yearOfFormation: 2021, icon: <BookOpen size={20} />, missionStatement: "Advancing academic frontiers.",
-    image: "https://images.unsplash.com/photo-1532094349884-543bc11b234d?q=80&w=1600"
-  },
-  {
-    key: "projectwing", title: "Project Wing", tag: "Unit: Product Development",
-    overview: "Enables members to build real-world solutions.",
-    description: "Mentorship to turn ideas into prototypes with agile development cycles and industry-grade deployment.",
-    focusAreas: ["Agile Development", "Resource Allocation", "Industry Prototypes"],
-    outcomes: ["Shipped Products", "System Architecture", "Deployment"],
-    yearOfFormation: 2023, icon: <Layers size={20} />, missionStatement: "Scaling technological solutions.",
-    image: "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=1600"
-  },
-  {
-    key: "eventorganization", title: "Event Organization", tag: "Unit: Operations & Management",
-    overview: "Logistics backbone for major organizational events.",
-    description: "Planning hackathons, webinars, and speaker sessions, building leadership and communication excellence.",
-    focusAreas: ["Hackathon Management", "Speaker Relations", "Global Webinars"],
-    outcomes: ["Event Management", "Communication Excellence", "Logistics"],
-    yearOfFormation: 2020, icon: <Users size={20} />, missionStatement: "Orchestrating innovation.",
-    image: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=1600"
-  },
-  {
-    key: "internshipandplacement", title: "Internship and Placement", tag: "Unit: Career Bridge",
-    overview: "Bridges the gap between campus and industry.",
-    description: "Industry connections, resume reviews, and mock interviews to secure high-tier recruitment.",
-    focusAreas: ["Corporate Relations", "Resume Optimization", "Mock Drills"],
-    outcomes: ["Placement Success", "Industry Ready Profiles", "Interview Mastery"],
-    yearOfFormation: 2020, icon: <Briefcase size={20} />, missionStatement: "Strategic industry alignment.",
-    image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1600"
-  },
-  {
-    key: "higherstudies", title: "Higher Studies", tag: "Unit: Global Advancement",
-    overview: "Guidance for students aiming for post-graduate excellence.",
-    description: "Streamlining SOP writing, scholarship applications, and entrance exam preparation.",
-    focusAreas: ["SOP/LOR Drafting", "Scholarship Tracking", "University Mapping"],
-    outcomes: ["University Admission", "Financial Aid Success", "Global Networking"],
-    yearOfFormation: 2022, icon: <GraduationCap size={20} />, missionStatement: "Global education pathways.",
-    image: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1600&auto=format&fit=crop"
-  }
+const domainImages = [
+  "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=1600",
+  "https://images.unsplash.com/photo-1532094349884-543bc11b234d?q=80&w=1600",
+  "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=1600",
+  "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=1600",
+  "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1600",
+  "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1600&auto=format&fit=crop",
+  "https://images.unsplash.com/photo-1554224155-6726b3ff858f?q=80&w=1600",
+  "https://images.unsplash.com/photo-1516321497487-e288fb19713f?q=80&w=1600",
+  "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1600",
 ];
 
-const conthrax = "font-['Conthrax',_sans-serif]";
-const cleanString = (s: string) => s.toLowerCase().replace(/&/g, "and").replace(/management/g, "organization").replace(/\s+/g, "").trim();
+const branches = domains.map((domain, index) => ({
+  key: domain.key,
+  title: domain.title,
+  tag: `Unit: ${domain.title}`,
+  overview: domain.overview,
+  description: domain.description,
+  focusAreas: domain.focusAreas,
+  outcomes: domain.outcomes,
+  yearOfFormation: domain.yearOfFormation,
+  icon: iconMap[domain.key] || <Layers size={20} />,
+  image: domainImages[index] || domainImages[0],
+  missionStatement: domain.overview.split(".")[0] + ".",
+}));
 
 export default function BranchesPage() {
   const [activeTab, setActiveTab] = useState(branches[0].key);
   const activeDomain = branches.find((b) => b.key === activeTab)!;
 
-  const { director, deputy } = useMemo(() => {
-    const directors =
-      leadership.hierarchy.find((entry) => entry.level === 3)?.members ?? [];
-    const deputies =
-      leadership.hierarchy.find((entry) => entry.level === 4)?.members ?? [];
-    const targetKey = branchMapping[activeDomain.key] || cleanString(activeDomain.title);
-    return {
-      director: directors.find((member) => cleanString(member.branch) === targetKey),
-      deputy: deputies.find((member) => cleanString(member.branch) === targetKey),
-    };
+  const { primaryLeader, secondaryLeader } = useMemo(() => {
+    return findLeadershipPair(leadership.hierarchy, activeDomain.title);
   }, [activeDomain]);
 
   return (
@@ -148,15 +107,27 @@ export default function BranchesPage() {
 
                   <h4 className={`${conthrax} text-[10px] text-white/30 uppercase mb-6 text-left`}>Unit Leadership</h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 text-left">
-                    {[director, deputy].map((leader, i) => (
-                      <div key={i} className="flex flex-col gap-4">
-                        <p className="text-[10px] uppercase text-white/40">{i === 0 ? "Director" : "Deputy Director"}</p>
+                    {[primaryLeader, secondaryLeader].map((leader, i) => {
+                      const isPlaceholder = leader?.image === "/k1000-small.png";
+                      return (
+                        <div key={i} className="flex flex-col gap-4">
+                        <p className="text-[10px] uppercase text-white/40">
+                          {leader?.position || (i === 0 ? "Senior Executive Lead" : "Junior Executive Lead")}
+                        </p>
                         <div className="w-full h-72 rounded-2xl overflow-hidden border border-white/10 bg-white/5">
-                          {leader ? <img src={leader.image} alt={leader.name} className="w-full h-full object-cover object-[center_20%]" /> : <div className="h-full flex items-center justify-center text-white/10">TBD</div>}
+                          {leader ? <img src={leader.image} alt={leader.name} className={`w-full h-full ${isPlaceholder ? "object-contain p-8 bg-black/80" : "object-cover object-[center_20%]"}`} /> : <div className="h-full flex items-center justify-center text-white/10">TBD</div>}
                         </div>
-                        <p className={`${conthrax} text-sm`}>{leader?.name || "TBD"}</p>
-                      </div>
-                    ))}
+                        <div className="space-y-1">
+                          <p className={`${conthrax} text-sm`}>{leader?.name || "TBD"}</p>
+                          {leader?.branch ? (
+                            <p className="text-[10px] uppercase tracking-[0.2em] text-white/35">
+                              {leader.branch}
+                            </p>
+                          ) : null}
+                        </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </motion.div>
               </AnimatePresence>

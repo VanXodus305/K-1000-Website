@@ -1,0 +1,140 @@
+- generic [active] [ref=f2e1]:
+  - generic [ref=f2e200] [cursor=pointer]:
+    - button "Open Next.js Dev Tools" [ref=f2e201]
+    - generic [ref=f2e205]:
+      - button "Open issues overlay" [ref=f2e206]:
+        - generic [ref=f2e207]:
+          - generic [ref=f2e208]: "0"
+          - generic [ref=f2e209]: "1"
+        - generic [ref=f2e210]: Issue
+      - button "Collapse issues badge" [ref=f2e211]
+  - generic [ref=f2e214]:
+    - banner [ref=f2e215]:
+      - button [ref=f2e217] [cursor=pointer]:
+        - img "K-1000" [ref=f2e218]
+      - navigation [ref=f2e219] [cursor=pointer]:
+        - button "Home" [ref=f2e220]
+        - button "About" [ref=f2e221]
+        - button "Benefits" [ref=f2e222]
+        - button "Branches" [ref=f2e223]
+        - button "Departments" [ref=f2e224]
+        - button "Events" [ref=f2e225]
+        - button "Apply" [ref=f2e226]
+        - button "Contact" [ref=f2e227]
+      - img "KIIT" [ref=f2e229] [cursor=pointer]
+    - main [ref=f2e230]:
+      - heading "Event Registry" [level=1] [ref=f2e233]
+      - generic [ref=f2e234]:
+        - generic [ref=f2e236]:
+          - button "AUGUST 2025 Ignithon" [ref=f2e237] [cursor=pointer]:
+            - generic [ref=f2e240]:
+              - generic [ref=f2e241]: AUGUST 2025
+              - generic [ref=f2e242]: Ignithon
+          - button "SEPTEMBER 2025 Kampus Konversations Ep.1" [ref=f2e243] [cursor=pointer]:
+            - generic [ref=f2e245]:
+              - generic [ref=f2e246]: SEPTEMBER 2025
+              - generic [ref=f2e247]: Kampus Konversations Ep.1
+          - button "DECEMBER 2025 Shark-A-Thon" [ref=f2e248] [cursor=pointer]:
+            - generic [ref=f2e250]:
+              - generic [ref=f2e251]: DECEMBER 2025
+              - generic [ref=f2e252]: Shark-A-Thon
+          - button "JANUARY 2026 Dark Route" [ref=f2e253] [cursor=pointer]:
+            - generic [ref=f2e255]:
+              - generic [ref=f2e256]: JANUARY 2026
+              - generic [ref=f2e257]: Dark Route
+          - button "FEBRUARY 2026 Kampus Konversations Ep.2" [ref=f2e258] [cursor=pointer]:
+            - generic [ref=f2e260]:
+              - generic [ref=f2e261]: FEBRUARY 2026
+              - generic [ref=f2e262]: Kampus Konversations Ep.2
+          - button "MARCH 2026 Open Source Forge" [ref=f2e263] [cursor=pointer]:
+            - generic [ref=f2e265]:
+              - generic [ref=f2e266]: MARCH 2026
+              - generic [ref=f2e267]: Open Source Forge
+        - generic [ref=f2e269]:
+          - generic [ref=f2e270]:
+            - img "Ignithon" [ref=f2e271]
+            - generic [ref=f2e273]:
+              - generic [ref=f2e274]:
+                - generic [ref=f2e275]: Hackathon
+                - heading "Ignithon" [level=2] [ref=f2e279]
+              - link "Launch Report" [ref=f2e280] [cursor=pointer]:
+                - /url: https://www.linkedin.com/posts/k1000-kiit_k1000-ignithon-hackathon-activity-7364154401197838336-UPhb
+          - generic [ref=f2e287]:
+            - generic [ref=f2e288]:
+              - generic [ref=f2e289]: Mission Briefing
+              - paragraph [ref=f2e294]: K-1000's inaugural 12-hour hackathon, Ignithon, challenged participants to build functional solutions from scratch across three difficulty tiers.
+              - generic [ref=f2e295]: "Recorded: August 2025"
+            - generic [ref=f2e299]:
+              - heading "Critical Highlights" [level=4] [ref=f2e300]
+              - generic [ref=f2e301]:
+                - paragraph [ref=f2e304]: "12-Hour Sprint: Rapid prototyping from ideation to deployment."
+                - paragraph [ref=f2e307]: Tiered tracks for Beginner, Intermediate, and Advanced developers.
+                - paragraph [ref=f2e310]: Over 1000+ registration interests across the campus.
+                - paragraph [ref=f2e313]: Felicitation by the Vice Chancellor and Registrar of KIIT.
+    - contentinfo [ref=f2e314]:
+      - generic [ref=f2e316]:
+        - generic [ref=f2e317]:
+          - generic [ref=f2e318]:
+            - generic [ref=f2e319]:
+              - img "KIIT Logo" [ref=f2e321]
+              - img "K-1000 Logo" [ref=f2e322]
+            - paragraph [ref=f2e323]: K-1000 is KIIT's premier R&D initiative, empowering 1000 exceptional students through innovative research.
+          - generic [ref=f2e324]:
+            - heading "Quick Links" [level=3] [ref=f2e325]
+            - list [ref=f2e326]:
+              - listitem [ref=f2e327]:
+                - link "Home" [ref=f2e328] [cursor=pointer]:
+                  - /url: /
+              - listitem [ref=f2e331]:
+                - link "About Program" [ref=f2e332] [cursor=pointer]:
+                  - /url: /about
+              - listitem [ref=f2e335]:
+                - link "Benefits" [ref=f2e336] [cursor=pointer]:
+                  - /url: /benefits
+              - listitem [ref=f2e339]:
+                - link "Branches" [ref=f2e340] [cursor=pointer]:
+                  - /url: /branches
+              - listitem [ref=f2e343]:
+                - link "Apply Now" [ref=f2e344] [cursor=pointer]:
+                  - /url: /apply
+              - listitem [ref=f2e347]:
+                - link "Contact" [ref=f2e348] [cursor=pointer]:
+                  - /url: /contact
+          - generic [ref=f2e351]:
+            - heading "Departments" [level=3] [ref=f2e352]
+            - list [ref=f2e353]:
+              - listitem [ref=f2e354]:
+                - link "Engineering & Technology" [ref=f2e355] [cursor=pointer]:
+                  - /url: /departments#DEPT-ENG-01
+              - listitem [ref=f2e358]:
+                - link "Sciences & Applied Sciences" [ref=f2e359] [cursor=pointer]:
+                  - /url: /departments#DEPT-SCI-02
+              - listitem [ref=f2e362]:
+                - link "Management & Social Sciences" [ref=f2e363] [cursor=pointer]:
+                  - /url: /departments#DEPT-MGMT-03
+              - listitem [ref=f2e366]:
+                - link "Medical & Health Sciences" [ref=f2e367] [cursor=pointer]:
+                  - /url: /departments#DEPT-MED-04
+              - listitem [ref=f2e370]:
+                - link "Law & Public Policy" [ref=f2e371] [cursor=pointer]:
+                  - /url: /departments#DEPT-LAW-05
+              - listitem [ref=f2e374]:
+                - link "Sports & Tourism" [ref=f2e375] [cursor=pointer]:
+                  - /url: /departments#DEPT-SPR-06
+          - generic [ref=f2e378]:
+            - heading "Connect" [level=3] [ref=f2e379]
+            - generic [ref=f2e380]:
+              - link [ref=f2e381] [cursor=pointer]:
+                - /url: https://www.linkedin.com/company/k1000-kiit
+              - link [ref=f2e384] [cursor=pointer]:
+                - /url: https://www.instagram.com/k1000_kiit
+              - link [ref=f2e387] [cursor=pointer]:
+                - /url: https://chat.whatsapp.com/CAM4B9Qf0mN6i4CvJaVKi3
+            - generic [ref=f2e390]:
+              - generic [ref=f2e391]: KIIT University, Bhubaneswar,Odisha 751024
+              - generic [ref=f2e396]: Dr. Ajit Kumar Pasayat+91 7008588187
+              - generic [ref=f2e400]: k.1000@kiit.ac.in
+        - generic [ref=f2e405]:
+          - paragraph [ref=f2e406]: © 2026 KIIT University.
+          - generic [ref=f2e407]: Train . Transform . Transcend
+  - alert [ref=f2e408]

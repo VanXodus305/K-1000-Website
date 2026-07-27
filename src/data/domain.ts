@@ -6,7 +6,7 @@ export const domains = [
     overview:
       "The Training Program serves as the foundational learning pillar of K-1000, designed to upskill students through a structured, peer-driven learning ecosystem.",
     description:
-      "The K-1000 Training Program focuses on equipping students with both technical and professional competencies required in real-world environments. Through curated learning tracks, interactive workshops, and mentorship-driven sessions, students are introduced to core concepts in programming, system design, communication, and teamwork. The program emphasizes experiential learning, where participants actively apply concepts through guided exercises and collaborative problem-solving. Over time, students develop confidence, discipline, and adaptability—skills essential for academic success, research, and industry readiness.",
+      "The K-1000 Training Program focuses on equipping students with both technical and professional competencies required in real-world environments. Through curated learning tracks, interactive workshops, and mentorship-driven sessions, students are introduced to core concepts in programming, system design, communication, and teamwork. The program emphasizes experiential learning, where participants actively apply concepts through guided exercises and collaborative problem-solving. Over time, students develop confidence, discipline, and adaptability essential for academic success, research, and industry readiness.",
     focusAreas: [
       "Core Programming & Technical Foundations",
       "Communication, Presentation & Soft Skills",
@@ -17,20 +17,19 @@ export const domains = [
       "Strong technical and conceptual foundations",
       "Improved communication and teamwork skills",
       "Early exposure to problem-solving environments",
-      "Smooth transition into advanced K-1000 domains",
+      "Smooth transition into advanced K-1000 units",
     ],
     baseColor: "#2a4fff",
     accentColor: "#6bbcff",
   },
-
   {
     key: "research",
-    title: "Research and Publications",
+    title: "Research & Publications",
     yearOfFormation: 2022,
     overview:
-      "The Research and Publications domain nurtures a culture of inquiry, innovation, and academic excellence within K-1000.",
+      "The Research & Publications unit nurtures a culture of inquiry, innovation, and academic excellence within K-1000.",
     description:
-      "This domain supports students interested in academic research by guiding them through the complete research lifecycle—from identifying relevant problem statements to publishing their work in conferences and journals. Students receive mentorship in research methodology, literature review, experimentation, and academic writing. By collaborating with peers, seniors, and faculty mentors, participants gain exposure to scholarly practices and develop the discipline required for rigorous research. The domain aims to bridge the gap between undergraduate learning and formal academic research.",
+      "This unit supports students interested in academic research by guiding them through the complete research lifecycle, from identifying relevant problem statements to publishing their work in conferences and journals. Students receive mentorship in research methodology, literature review, experimentation, and academic writing. By collaborating with peers, seniors, and faculty mentors, participants gain exposure to scholarly practices and develop the discipline required for rigorous research.",
     focusAreas: [
       "Research Methodology & Problem Formulation",
       "Literature Review & Analysis",
@@ -46,15 +45,14 @@ export const domains = [
     baseColor: "#1f7a3a",
     accentColor: "#7dffb3",
   },
-
   {
     key: "projects",
     title: "Project Wing",
     yearOfFormation: 2023,
     overview:
-      "The Project Wing is the execution-focused domain of K-1000, translating ideas into functional, real-world solutions.",
+      "Project Wing is the execution-focused unit of K-1000, translating ideas into functional, real-world solutions.",
     description:
-      "Project Wing enables students to work in multidisciplinary teams on practical projects addressing real-world challenges. Members collaborate across domains, applying technical knowledge, design thinking, and project management principles. The domain provides mentorship, access to resources, and structured timelines to ensure meaningful outcomes. Students are encouraged to document, showcase, and iterate on their work, fostering a product-oriented mindset and long-term learning.",
+      "Project Wing enables students to work in multidisciplinary teams on practical projects addressing real-world challenges. Members collaborate across units, applying technical knowledge, design thinking, and project management principles. The unit provides mentorship, access to resources, and structured timelines to ensure meaningful outcomes. Students are encouraged to document, showcase, and iterate on their work, fostering a product-oriented mindset and long-term learning.",
     focusAreas: [
       "Real-world Problem Solving",
       "Product & Solution Development",
@@ -70,16 +68,14 @@ export const domains = [
     baseColor: "#b45309",
     accentColor: "#ffd166",
   },
-
   {
     key: "events",
-    // Extra spaces to align with design to avoid text wrapping in the UI. Please do not remove or edit the title without checking the design first.
-    title: "Event Management  ",
+    title: "Event Management",
     yearOfFormation: 2022,
     overview:
-      "The Event Management domain manages the planning, coordination, and execution of K-1000’s technical and community-driven events.",
+      "The Event Management unit manages the planning, coordination, and execution of K-1000’s technical and community-driven events.",
     description:
-      "This domain is responsible for conceptualizing and delivering a wide range of events, including workshops, hackathons, seminars, and speaker sessions. Members gain experience in logistics, communication, sponsorship coordination, and audience engagement. The domain plays a crucial role in building K-1000’s public presence while providing students with leadership and organizational exposure through hands-on event management.",
+      "This unit is responsible for conceptualizing and delivering a wide range of events, including workshops, hackathons, seminars, and speaker sessions. Members gain experience in logistics, communication, sponsorship coordination, and audience engagement. The unit plays a crucial role in building K-1000’s public presence while providing students with leadership and organizational exposure through hands-on event management.",
     focusAreas: [
       "Event Planning & Execution",
       "Logistics & Operations Management",
@@ -95,15 +91,14 @@ export const domains = [
     baseColor: "#7f1d1d",
     accentColor: "#ff6b6b",
   },
-
   {
     key: "internship",
-    title: "Academic Internship & Placement",
+    title: "Academic Internship & Placement Guidance",
     yearOfFormation: 2023,
     overview:
-      "The Academic Internship and Placement domain prepares students for professional careers by aligning academic learning with industry expectations.",
+      "The Academic Internship & Placement Guidance unit prepares students for professional careers by aligning academic learning with industry expectations.",
     description:
-      "This domain focuses on career readiness through structured preparation programs, including resume reviews, mock interviews, and skill-mapping sessions. Students receive guidance on navigating recruitment processes, understanding industry roles, and building professional profiles. By leveraging peer learning and alumni insights, the domain helps students make informed career decisions and improve their chances of securing internships and placements.",
+      "This unit focuses on career readiness through structured preparation programmes, including resume reviews, mock interviews, and skill-mapping sessions. Students receive guidance on navigating recruitment processes, understanding industry roles, and building professional profiles. By leveraging peer learning and alumni insights, the unit helps students make informed career decisions and improve their chances of securing internships and placements.",
     focusAreas: [
       "Resume & Profile Building",
       "Mock Interviews & Evaluation",
@@ -119,15 +114,14 @@ export const domains = [
     baseColor: "#5b21b6",
     accentColor: "#c084fc",
   },
-
   {
     key: "higher",
     title: "Higher Studies",
     yearOfFormation: 2023,
     overview:
-      "The Higher Studies domain supports students aspiring for postgraduate education and research opportunities in India and abroad.",
+      "The Higher Studies unit supports students aspiring for postgraduate education and research opportunities in India and abroad.",
     description:
-      "This domain assists students throughout the higher studies preparation journey, including exam planning, university shortlisting, and application strategies. Guidance is provided for entrance exams, Statement of Purpose (SOP) writing, Letters of Recommendation (LORs), and scholarship opportunities. By offering structured timelines and mentorship, the domain helps students approach higher education decisions with clarity and confidence.",
+      "This unit assists students throughout the higher studies preparation journey, including exam planning, university shortlisting, and application strategies. Guidance is provided for entrance exams, Statement of Purpose writing, Letters of Recommendation, and scholarship opportunities. By offering structured timelines and mentorship, the unit helps students approach higher education decisions with clarity and confidence.",
     focusAreas: [
       "Entrance Exam Preparation & Strategy",
       "University Research & Shortlisting",
@@ -142,6 +136,29 @@ export const domains = [
     ],
     baseColor: "#0f766e",
     accentColor: "#5eead4",
+  },
+  {
+    key: "finance",
+    title: "Finance & Entrepreneurship",
+    yearOfFormation: 2024,
+    overview:
+      "The Finance and Entrepreneurship branch focuses on building a strong entrepreneurial and financial ecosystem within KIIT University.",
+    description:
+      "The Finance and Entrepreneurship branch focuses on building a strong entrepreneurial and financial ecosystem within KIIT University. It supports student-led ventures through mentorship, financial planning, operational support, partnerships, compliance awareness, and strategic execution. The branch aims to create financially literate leaders, scalable student startups, and sustainable long-term impact through structured growth and real-world business exposure.",
+    focusAreas: [
+      "Entrepreneurial Mentorship & Strategy",
+      "Financial Planning & Resource Management",
+      "Partnership Development & Compliance",
+      "Real-world Business Exposure",
+    ],
+    outcomes: [
+      "Scalable student-led startups",
+      "Financial literacy and leadership skills",
+      "Strategic partnerships and industry connections",
+      "Sustainable long-term impact",
+    ],
+    baseColor: "#047857",
+    accentColor: "#6ee7b7",
   },
 ];
 

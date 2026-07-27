@@ -11,24 +11,24 @@ export const ROUTES = {
   about: "/about",
   benefits: "/benefits",
   branches: "/branches",
-  departments: "/departments",
+  offices: "/offices",
   events: "/events",
-  apply: "/apply",
+  register: "/register",
   contact: "/contact",
 } as const;
 
 export type NavKey = keyof typeof ROUTES;
 
-const NAV_ITEMS: NavKey[] = ["home", "about", "benefits", "branches", "departments", "events", "apply", "contact"];
+const NAV_ITEMS: NavKey[] = ["home", "about", "benefits", "branches", "offices", "events", "register", "contact"];
 
 const NAV_LABELS: Record<NavKey, string> = {
   home: "Home", 
   about: "About", 
   benefits: "Benefits", 
   branches: "Branches",
-  departments: "Departments", 
+  offices: "Offices", 
   events: "Events", 
-  apply: "Apply", 
+  register: "Register",
   contact: "Contact",
 };
 
@@ -142,10 +142,6 @@ export default function SharedHeader() {
           animate={{ opacity: 1, x: 0 }} 
           className="flex items-center justify-end gap-4 md:gap-6 cursor-pointer"
         >
-          <div className="text-right hidden xl:block">
-            <p className="text-[8px] text-cyan-500/40 tracking-widest leading-none mb-1 uppercase">UPLINK</p>
-            <p className="text-[10px] text-cyan-400 uppercase leading-none font-bold">HEALTHY</p>
-          </div>
           <img src="/kiit-logo.png" className="h-10 md:h-12 w-auto object-contain" alt="KIIT" />
           
           <button 

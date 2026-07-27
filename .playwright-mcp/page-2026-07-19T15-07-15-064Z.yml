@@ -1,0 +1,252 @@
+- generic [active] [ref=f1e1]:
+  - generic [ref=f1e3]:
+    - banner [ref=f1e4]:
+      - button [ref=f1e6] [cursor=pointer]:
+        - img "K-1000" [ref=f1e7]
+      - navigation [ref=f1e8] [cursor=pointer]:
+        - button "Home" [ref=f1e9]
+        - button "About" [ref=f1e10]
+        - button "Benefits" [ref=f1e11]
+        - button "Branches" [ref=f1e12]
+        - button "Departments" [ref=f1e13]
+        - button "Events" [ref=f1e14]
+        - button "Apply" [ref=f1e15]
+        - button "Contact" [ref=f1e16]
+      - img "KIIT" [ref=f1e18] [cursor=pointer]
+    - main [ref=f1e19]:
+      - generic [ref=f1e21]:
+        - img "KIIT Campus" [ref=f1e22]
+        - generic [ref=f1e24]:
+          - heading "ABOUT K-1000" [level=1] [ref=f1e25]
+          - paragraph [ref=f1e26]: Vision • Innovation • Excellence
+      - generic [ref=f1e31]:
+        - img "Founder" [ref=f1e34]
+        - generic [ref=f1e35]:
+          - heading "OUR FOUNDER" [level=2] [ref=f1e37]
+          - generic [ref=f1e39]:
+            - generic [ref=f1e40]: Prof. Dr. Achyuta Samanta
+            - paragraph [ref=f1e41]: Prof. Dr. Achyuta Samanta's life story reads like a powerful saga of grit, determination, and social responsibility. Born and brought up in poverty in a remote village in Odisha, he was dealt a cruel blow at the tender age of four when he lost his father, after which his life became a struggle for food and education for 15 long years.However, he persevered, and at the age of 22, joined teaching. At 25, he embarked on a journey that would change his own life, and the lives of thousands of people. With just Rs 5000 in his pocket, he started KIIT and KISS in two rented houses.
+      - generic [ref=f1e43]:
+        - heading "Board Members" [level=2] [ref=f1e44]
+        - generic [ref=f1e45]:
+          - generic [ref=f1e46] [cursor=pointer]:
+            - img "Prof. Dr. Saranjit Singh" [ref=f1e48]
+            - heading "Prof. Dr. Saranjit Singh" [level=3] [ref=f1e49]
+            - paragraph [ref=f1e50]: Vice Chancellor
+          - generic [ref=f1e51] [cursor=pointer]:
+            - img "Prof. Dr. Jnyana Ranjan Mohanty" [ref=f1e53]
+            - heading "Prof. Dr. Jnyana Ranjan Mohanty" [level=3] [ref=f1e54]
+            - paragraph [ref=f1e55]: Registrar
+          - generic [ref=f1e56] [cursor=pointer]:
+            - img "Dr. Ajit Kumar Pasayat" [ref=f1e58]
+            - heading "Dr. Ajit Kumar Pasayat" [level=3] [ref=f1e59]
+            - paragraph [ref=f1e60]: Faculty Incharge
+      - generic [ref=f1e61]:
+        - heading "CORE TEAM" [level=2] [ref=f1e62]
+        - generic [ref=f1e63]:
+          - heading "Senior Executives" [level=3] [ref=f1e65]
+          - generic [ref=f1e67]:
+            - generic [ref=f1e70]:
+              - img "Rishit Singh" [ref=f1e71]
+              - generic [ref=f1e77]:
+                - heading "Rishit Singh" [level=4] [ref=f1e78]
+                - paragraph [ref=f1e79]: President
+            - generic [ref=f1e82]:
+              - img "Parul Kumari" [ref=f1e83]
+              - generic [ref=f1e89]:
+                - heading "Parul Kumari" [level=4] [ref=f1e90]
+                - paragraph [ref=f1e91]: General Secretary
+        - generic [ref=f1e92]:
+          - heading "Junior Executives" [level=3] [ref=f1e94]
+          - generic [ref=f1e96]:
+            - generic [ref=f1e99]:
+              - img "Soumyadeep Kundu" [ref=f1e100]
+              - generic [ref=f1e106]:
+                - heading "Soumyadeep Kundu" [level=4] [ref=f1e107]
+                - paragraph [ref=f1e108]: Vice President
+            - generic [ref=f1e111]:
+              - img "Kumari Shreshtha" [ref=f1e112]
+              - generic [ref=f1e118]:
+                - heading "Kumari Shreshtha" [level=4] [ref=f1e119]
+                - paragraph [ref=f1e120]: Joint Secretary
+        - generic [ref=f1e121]:
+          - heading "Directorial Leadership" [level=3] [ref=f1e123]
+          - generic [ref=f1e125]:
+            - generic [ref=f1e128]:
+              - img "Pracheeta Gupta" [ref=f1e129]
+              - generic [ref=f1e135]:
+                - heading "Pracheeta Gupta" [level=4] [ref=f1e136]
+                - paragraph [ref=f1e137]: Director
+                - paragraph [ref=f1e138]: Training Program
+            - generic [ref=f1e141]:
+              - img "Naser Ahmed" [ref=f1e142]
+              - generic [ref=f1e148]:
+                - heading "Naser Ahmed" [level=4] [ref=f1e149]
+                - paragraph [ref=f1e150]: Director
+                - paragraph [ref=f1e151]: Project Wing
+            - generic [ref=f1e154]:
+              - img "Amaldeep Patra" [ref=f1e155]
+              - generic [ref=f1e161]:
+                - heading "Amaldeep Patra" [level=4] [ref=f1e162]
+                - paragraph [ref=f1e163]: Director
+                - paragraph [ref=f1e164]: Research & Publications
+            - generic [ref=f1e167]:
+              - img "Vanisha Nair" [ref=f1e168]
+              - generic [ref=f1e174]:
+                - heading "Vanisha Nair" [level=4] [ref=f1e175]
+                - paragraph [ref=f1e176]: Director
+                - paragraph [ref=f1e177]: Event Management
+            - generic [ref=f1e180]:
+              - img "Shruti Shikha Padhi" [ref=f1e181]
+              - generic [ref=f1e187]:
+                - heading "Shruti Shikha Padhi" [level=4] [ref=f1e188]
+                - paragraph [ref=f1e189]: Director
+                - paragraph [ref=f1e190]: Academic Internship & Placement Guidance
+            - generic [ref=f1e193]:
+              - img "Shivanshu Thakur" [ref=f1e194]
+              - generic [ref=f1e200]:
+                - heading "Shivanshu Thakur" [level=4] [ref=f1e201]
+                - paragraph [ref=f1e202]: Director
+                - paragraph [ref=f1e203]: Higher Studies
+            - generic [ref=f1e206]:
+              - img "Owaish Jawed" [ref=f1e207]
+              - generic [ref=f1e213]:
+                - heading "Owaish Jawed" [level=4] [ref=f1e214]
+                - paragraph [ref=f1e215]: Director
+                - paragraph [ref=f1e216]: Office of Public & Corporate Relations
+            - generic [ref=f1e219]:
+              - img "Priyansh Srivastava" [ref=f1e220]
+              - generic [ref=f1e226]:
+                - heading "Priyansh Srivastava" [level=4] [ref=f1e227]
+                - paragraph [ref=f1e228]: Chief Strategy Officer
+                - paragraph [ref=f1e229]: Office of Strategy & Growth
+            - generic [ref=f1e232]:
+              - img "Prasun Payne" [ref=f1e233]
+              - generic [ref=f1e239]:
+                - heading "Prasun Payne" [level=4] [ref=f1e240]
+                - paragraph [ref=f1e241]: Chief Technical Officer
+                - paragraph [ref=f1e242]: Office of Technology & Innovation
+        - generic [ref=f1e243]:
+          - heading "Deputy Leadership" [level=3] [ref=f1e245]
+          - generic [ref=f1e247]:
+            - generic [ref=f1e250]:
+              - img "Abhishek Singhal" [ref=f1e251]
+              - generic [ref=f1e257]:
+                - heading "Abhishek Singhal" [level=4] [ref=f1e258]
+                - paragraph [ref=f1e259]: Deputy Director
+                - paragraph [ref=f1e260]: Training Program
+            - generic [ref=f1e263]:
+              - img "Biswadeep Dev" [ref=f1e264]
+              - generic [ref=f1e270]:
+                - heading "Biswadeep Dev" [level=4] [ref=f1e271]
+                - paragraph [ref=f1e272]: Deputy Director
+                - paragraph [ref=f1e273]: Research & Publications
+            - generic [ref=f1e276]:
+              - img "Himanshu Patel" [ref=f1e277]
+              - generic [ref=f1e283]:
+                - heading "Himanshu Patel" [level=4] [ref=f1e284]
+                - paragraph [ref=f1e285]: Deputy Director
+                - paragraph [ref=f1e286]: Event Management
+            - generic [ref=f1e289]:
+              - img "Ankit Mukherjee" [ref=f1e290]
+              - generic [ref=f1e296]:
+                - heading "Ankit Mukherjee" [level=4] [ref=f1e297]
+                - paragraph [ref=f1e298]: Deputy Director
+                - paragraph [ref=f1e299]: Academic Internship & Placement Guidance
+            - generic [ref=f1e302]:
+              - img "Aryan De" [ref=f1e303]
+              - generic [ref=f1e309]:
+                - heading "Aryan De" [level=4] [ref=f1e310]
+                - paragraph [ref=f1e311]: Deputy Director
+                - paragraph [ref=f1e312]: Higher Studies
+            - generic [ref=f1e315]:
+              - img "Tvisha Tiwary" [ref=f1e316]
+              - generic [ref=f1e322]:
+                - heading "Tvisha Tiwary" [level=4] [ref=f1e323]
+                - paragraph [ref=f1e324]: Deputy Chief Strategy Officer
+                - paragraph [ref=f1e325]: Office of Strategy & Growth
+            - generic [ref=f1e328]:
+              - img "Ishika Jaiswal" [ref=f1e329]
+              - generic [ref=f1e335]:
+                - heading "Ishika Jaiswal" [level=4] [ref=f1e336]
+                - paragraph [ref=f1e337]: Deputy Chief Technical Officer
+                - paragraph [ref=f1e338]: Office of Technology & Innovation
+            - generic [ref=f1e341]:
+              - img "Sourav Basak" [ref=f1e342]
+              - generic [ref=f1e348]:
+                - heading "Sourav Basak" [level=4] [ref=f1e349]
+                - paragraph [ref=f1e350]: Deputy Chief Creative Officer
+                - paragraph [ref=f1e351]: Office of Creativity & Design
+            - generic [ref=f1e354]:
+              - img "Brhadyuti Bhattacharjee" [ref=f1e355]
+              - generic [ref=f1e361]:
+                - heading "Brhadyuti Bhattacharjee" [level=4] [ref=f1e362]
+                - paragraph [ref=f1e363]: Deputy Chief Communications Officer
+                - paragraph [ref=f1e364]: Office of Communications & Content
+    - contentinfo [ref=f1e365]:
+      - generic [ref=f1e367]:
+        - generic [ref=f1e368]:
+          - generic [ref=f1e369]:
+            - generic [ref=f1e370]:
+              - img "KIIT Logo" [ref=f1e372]
+              - img "K-1000 Logo" [ref=f1e373]
+            - paragraph [ref=f1e374]: K-1000 is KIIT's premier R&D initiative, empowering 1000 exceptional students through innovative research.
+          - generic [ref=f1e375]:
+            - heading "Quick Links" [level=3] [ref=f1e376]
+            - list [ref=f1e377]:
+              - listitem [ref=f1e378]:
+                - link "Home" [ref=f1e379] [cursor=pointer]:
+                  - /url: /
+              - listitem [ref=f1e382]:
+                - link "About Program" [ref=f1e383] [cursor=pointer]:
+                  - /url: /about
+              - listitem [ref=f1e386]:
+                - link "Benefits" [ref=f1e387] [cursor=pointer]:
+                  - /url: /benefits
+              - listitem [ref=f1e390]:
+                - link "Branches" [ref=f1e391] [cursor=pointer]:
+                  - /url: /branches
+              - listitem [ref=f1e394]:
+                - link "Apply Now" [ref=f1e395] [cursor=pointer]:
+                  - /url: /apply
+              - listitem [ref=f1e398]:
+                - link "Contact" [ref=f1e399] [cursor=pointer]:
+                  - /url: /contact
+          - generic [ref=f1e402]:
+            - heading "Departments" [level=3] [ref=f1e403]
+            - list [ref=f1e404]:
+              - listitem [ref=f1e405]:
+                - link "Engineering & Technology" [ref=f1e406] [cursor=pointer]:
+                  - /url: /departments#DEPT-ENG-01
+              - listitem [ref=f1e409]:
+                - link "Sciences & Applied Sciences" [ref=f1e410] [cursor=pointer]:
+                  - /url: /departments#DEPT-SCI-02
+              - listitem [ref=f1e413]:
+                - link "Management & Social Sciences" [ref=f1e414] [cursor=pointer]:
+                  - /url: /departments#DEPT-MGMT-03
+              - listitem [ref=f1e417]:
+                - link "Medical & Health Sciences" [ref=f1e418] [cursor=pointer]:
+                  - /url: /departments#DEPT-MED-04
+              - listitem [ref=f1e421]:
+                - link "Law & Public Policy" [ref=f1e422] [cursor=pointer]:
+                  - /url: /departments#DEPT-LAW-05
+              - listitem [ref=f1e425]:
+                - link "Sports & Tourism" [ref=f1e426] [cursor=pointer]:
+                  - /url: /departments#DEPT-SPR-06
+          - generic [ref=f1e429]:
+            - heading "Connect" [level=3] [ref=f1e430]
+            - generic [ref=f1e431]:
+              - link [ref=f1e432] [cursor=pointer]:
+                - /url: https://www.linkedin.com/company/k1000-kiit
+              - link [ref=f1e435] [cursor=pointer]:
+                - /url: https://www.instagram.com/k1000_kiit
+              - link [ref=f1e438] [cursor=pointer]:
+                - /url: https://chat.whatsapp.com/CAM4B9Qf0mN6i4CvJaVKi3
+            - generic [ref=f1e441]:
+              - generic [ref=f1e442]: KIIT University, Bhubaneswar,Odisha 751024
+              - generic [ref=f1e447]: Dr. Ajit Kumar Pasayat+91 7008588187
+              - generic [ref=f1e451]: k.1000@kiit.ac.in
+        - generic [ref=f1e456]:
+          - paragraph [ref=f1e457]: © 2026 KIIT University.
+          - generic [ref=f1e458]: Train . Transform . Transcend
+  - button "Open Next.js Dev Tools" [ref=f1e464] [cursor=pointer]

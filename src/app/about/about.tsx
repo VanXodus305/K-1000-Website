@@ -7,14 +7,20 @@ import SharedHeader from "../../components/ui/SharedHeader";
 import Footer from "../../components/footer/Footer";
 import CubeBackground from "../../components/ui/CubeBackground";
 import LeadershipProfileCard from "../../components/about/LeadershipProfileCard";
+import { SITE_TAGLINE } from "../../data/site";
 
 const conthrax = "font-['Conthrax',_Arial]";
 
-const leadershipStyleMap: Record<number, string> = {
-  1: "lg:grid-cols-2 max-w-[920px]",
-  2: "lg:grid-cols-2 max-w-[920px]",
-  3: "lg:grid-cols-3 max-w-[1280px]",
-  4: "lg:grid-cols-3 max-w-[1280px]",
+const councilContainerMap: Record<number, string> = {
+  1: "flex flex-wrap justify-center gap-5 md:gap-8 max-w-[1040px]",
+  2: "flex flex-wrap justify-center gap-5 md:gap-8 max-w-[1560px]",
+  3: "flex flex-wrap justify-center gap-5 md:gap-8 max-w-[1560px]",
+};
+
+const councilItemMap: Record<number, string> = {
+  1: "w-full max-w-[380px] sm:w-[calc(50%-0.625rem)]",
+  2: "w-full max-w-[340px] sm:w-[calc(50%-0.625rem)] xl:w-[calc(25%-1.5rem)]",
+  3: "w-full max-w-[340px] sm:w-[calc(50%-0.625rem)] xl:w-[calc(25%-1.5rem)]",
 };
 
 type BoardMember = {
@@ -80,7 +86,7 @@ export default function AboutPage() {
                 ABOUT <span className="text-cyan-400 drop-shadow-[0_0_15px_#00f7ff]">K-1000</span>
               </h1>
               <p className={`${conthrax} text-cyan-400/50 mt-4 tracking-[0.2em] md:tracking-[0.5em] text-[10px] md:text-sm uppercase font-bold`}>
-                Vision • Innovation • Excellence
+                {SITE_TAGLINE}
               </p>
             </div>
           </div>
@@ -146,8 +152,9 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* CORE TEAM SECTION */}
-        <section className="w-full max-w-[1480px] px-4 sm:px-6 py-12 md:py-20 border-t border-white/5">
+        {/* CORE TEAM SECTION — hidden */}
+
+        <section className="hidden w-full max-w-[1480px] px-4 sm:px-6 py-12 md:py-20 border-t border-white/5">
           <h2 className={`${conthrax} text-center text-3xl sm:text-4xl md:text-7xl mb-10 md:mb-16 text-white uppercase tracking-tighter font-black`}>
             CORE <span className="text-cyan-400">TEAM</span>
           </h2>
@@ -159,16 +166,17 @@ export default function AboutPage() {
                 </h3>
                 <div className="h-px w-24 bg-gradient-to-r from-transparent via-cyan-400/80 to-transparent shadow-[0_0_12px_rgba(0,247,255,0.45)]" />
               </div>
-              <div className={`grid grid-cols-1 sm:grid-cols-2 ${leadershipStyleMap[grp.level] || "lg:grid-cols-3 max-w-[1280px]"} gap-5 md:gap-8 w-full`}>
+              <div className={`${councilContainerMap[grp.level] || "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-8 max-w-[1280px]"} w-full`}>
                 {grp.members.map((m, mi) => (
-                  <LeadershipProfileCard
-                    key={mi}
-                    name={m.name}
-                    position={m.position}
-                    image={m.image}
-                    branch={m.branch}
-                    variant={grp.level <= 2 ? "executive" : "standard"}
-                  />
+                  <div key={mi} className={councilItemMap[grp.level]}>
+                    <LeadershipProfileCard
+                      name={m.name}
+                      position={m.position}
+                      image={m.image}
+                      branch={m.branch}
+                      variant="standard"
+                    />
+                  </div>
                 ))}
               </div>
             </div>

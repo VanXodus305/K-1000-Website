@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { SITE_TAGLINE } from "../../data/site";
 
 export default function Hero() {
   const stats = [
@@ -66,7 +67,7 @@ export default function Hero() {
           {/* CTA Buttons */}
           <div className="flex justify-center gap-4 mt-8">
             <Link
-              href="/Sections/apply"
+              href="/register"
               className="px-8 py-3 text-sm font-bold rounded-lg bg-cyan-400 text-black shadow-[0_0_15px_rgba(0,255,255,0.3)]"
             >
               Apply Now
@@ -104,7 +105,7 @@ export default function Hero() {
 
           {/* Motto */}
           <p className="text-white/50 mt-6 text-[9px] font-[Orbitron] tracking-[0.3em]">
-            TRAIN • TRANSFORM • TRANSCEND
+            {SITE_TAGLINE}
           </p>
         </motion.div>
       </div>
