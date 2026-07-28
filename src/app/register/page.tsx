@@ -168,6 +168,7 @@ const subdomainMap: Record<string, string[]> = {
   events: ["General Member"],
   projects: ["Mentors", "Management", "General Member"],
   training: ["General Member", "App Development", "Web Development", "Game Development", "Design & UI/UX", "CyberSecurity", "DSA&CP", "Java", "AI/ML", "Data Analytics"],
+  research: ["Medical Imaging", "Deep learning/ Machine learning", "Astronomy/Space technology", "Defence technology", "Game theory", "Finance and Economics", "Quantum", "Bio-Tech"],
 };
 
 const REGISTRATION_RECEIPT_KEY = "k1000-registration-receipt-v1";
