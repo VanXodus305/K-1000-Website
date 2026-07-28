@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, Send, RotateCcw, Plus, ChevronRight, ChevronLeft, ChevronDown, Quote } from "lucide-react";
+import { Check, Send, RotateCcw, Plus, ChevronRight, ChevronLeft, ChevronDown, Quote, X } from "lucide-react";
 import QRCode from "qrcode";
 import Link from "next/link";
 import SharedHeader from "../../components/ui/SharedHeader";
@@ -150,7 +150,7 @@ type FormData = {
   full_name: string; phone: string; kiit_email: string;
   gender: string;
   academic_year: string; course: string;
-  domain_choice: string; motivation: string; experience: string;
+  domain_choice: string; sub_domains: string; motivation: string; experience: string;
   technical_skills: string[]; non_technical_skills: string[];
   referral_source: string;
 };
@@ -158,8 +158,16 @@ type FormData = {
 const initialForm: FormData = {
   full_name: "", phone: "", kiit_email: "", gender: "",
   academic_year: "", course: "",
-  domain_choice: "", motivation: "", experience: "",
+  domain_choice: "", sub_domains: "", motivation: "", experience: "",
   technical_skills: [], non_technical_skills: [], referral_source: "",
+};
+
+const subdomainMap: Record<string, string[]> = {
+  internship: ["General Member", "Management"],
+  higher: ["General Member", "Management"],
+  events: ["General Member"],
+  projects: ["Mentors", "Management", "General Member"],
+  training: ["General Member", "App Development", "Web Development", "Game Development", "Design & UI/UX", "CyberSecurity", "DSA&CP", "Java", "AI/ML", "Data Analytics"],
 };
 
 const REGISTRATION_RECEIPT_KEY = "k1000-registration-receipt-v1";
@@ -447,7 +455,23 @@ export default function RegisterPage() {
       nextDomains = [...current, key];
     }
     update("domain_choice", nextDomains.join(","));
+    update("sub_domains", "");
     showFlash(key, label);
+  };
+
+  const toggleSubDomain = (sub: string) => {
+    const current = form.sub_domains ? form.sub_domains.split(",").filter(Boolean) : [];
+    let nextSub: string[];
+    if (current.includes(sub)) {
+      nextSub = current.filter(s => s !== sub);
+    } else {
+      if (current.length >= 2) {
+        setToast({ type: "error", text: "You can select up to 2 sub-domains." });
+        return;
+      }
+      nextSub = [...current, sub];
+    }
+    update("sub_domains", nextSub.join(","));
   };
 
   const validateStep = (): boolean => {
@@ -466,6 +490,13 @@ export default function RegisterPage() {
       if (!form.motivation.trim() || form.motivation.trim().length < 20) errs.motivation = "Motivation must be at least 20 characters";
     } else if (step === 4) {
       if (!form.domain_choice) errs.domain_choice = "Select a domain (max 3)";
+      else {
+        const availableSubdomains = form.domain_choice.split(",").filter(Boolean).flatMap(d => subdomainMap[d] || []).filter((v, i, a) => a.indexOf(v) === i);
+        if (availableSubdomains.length > 0) {
+          const selectedSub = form.sub_domains ? form.sub_domains.split(",").filter(Boolean) : [];
+          if (selectedSub.length === 0) errs.sub_domains = "Select at least 1 sub-domain/role";
+        }
+      }
     }
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -916,6 +947,31 @@ export default function RegisterPage() {
                         );
                       })}
                     </div>
+                    {(() => {
+                      const availableSubdomains = form.domain_choice.split(",").filter(Boolean).flatMap(d => subdomainMap[d] || []).filter((v, i, a) => a.indexOf(v) === i);
+                      if (availableSubdomains.length === 0) return null;
+                      return (
+                        <div className="mt-8 border-t border-white/10 pt-6 text-left">
+                          <h5 className={`${conthrax} text-[9px] md:text-[10px] tracking-[0.2em] uppercase text-cyan-400/60 mb-3`}>Sub-Domains & Roles</h5>
+                          <p className="text-xs md:text-sm text-white/40 mb-4">Select up to 2 specific roles or sub-domains based on your selections.</p>
+                          <div className="flex flex-wrap gap-2 md:gap-3">
+                            {availableSubdomains.map((sub) => {
+                              const selected = (form.sub_domains ? form.sub_domains.split(",") : []).includes(sub);
+                              return (
+                                <button key={sub} type="button" onClick={() => toggleSubDomain(sub)}
+                                  className={`px-4 py-2.5 rounded-[14px] border text-xs md:text-sm transition-all duration-300 cursor-pointer flex items-center gap-2 ${
+                                    selected ? "bg-cyan-500/10 border-cyan-400/70 text-cyan-300 shadow-[0_0_18px_rgba(0,247,255,0.1)]" : "bg-white/[0.025] border-white/10 text-white/60 hover:border-cyan-500/35 hover:text-white/85 hover:bg-white/[0.04]"
+                                  }`}>
+                                  {selected && <Check size={14} className="shrink-0 text-cyan-400" />}
+                                  {sub}
+                                </button>
+                              );
+                            })}
+                          </div>
+                          {errors.sub_domains && <p className="text-red-400 text-xs mt-3">{errors.sub_domains}</p>}
+                        </div>
+                      );
+                    })()}
                     {errors.domain_choice && <p className="text-red-400 text-xs mt-3">{errors.domain_choice}</p>}
                   </div>
                 )}
@@ -940,6 +996,12 @@ export default function RegisterPage() {
                         <span className="text-white/30">Email:</span><span className="text-white/70">{form.kiit_email || "—"}</span>
                         <span className="text-white/30">Branches / Offices:</span>
                         <span className="text-white/70 capitalize">{form.domain_choice ? form.domain_choice.split(",").map(getDomainLabel).join(", ") : "—"}</span>
+                        {form.sub_domains && (
+                          <>
+                            <span className="text-white/30">Sub-Domains / Roles:</span>
+                            <span className="text-white/70 capitalize">{form.sub_domains.split(",").join(", ")}</span>
+                          </>
+                        )}
                         <span className="text-white/30">Technical Skills:</span>
                         <span className="text-white/70">{form.technical_skills.length ? form.technical_skills.join(", ") : "—"}</span>
                         <span className="text-white/30">Non-Technical Skills:</span>
@@ -1007,11 +1069,19 @@ export default function RegisterPage() {
               <div
                 data-lenis-prevent
                 onWheel={(event) => event.stopPropagation()}
-                className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 [scrollbar-color:rgba(0,247,255,0.35)_rgba(255,255,255,0.04)] [scrollbar-width:thin] md:p-5"
+                className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 [scrollbar-color:rgba(0,247,255,0.35)_rgba(255,255,255,0.04)] [scrollbar-width:thin] md:p-5"
               >
+                <button
+                  type="button"
+                  onClick={() => setFlashMsg(null)}
+                  className="absolute right-4 top-4 flex h-6 w-6 items-center justify-center rounded-full bg-white/5 text-white/40 transition-colors hover:bg-white/10 hover:text-white/80 md:hidden"
+                  aria-label="Close message"
+                >
+                  <X size={14} />
+                </button>
                 <div className="flex items-start gap-3">
                   <Quote size={21} className="mt-0.5 shrink-0 text-cyan-400/40 md:h-6 md:w-6" />
-                  <div className="min-w-0">
+                  <div className="min-w-0 pr-6 md:pr-0">
                     <p className="break-words text-sm leading-relaxed text-white/70 italic md:text-lg">{flashMsg}</p>
                     <p className={`${conthrax} mt-3 break-words text-[9px] uppercase leading-relaxed tracking-wider text-cyan-400/60 md:text-xs`}>&mdash; {flashLabel}</p>
                   </div>

@@ -35,6 +35,7 @@ type Registration = {
   course: string;
   branch: string;
   domain_choice: string;
+  sub_domains: string;
   motivation: string;
   experience: string;
   skills: string[];
@@ -245,7 +246,18 @@ function RegistrationTable({ registrations }: { registrations: Registration[] })
                   <p className="text-sm text-gray-900 dark:text-gray-300">{registration.course} {registration.branch ? `(${registration.branch})` : ""}</p>
                   <p className="mt-1 text-xs text-gray-500">{registration.academic_year}</p>
                 </td>
-                <td className="max-w-[300px] px-6 py-4"><DomainBadges value={registration.domain_choice} /></td>
+                <td className="max-w-[300px] px-6 py-4">
+                  <DomainBadges value={registration.domain_choice} />
+                  {registration.sub_domains && (
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {registration.sub_domains.split(",").map((sub) => (
+                        <span key={sub} className="rounded-md border border-cyan-200 bg-cyan-50 px-2 py-1 text-xs font-medium text-cyan-700 dark:border-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300">
+                          {sub}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </td>
                 <td className="px-6 py-4 text-xs text-gray-500">{formatDate(registration.created_at)}</td>
               </tr>
             ))}
@@ -282,6 +294,15 @@ function RegistrationTable({ registrations }: { registrations: Registration[] })
               </div>
             </div>
             <div className="mt-3"><DomainBadges value={registration.domain_choice} /></div>
+            {registration.sub_domains && (
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {registration.sub_domains.split(",").map((sub) => (
+                  <span key={sub} className="rounded-md border border-cyan-200 bg-cyan-50 px-2 py-1 text-xs font-medium text-cyan-700 dark:border-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300">
+                    {sub}
+                  </span>
+                ))}
+              </div>
+            )}
             <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-3 text-xs text-gray-500 dark:border-gray-800">
               <span>{registration.roll_number || registration.kiit_email?.split('@')[0] || "No Roll"}</span>
               <span>{formatDate(registration.created_at)}</span>
