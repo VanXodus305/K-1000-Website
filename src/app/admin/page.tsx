@@ -219,7 +219,7 @@ function RegistrationTable({ registrations }: { registrations: Registration[] })
               <th className="px-6 py-4 font-medium">Applicant</th>
               <th className="px-6 py-4 font-medium">Contact</th>
               <th className="px-6 py-4 font-medium">Academic Info</th>
-              <th className="px-6 py-4 font-medium">Selected Domains</th>
+              <th className="px-6 py-4 font-medium">Domains & Roles</th>
               <th className="px-6 py-4 font-medium">Date Applied</th>
             </tr>
           </thead>
