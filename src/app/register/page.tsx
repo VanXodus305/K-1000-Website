@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, Send, RotateCcw, Plus, ChevronRight, ChevronLeft, ChevronDown, Quote } from "lucide-react";
+import { Check, Send, RotateCcw, Plus, ChevronRight, ChevronLeft, ChevronDown, Quote, X } from "lucide-react";
 import QRCode from "qrcode";
 import Link from "next/link";
 import SharedHeader from "../../components/ui/SharedHeader";
@@ -107,14 +107,26 @@ const branchMessages: Record<string, string> = {
   research: `"Welcome to the Research & Publications Wing of Team K-1000! Research is a journey of asking meaningful questions, embracing challenges, and growing through collaboration. We encourage you to approach this recruitment process with honesty and confidence. There are no perfect answers, only opportunities to demonstrate how you think."`,
   projects: `"At Project Wing, we build ideas into real-world projects. If you have a basic foundation in your domain and are passionate about building, we'd love to have you on board. We're also looking for AI/ML and Data Analytics Mentors with strong domain knowledge to guide our teams. Ready to build? Join Project Wing!"`,
   training: `"Every expert starts as a beginner. Whether you're new to a domain or looking to sharpen your skills, the K-1000 Training Program welcomes curious minds ready to learn, build, and grow. Join us and take the next step in your learning journey."`,
+  finance: `"We look for individuals who don't just understand finance, they live it. If you think in numbers, speak in ideas, and have the drive to build something that matters, Finance & Entrepreneurship is where you belong."`,
+  internship: `"The Academic Internship and Placement Guidance (AIPG) wing warmly welcomes driven individuals—for both general and management roles—who are passionate about shaping careers and bridging the gap between academia and the professional world. Join us in empowering our peers by training students to successfully meet and exceed industry expectations."`,
+  oca: `"The Office of Campus Ambassadors seeks individuals who lead by influence, inspire through action, and create a meaningful impact within the KIIT community."`,
+  ocd: `"The Office of Creativity & Design seeks individuals who lead with creativity, design with purpose, and leave a lasting visual impact across the KIIT community."`,
+  opcr: `"We look for individuals who communicate with purpose, build relationships with intent, bring in the support that powers every event, and represent K-1000 with pride in every room they walk into."`,
+  occ: `"The Office of Content and Communication seeks dedicated individuals who are willing to contribute their time, work collaboratively, and play an active role in strengthening the functioning of the K1000 Society through commitment, responsibility, and initiative."`,
 };
 
 const designations: Record<string, string> = {
-  events: "~Director & Deputy Director | Event Management",
-  higher: "~Deputy Director | Higher Studies",
-  research: "~Director & Deputy Director | Research & Publications Wing",
-  projects: "~Director & Deputy Director | Project Wing",
-  training: "~Deputy Director | Training Program",
+  events: "Director & Deputy Director | Event Management",
+  higher: "Deputy Director | Higher Studies",
+  research: "Director & Deputy Director | Research & Publications Wing",
+  projects: "Director & Deputy Director | Project Wing",
+  training: "Deputy Director | Training Program",
+  finance: "Director & Deputy Director | Finance & Entrepreneurship",
+  internship: "Director and Deputy Director | AIPG",
+  oca: "Deputy Director, OCA",
+  ocd: "Deputy Director, OCD",
+  opcr: "Director | OPCR",
+  occ: "Deputy Director | OCC",
 };
 
 const recruitingOfficeKeys = new Set(["ocd", "opcr", "oca", "occ"]);
@@ -138,7 +150,7 @@ type FormData = {
   full_name: string; phone: string; kiit_email: string;
   gender: string;
   academic_year: string; course: string;
-  domain_choice: string; motivation: string; experience: string;
+  domain_choice: string; sub_domains: string; motivation: string; experience: string;
   technical_skills: string[]; non_technical_skills: string[];
   referral_source: string;
 };
@@ -146,8 +158,17 @@ type FormData = {
 const initialForm: FormData = {
   full_name: "", phone: "", kiit_email: "", gender: "",
   academic_year: "", course: "",
-  domain_choice: "", motivation: "", experience: "",
+  domain_choice: "", sub_domains: "", motivation: "", experience: "",
   technical_skills: [], non_technical_skills: [], referral_source: "",
+};
+
+const subdomainMap: Record<string, string[]> = {
+  internship: ["General Member", "Management"],
+  higher: ["General Member", "Management"],
+  events: ["General Member"],
+  projects: ["Mentors", "Management", "General Member"],
+  training: ["General Member", "App Development", "Web Development", "Game Development", "Design & UI/UX", "CyberSecurity", "DSA&CP", "Java", "AI/ML", "Data Analytics"],
+  research: ["Medical Imaging", "Deep learning/ Machine learning", "Astronomy/Space technology", "Defence technology", "Game theory", "Finance and Economics", "Quantum", "Bio-Tech"],
 };
 
 const REGISTRATION_RECEIPT_KEY = "k1000-registration-receipt-v1";
@@ -375,6 +396,14 @@ export default function RegisterPage() {
     setToast(null);
   }, [step]);
 
+  useEffect(() => {
+    if (!flashMsg) return;
+    const timer = setTimeout(() => {
+      setFlashMsg(null);
+    }, 8000);
+    return () => clearTimeout(timer);
+  }, [flashMsg]);
+
   const downloadQR = async (id: number) => {
     try {
       const url = await QRCode.toDataURL(String(id), { width: 400, margin: 2, color: { dark: "#000", light: "#fff" } });
@@ -427,7 +456,23 @@ export default function RegisterPage() {
       nextDomains = [...current, key];
     }
     update("domain_choice", nextDomains.join(","));
+    update("sub_domains", "");
     showFlash(key, label);
+  };
+
+  const toggleSubDomain = (sub: string) => {
+    const current = form.sub_domains ? form.sub_domains.split(",").filter(Boolean) : [];
+    let nextSub: string[];
+    if (current.includes(sub)) {
+      nextSub = current.filter(s => s !== sub);
+    } else {
+      if (current.length >= 2) {
+        setToast({ type: "error", text: "You can select up to 2 sub-domains." });
+        return;
+      }
+      nextSub = [...current, sub];
+    }
+    update("sub_domains", nextSub.join(","));
   };
 
   const validateStep = (): boolean => {
@@ -446,6 +491,13 @@ export default function RegisterPage() {
       if (!form.motivation.trim() || form.motivation.trim().length < 20) errs.motivation = "Motivation must be at least 20 characters";
     } else if (step === 4) {
       if (!form.domain_choice) errs.domain_choice = "Select a domain (max 3)";
+      else {
+        const availableSubdomains = form.domain_choice.split(",").filter(Boolean).flatMap(d => subdomainMap[d] || []).filter((v, i, a) => a.indexOf(v) === i);
+        if (availableSubdomains.length > 0) {
+          const selectedSub = form.sub_domains ? form.sub_domains.split(",").filter(Boolean) : [];
+          if (selectedSub.length === 0) errs.sub_domains = "Select at least 1 sub-domain/role";
+        }
+      }
     }
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -896,6 +948,31 @@ export default function RegisterPage() {
                         );
                       })}
                     </div>
+                    {(() => {
+                      const availableSubdomains = form.domain_choice.split(",").filter(Boolean).flatMap(d => subdomainMap[d] || []).filter((v, i, a) => a.indexOf(v) === i);
+                      if (availableSubdomains.length === 0) return null;
+                      return (
+                        <div className="mt-8 border-t border-white/10 pt-6 text-left">
+                          <h5 className={`${conthrax} text-[9px] md:text-[10px] tracking-[0.2em] uppercase text-cyan-400/60 mb-3`}>Sub-Domains & Roles</h5>
+                          <p className="text-xs md:text-sm text-white/40 mb-4">Select up to 2 specific roles or sub-domains based on your selections.</p>
+                          <div className="flex flex-wrap gap-2 md:gap-3">
+                            {availableSubdomains.map((sub) => {
+                              const selected = (form.sub_domains ? form.sub_domains.split(",") : []).includes(sub);
+                              return (
+                                <button key={sub} type="button" onClick={() => toggleSubDomain(sub)}
+                                  className={`px-4 py-2.5 rounded-[14px] border text-xs md:text-sm transition-all duration-300 cursor-pointer flex items-center gap-2 ${
+                                    selected ? "bg-cyan-500/10 border-cyan-400/70 text-cyan-300 shadow-[0_0_18px_rgba(0,247,255,0.1)]" : "bg-white/[0.025] border-white/10 text-white/60 hover:border-cyan-500/35 hover:text-white/85 hover:bg-white/[0.04]"
+                                  }`}>
+                                  {selected && <Check size={14} className="shrink-0 text-cyan-400" />}
+                                  {sub}
+                                </button>
+                              );
+                            })}
+                          </div>
+                          {errors.sub_domains && <p className="text-red-400 text-xs mt-3">{errors.sub_domains}</p>}
+                        </div>
+                      );
+                    })()}
                     {errors.domain_choice && <p className="text-red-400 text-xs mt-3">{errors.domain_choice}</p>}
                   </div>
                 )}
@@ -920,6 +997,12 @@ export default function RegisterPage() {
                         <span className="text-white/30">Email:</span><span className="text-white/70">{form.kiit_email || "—"}</span>
                         <span className="text-white/30">Branches / Offices:</span>
                         <span className="text-white/70 capitalize">{form.domain_choice ? form.domain_choice.split(",").map(getDomainLabel).join(", ") : "—"}</span>
+                        {form.sub_domains && (
+                          <>
+                            <span className="text-white/30">Sub-Domains / Roles:</span>
+                            <span className="text-white/70 capitalize">{form.sub_domains.split(",").join(", ")}</span>
+                          </>
+                        )}
                         <span className="text-white/30">Technical Skills:</span>
                         <span className="text-white/70">{form.technical_skills.length ? form.technical_skills.join(", ") : "—"}</span>
                         <span className="text-white/30">Non-Technical Skills:</span>
@@ -952,7 +1035,6 @@ export default function RegisterPage() {
                   <button
                     key="next-step"
                     type="button"
-                    disabled={step === 4 && Boolean(flashMsg)}
                     onClick={(event) => {
                       event.preventDefault();
                       next();
@@ -988,24 +1070,23 @@ export default function RegisterPage() {
               <div
                 data-lenis-prevent
                 onWheel={(event) => event.stopPropagation()}
-                className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 [scrollbar-color:rgba(0,247,255,0.35)_rgba(255,255,255,0.04)] [scrollbar-width:thin] md:p-5"
+                className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 [scrollbar-color:rgba(0,247,255,0.35)_rgba(255,255,255,0.04)] [scrollbar-width:thin] md:p-5"
               >
+                <button
+                  type="button"
+                  onClick={() => setFlashMsg(null)}
+                  className="absolute right-4 top-4 flex h-6 w-6 items-center justify-center rounded-full bg-white/5 text-white/40 transition-colors hover:bg-white/10 hover:text-white/80 md:hidden"
+                  aria-label="Close message"
+                >
+                  <X size={14} />
+                </button>
                 <div className="flex items-start gap-3">
                   <Quote size={21} className="mt-0.5 shrink-0 text-cyan-400/40 md:h-6 md:w-6" />
-                  <div className="min-w-0">
+                  <div className="min-w-0 pr-6 md:pr-0">
                     <p className="break-words text-sm leading-relaxed text-white/70 italic md:text-lg">{flashMsg}</p>
                     <p className={`${conthrax} mt-3 break-words text-[9px] uppercase leading-relaxed tracking-wider text-cyan-400/60 md:text-xs`}>&mdash; {flashLabel}</p>
                   </div>
                 </div>
-              </div>
-              <div className="shrink-0 border-t border-white/10 bg-black/80 p-3 md:p-4">
-                <button
-                  type="button"
-                  onClick={() => setFlashMsg(null)}
-                  className={`${conthrax} flex w-full items-center justify-center rounded-[14px] border border-cyan-400/35 bg-cyan-400/[0.06] px-4 py-3 text-[8px] uppercase tracking-[0.18em] text-cyan-300 transition-all hover:border-cyan-300/70 hover:bg-cyan-400/12 active:scale-[0.98] md:text-[9px] md:tracking-[0.24em]`}
-                >
-                  Close message to continue
-                </button>
               </div>
             </div>
           </motion.div>
