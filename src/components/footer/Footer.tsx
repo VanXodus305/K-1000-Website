@@ -8,6 +8,7 @@ import { MapPin, Phone, Mail, ChevronRight } from "lucide-react";
 import { FaLinkedinIn, FaWhatsapp, FaInstagram } from "react-icons/fa6";
 import styles from "./Footer.module.scss";
 import { SITE_TAGLINE } from "../../data/site";
+import { offices } from "../../data/offices";
 
 const conthrax = "font-['Conthrax',_sans-serif]";
 
@@ -23,14 +24,6 @@ const Footer = () => {
     { title: "Contact", path: "/contact" },
   ];
 
-  const researchAreas = [
-    { title: "Engineering & Technology", href: "/departments#DEPT-ENG-01" },
-    { title: "Sciences & Applied Sciences", href: "/departments#DEPT-SCI-02" },
-    { title: "Management & Social Sciences", href: "/departments#DEPT-MGMT-03" },
-    { title: "Medical & Health Sciences", href: "/departments#DEPT-MED-04" },
-    { title: "Law & Public Policy", href: "/departments#DEPT-LAW-05" },
-    { title: "Sports & Tourism", href: "/departments#DEPT-SPR-06" },
-  ];
 
   return (
     <footer className={`${styles.footer} bg-[#010103] border-t border-cyan-500/30 relative z-[100] py-8 md:py-12`}>
@@ -93,24 +86,24 @@ const Footer = () => {
             </ul>
           </motion.div>
 
-          {/* Departments */}
+          {/* Offices */}
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
             <h3 className={`${conthrax} text-white text-[11px] tracking-[0.25em] uppercase mb-6 font-black`}>
-              Departments
+              Offices
             </h3>
             <ul className="space-y-3">
-              {researchAreas.map((area, index) => (
+              {offices.map((office, index) => (
                 <li key={index}>
                   <Link 
-                    href={area.href}
-                    className="flex items-center gap-2 text-white/50 text-[16px] hover:text-cyan-400 group transition-all font-medium tracking-wide"
+                    href={`/offices#${office.key}`}
+                    className="flex items-center gap-2 text-white/50 text-[15px] hover:text-cyan-400 group transition-all font-medium tracking-wide"
                   >
                     <ChevronRight size={14} className="text-cyan-400/30 group-hover:translate-x-1 transition-transform" />
-                    {area.title}
+                    {office.title}
                   </Link>
                 </li>
               ))}
