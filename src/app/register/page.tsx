@@ -649,7 +649,7 @@ export default function RegisterPage() {
             <span className="text-cyan-400 drop-shadow-[0_0_18px_rgba(0,247,255,0.35)]">Registration</span>
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-xs sm:text-sm md:text-base leading-relaxed text-white/45">
-            Complete the recruitment signal with your academic profile, preferred domains, and intent to join KIIT&apos;s official R&amp;D society.
+            Submit your academic details, preferred domains, and statement of intent to apply for K-1000, KIIT&apos;s official R&amp;D society.
           </p>
           <motion.div
             className="mx-auto mt-6 flex max-w-xl flex-col items-center justify-center gap-2 rounded-[24px] border border-cyan-300/25 bg-cyan-400/[0.055] px-4 py-4 shadow-[0_0_36px_rgba(0,247,255,0.08)] sm:flex-row sm:gap-4"

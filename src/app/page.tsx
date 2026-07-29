@@ -1,7 +1,6 @@
 "use client";
 
 import BootSequence from "@/components/boot/BootSequence";
-import RecruitmentLiveModal from "@/components/home/RecruitmentLiveModal";
 
 export default function HomePage() {
   return (
@@ -11,7 +10,6 @@ export default function HomePage() {
           to SystemCanvas in one unified lifecycle.
       */}
       <BootSequence />
-      <RecruitmentLiveModal />
     </main>
   );
 }
