@@ -177,6 +177,7 @@ const subdomainMap: Record<string, string[]> = {
   projects: ["Mentors", "Management", "General Member"],
   training: ["General Member", "App Development", "Web Development", "Game Development", "Design & UI/UX", "CyberSecurity", "DSA&CP", "Java", "AI/ML", "Data Analytics"],
   research: ["Medical Imaging", "Deep learning/ Machine learning", "Astronomy/Space technology", "Defence technology", "Game theory", "Finance and Economics", "Quantum", "Bio-Tech"],
+  finance: ["General Member", "Management"],
 };
 
 const REGISTRATION_RECEIPT_KEY = "k1000-registration-receipt-v1";
@@ -408,7 +409,7 @@ export default function RegisterPage() {
     if (!flashMsg) return;
     const timer = setTimeout(() => {
       setFlashMsg(null);
-    }, 8000);
+    }, 5000);
     return () => clearTimeout(timer);
   }, [flashMsg]);
 
@@ -474,8 +475,10 @@ export default function RegisterPage() {
     if (current.includes(sub)) {
       nextSub = current.filter(s => s !== sub);
     } else {
-      if (current.length >= 2) {
-        setToast({ type: "error", text: "You can select up to 2 sub-domains." });
+      const branchId = sub.split(":")[0];
+      const currentForBranch = current.filter(s => s.startsWith(branchId + ":"));
+      if (currentForBranch.length >= 2) {
+        setToast({ type: "error", text: "You can select up to 2 sub-domains per branch." });
         return;
       }
       nextSub = [...current, sub];
@@ -500,10 +503,22 @@ export default function RegisterPage() {
     } else if (step === 4) {
       if (!form.domain_choice) errs.domain_choice = "Select a domain (max 3)";
       else {
-        const availableSubdomains = form.domain_choice.split(",").filter(Boolean).flatMap(d => subdomainMap[d] || []).filter((v, i, a) => a.indexOf(v) === i);
-        if (availableSubdomains.length > 0) {
-          const selectedSub = form.sub_domains ? form.sub_domains.split(",").filter(Boolean) : [];
-          if (selectedSub.length === 0) errs.sub_domains = "Select at least 1 sub-domain/role";
+        const selectedDomains = form.domain_choice.split(",").filter(Boolean);
+        const selectedSub = form.sub_domains ? form.sub_domains.split(",").filter(Boolean) : [];
+        let missingBranch = false;
+        
+        for (const d of selectedDomains) {
+          if (subdomainMap[d] && subdomainMap[d].length > 0) {
+            const hasSubForBranch = selectedSub.some(s => s.startsWith(d + ":"));
+            if (!hasSubForBranch) {
+              missingBranch = true;
+              break;
+            }
+          }
+        }
+        
+        if (missingBranch) {
+          errs.sub_domains = "Select at least 1 role for each selected branch";
         }
       }
     }
@@ -957,23 +972,46 @@ export default function RegisterPage() {
                       })}
                     </div>
                     {(() => {
-                      const availableSubdomains = form.domain_choice.split(",").filter(Boolean).flatMap(d => subdomainMap[d] || []).filter((v, i, a) => a.indexOf(v) === i);
-                      if (availableSubdomains.length === 0) return null;
+                      const selectedDomains = form.domain_choice.split(",").filter(Boolean);
+                      if (selectedDomains.length === 0) return null;
+
+                      const hasAnySubdomains = selectedDomains.some(d => subdomainMap[d]?.length > 0);
+                      if (!hasAnySubdomains) return null;
+
                       return (
                         <div className="mt-8 border-t border-white/10 pt-6 text-left">
                           <h5 className={`${conthrax} text-[9px] md:text-[10px] tracking-[0.2em] uppercase text-cyan-400/60 mb-3`}>Sub-Domains & Roles</h5>
-                          <p className="text-xs md:text-sm text-white/40 mb-4">Select up to 2 specific roles or sub-domains based on your selections.</p>
-                          <div className="flex flex-wrap gap-2 md:gap-3">
-                            {availableSubdomains.map((sub) => {
-                              const selected = (form.sub_domains ? form.sub_domains.split(",") : []).includes(sub);
+                          <p className="text-xs md:text-sm text-white/40 mb-4">Select 1 or 2 specific roles for each branch.</p>
+                          <div className="flex flex-col gap-6">
+                            {selectedDomains.map((d) => {
+                              const subs = subdomainMap[d];
+                              if (!subs || subs.length === 0) return null;
+
+                              let label = d;
+                              const branchMatch = branchDomains.find(b => b.key === d);
+                              if (branchMatch) label = branchMatch.title;
+                              const officeMatch = officeChoices.find(o => o.id === d);
+                              if (officeMatch) label = officeMatch.title;
+
                               return (
-                                <button key={sub} type="button" onClick={() => toggleSubDomain(sub)}
-                                  className={`px-4 py-2.5 rounded-[14px] border text-xs md:text-sm transition-all duration-300 cursor-pointer flex items-center gap-2 ${
-                                    selected ? "bg-cyan-500/10 border-cyan-400/70 text-cyan-300 shadow-[0_0_18px_rgba(0,247,255,0.1)]" : "bg-white/[0.025] border-white/10 text-white/60 hover:border-cyan-500/35 hover:text-white/85 hover:bg-white/[0.04]"
-                                  }`}>
-                                  {selected && <Check size={14} className="shrink-0 text-cyan-400" />}
-                                  {sub}
-                                </button>
+                                <div key={d}>
+                                  <h6 className="text-[10px] md:text-[11px] text-cyan-400/40 uppercase tracking-[0.15em] mb-3">{label}</h6>
+                                  <div className="flex flex-wrap gap-2 md:gap-3">
+                                    {subs.map((sub) => {
+                                      const uniqueSubKey = `${d}:${sub}`;
+                                      const selected = (form.sub_domains ? form.sub_domains.split(",") : []).includes(uniqueSubKey);
+                                      return (
+                                        <button key={sub} type="button" onClick={() => toggleSubDomain(uniqueSubKey)}
+                                          className={`px-4 py-2.5 rounded-[14px] border text-xs md:text-sm transition-all duration-300 cursor-pointer flex items-center gap-2 ${
+                                            selected ? "bg-cyan-500/10 border-cyan-400/70 text-cyan-300 shadow-[0_0_18px_rgba(0,247,255,0.1)]" : "bg-white/[0.025] border-white/10 text-white/60 hover:border-cyan-500/35 hover:text-white/85 hover:bg-white/[0.04]"
+                                          }`}>
+                                          {selected && <Check size={14} className="shrink-0 text-cyan-400" />}
+                                          {sub}
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
                               );
                             })}
                           </div>
@@ -1020,7 +1058,7 @@ export default function RegisterPage() {
                         {form.sub_domains && (
                           <>
                             <span className="text-white/30">Sub-Domains / Roles:</span>
-                            <span className="text-white/70 capitalize">{form.sub_domains.split(",").join(", ")}</span>
+                            <span className="text-white/70 capitalize">{form.sub_domains.split(",").map(sub => sub.replace(":", " - ")).join(", ")}</span>
                           </>
                         )}
                         <span className="text-white/30">Technical Skills:</span>
@@ -1107,14 +1145,14 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => setFlashMsg(null)}
-                  className="absolute right-4 top-4 flex h-6 w-6 items-center justify-center rounded-full bg-white/5 text-white/40 transition-colors hover:bg-white/10 hover:text-white/80 md:hidden"
+                  className="absolute right-4 top-4 flex h-6 w-6 items-center justify-center rounded-full bg-white/5 text-white/40 transition-colors hover:bg-white/10 hover:text-white/80"
                   aria-label="Close message"
                 >
                   <X size={14} />
                 </button>
                 <div className="flex items-start gap-3">
                   <Quote size={21} className="mt-0.5 shrink-0 text-cyan-400/40 md:h-6 md:w-6" />
-                  <div className="min-w-0 pr-6 md:pr-0">
+                  <div className="min-w-0 pr-6 md:pr-6">
                     <p className="break-words text-sm leading-relaxed text-white/70 italic md:text-lg">{flashMsg}</p>
                     <p className={`${conthrax} mt-3 break-words text-[9px] uppercase leading-relaxed tracking-wider text-cyan-400/60 md:text-xs`}>&mdash; {flashLabel}</p>
                   </div>

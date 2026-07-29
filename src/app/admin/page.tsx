@@ -252,15 +252,15 @@ function RegistrationTable({ registrations }: { registrations: Registration[] })
                 </td>
                 <td className="max-w-[300px] px-6 py-4">
                   <DomainBadges value={registration.domain_choice} />
-                  {registration.sub_domains && (
+                  {registration.sub_domains ? (
                     <div className="mt-2 flex flex-wrap gap-1.5">
                       {registration.sub_domains.split(",").map((sub) => (
-                        <span key={sub} className="rounded-md border border-cyan-200 bg-cyan-50 px-2 py-1 text-xs font-medium text-cyan-700 dark:border-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300">
-                          {sub}
+                        <span key={sub} className="inline-flex items-center rounded-md border border-cyan-200 bg-cyan-50 px-2 py-1 text-xs font-medium text-cyan-700 dark:border-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300 capitalize">
+                          {sub.replace(":", " - ")}
                         </span>
                       ))}
                     </div>
-                  )}
+                  ) : null}
                 </td>
                 <td className="px-6 py-4 text-xs text-gray-500">{formatDate(registration.created_at)}</td>
               </tr>
@@ -308,8 +308,8 @@ function RegistrationTable({ registrations }: { registrations: Registration[] })
             {registration.sub_domains && (
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {registration.sub_domains.split(",").map((sub) => (
-                  <span key={sub} className="rounded-md border border-cyan-200 bg-cyan-50 px-2 py-1 text-xs font-medium text-cyan-700 dark:border-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300">
-                    {sub}
+                  <span key={sub} className="inline-flex items-center rounded-md border border-cyan-200 bg-cyan-50 px-2 py-1 text-xs font-medium text-cyan-700 dark:border-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300 capitalize">
+                    {sub.replace(":", " - ")}
                   </span>
                 ))}
               </div>
