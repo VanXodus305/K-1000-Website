@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import UnifiedPortal from "../home/UnifiedPortal";
+import RecruitmentLiveModal from "../home/RecruitmentLiveModal";
 
 const conthrax = "font-['Conthrax',_sans-serif]";
 
@@ -138,6 +139,7 @@ export default function BootSequence() {
             transition={{ duration: 1.2 }}
           >
             <UnifiedPortal />
+            <RecruitmentLiveModal />
           </motion.div>
         )}
       </AnimatePresence>
