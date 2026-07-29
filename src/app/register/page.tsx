@@ -651,6 +651,24 @@ export default function RegisterPage() {
           <p className="mx-auto mt-5 max-w-2xl text-xs sm:text-sm md:text-base leading-relaxed text-white/45">
             Complete the recruitment signal with your academic profile, preferred domains, and intent to join KIIT&apos;s official R&amp;D society.
           </p>
+          <motion.div
+            className="mx-auto mt-6 flex max-w-xl flex-col items-center justify-center gap-2 rounded-[24px] border border-cyan-300/25 bg-cyan-400/[0.055] px-4 py-4 shadow-[0_0_36px_rgba(0,247,255,0.08)] sm:flex-row sm:gap-4"
+            animate={{
+              boxShadow: [
+                "0 0 22px rgba(0,247,255,0.06)",
+                "0 0 42px rgba(0,247,255,0.18)",
+                "0 0 22px rgba(0,247,255,0.06)",
+              ],
+            }}
+            transition={{ duration: 1.45, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <span className={`${orbitron} text-[8px] uppercase tracking-[0.34em] text-cyan-300/70`}>
+              Recruitment Dates
+            </span>
+            <span className={`${conthrax} text-sm uppercase tracking-[0.1em] text-white sm:text-base`}>
+              8th & 9th August 2026
+            </span>
+          </motion.div>
         </motion.div>
       </section>
 
