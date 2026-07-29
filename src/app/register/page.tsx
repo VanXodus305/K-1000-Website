@@ -59,6 +59,14 @@ const referralOptions = [
   "College Notice Board", "KIIT Website", "WhatsApp Group", "Campus Event", "Other",
 ];
 
+const referredByOptions = [
+  "Campus 6 - Nikunj", "Campus 6 - Tanisha", "Campus 6 - Vivek", "Campus 6 - Sumit",
+  "Campus 6 - Utkarsh Singh", "Campus 6 - Shreyash Singh",
+  "Campus 6 - Rishabh", "Campus 6 - Subham",
+  "Campus 25 - Ankit", "Campus 25 - Satyam", "Campus 25 - Debadrito",
+  "Campus 25 - Jay Gupta", "Campus 25 - Bidisha"
+];
+
 const technicalSkillOptions = [
   "Programming Fundamentals",
   "Python",
@@ -152,14 +160,14 @@ type FormData = {
   academic_year: string; course: string;
   domain_choice: string; sub_domains: string; motivation: string; experience: string;
   technical_skills: string[]; non_technical_skills: string[];
-  referral_source: string;
+  referral_source: string; referred_by: string;
 };
 
 const initialForm: FormData = {
   full_name: "", phone: "", kiit_email: "", gender: "",
   academic_year: "", course: "",
   domain_choice: "", sub_domains: "", motivation: "", experience: "",
-  technical_skills: [], non_technical_skills: [], referral_source: "",
+  technical_skills: [], non_technical_skills: [], referral_source: "", referred_by: "",
 };
 
 const subdomainMap: Record<string, string[]> = {
@@ -990,6 +998,18 @@ export default function RegisterPage() {
                         onChange={(value) => update("referral_source", value)}
                       />
                     </Field>
+                    <div className="mt-6">
+                      <Field label="Were you referred by a Campus Member?" required={false}>
+                        <CustomSelect
+                          value={form.referred_by}
+                          options={referredByOptions.map((source) => ({ value: source, label: source }))}
+                          placeholder="Select member (optional)"
+                          ariaLabel="Referred by member"
+                          inlineMenu
+                          onChange={(value) => update("referred_by", value)}
+                        />
+                      </Field>
+                    </div>
                     <div className="mt-6 p-5 md:p-6 rounded-[24px] bg-cyan-500/[0.018] border border-cyan-500/10">
                       <h5 className={`${conthrax} text-[9px] md:text-[10px] tracking-[0.2em] uppercase text-cyan-400/60 mb-3`}>Application Summary</h5>
                       <div className="grid grid-cols-2 gap-2 text-[11px] md:text-xs text-white/50">
@@ -1007,6 +1027,18 @@ export default function RegisterPage() {
                         <span className="text-white/70">{form.technical_skills.length ? form.technical_skills.join(", ") : "—"}</span>
                         <span className="text-white/30">Non-Technical Skills:</span>
                         <span className="text-white/70">{form.non_technical_skills.length ? form.non_technical_skills.join(", ") : "—"}</span>
+                        {form.referral_source && (
+                          <>
+                            <span className="text-white/30">Referral Source:</span>
+                            <span className="text-white/70">{form.referral_source}</span>
+                          </>
+                        )}
+                        {form.referred_by && (
+                          <>
+                            <span className="text-white/30">Referred By:</span>
+                            <span className="text-white/70">{form.referred_by}</span>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>

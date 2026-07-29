@@ -40,6 +40,7 @@ type Registration = {
   experience: string;
   skills: string[];
   referral_source: string;
+  referred_by: string;
   status: string;
   created_at: string;
 };
@@ -237,6 +238,9 @@ function RegistrationTable({ registrations }: { registrations: Registration[] })
                     )}
                   </div>
                   <p className="mt-1 text-xs text-gray-500">{registration.roll_number || registration.kiit_email?.split('@')[0] || "No Roll"}</p>
+                  {registration.referred_by && (
+                    <p className="mt-1 text-[10px] font-medium text-indigo-500 dark:text-indigo-400">Ref: {registration.referred_by}</p>
+                  )}
                 </td>
                 <td className="px-6 py-4">
                   <p className="text-sm text-gray-900 dark:text-gray-300">{registration.kiit_email}</p>
@@ -293,6 +297,13 @@ function RegistrationTable({ registrations }: { registrations: Registration[] })
                 <p>{registration.academic_year} · {registration.gender || "N/A"}</p>
               </div>
             </div>
+            {registration.referred_by && (
+              <div className="mt-3">
+                <span className="inline-flex items-center rounded-full bg-indigo-50 px-2 py-1 text-[10px] font-medium text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400">
+                  Referred by: {registration.referred_by}
+                </span>
+              </div>
+            )}
             <div className="mt-3"><DomainBadges value={registration.domain_choice} /></div>
             {registration.sub_domains && (
               <div className="mt-2 flex flex-wrap gap-1.5">
