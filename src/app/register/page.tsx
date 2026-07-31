@@ -180,6 +180,12 @@ const subdomainMap: Record<string, string[]> = {
   finance: ["General Member", "Management"],
 };
 
+const nestedSubdomainMap: Record<string, string[]> = {
+  "events:General Member": ["Marketing", "Photography and videograph"],
+  "projects:Mentors": ["AI/ML", "Data Analyst", "IoT"],
+  "projects:General Member": ["Linux", "AI/ML", "Java", "Blockchain", "Web Development", "Data Analytics", "IoT"],
+};
+
 const REGISTRATION_RECEIPT_KEY = "k1000-registration-receipt-v1";
 
 type RegistrationReceipt = {
@@ -474,12 +480,34 @@ export default function RegisterPage() {
     let nextSub: string[];
     if (current.includes(sub)) {
       nextSub = current.filter(s => s !== sub);
+      nextSub = nextSub.filter(s => !s.startsWith(sub + ":"));
     } else {
-      const branchId = sub.split(":")[0];
-      const currentForBranch = current.filter(s => s.startsWith(branchId + ":"));
-      if (currentForBranch.length >= 2) {
-        setToast({ type: "error", text: "You can select up to 2 sub-domains per branch." });
-        return;
+      const parts = sub.split(":");
+      const branchId = parts[0];
+      const isNested = parts.length > 2;
+      
+      if (!isNested) {
+        const maxTopLevel = (branchId === "projects" || branchId === "internship" || branchId === "higher" || branchId === "finance") ? 1 : 2;
+        const currentTopLevelForBranch = current.filter(s => s.startsWith(branchId + ":") && s.split(":").length === 2);
+        if (currentTopLevelForBranch.length >= maxTopLevel) {
+          setToast({ type: "error", text: `You can select up to ${maxTopLevel} role(s) for this branch.` });
+          return;
+        }
+      } else {
+        const parentRole = `${parts[0]}:${parts[1]}`;
+        const maxNested = (parentRole === "projects:Mentors" || parentRole === "projects:General Member" || parentRole === "events:General Member") ? 2 : 1;
+        const currentNestedForParent = current.filter(s => s.startsWith(parentRole + ":") && s.split(":").length > 2);
+        
+        if (currentNestedForParent.length >= maxNested) {
+          if (maxNested === 1) {
+            nextSub = [...current.filter(s => !(s.startsWith(parentRole + ":") && s.split(":").length > 2)), sub];
+            update("sub_domains", nextSub.join(","));
+            return;
+          } else {
+            setToast({ type: "error", text: `You can select up to ${maxNested} specializations for this role.` });
+            return;
+          }
+        }
       }
       nextSub = [...current, sub];
     }
@@ -506,6 +534,7 @@ export default function RegisterPage() {
         const selectedDomains = form.domain_choice.split(",").filter(Boolean);
         const selectedSub = form.sub_domains ? form.sub_domains.split(",").filter(Boolean) : [];
         let missingBranch = false;
+        let missingNested = false;
         
         for (const d of selectedDomains) {
           if (subdomainMap[d] && subdomainMap[d].length > 0) {
@@ -514,11 +543,22 @@ export default function RegisterPage() {
               missingBranch = true;
               break;
             }
+            const topLevelSelectedForBranch = selectedSub.filter(s => s.startsWith(d + ":") && s.split(":").length === 2);
+            for (const topRole of topLevelSelectedForBranch) {
+               if (nestedSubdomainMap[topRole] && nestedSubdomainMap[topRole].length > 0) {
+                  const hasNested = selectedSub.some(s => s.startsWith(topRole + ":") && s.split(":").length > 2);
+                  if (!hasNested) {
+                    missingNested = true;
+                  }
+               }
+            }
           }
         }
         
         if (missingBranch) {
           errs.sub_domains = "Select at least 1 role for each selected branch";
+        } else if (missingNested) {
+          errs.sub_domains = "Please select a specialization for your chosen role(s)";
         }
       }
     }
@@ -999,7 +1039,7 @@ export default function RegisterPage() {
                       return (
                         <div className="mt-8 border-t border-white/10 pt-6 text-left">
                           <h5 className={`${conthrax} text-[9px] md:text-[10px] tracking-[0.2em] uppercase text-cyan-400/60 mb-3`}>Sub-Domains & Roles</h5>
-                          <p className="text-xs md:text-sm text-white/40 mb-4">Select 1 or 2 specific roles for each branch.</p>
+                          <p className="text-xs md:text-sm text-white/40 mb-4">Select your specific roles and specializations based on branch limits.</p>
                           <div className="flex flex-col gap-6">
                             {selectedDomains.map((d) => {
                               const subs = subdomainMap[d];
@@ -1012,23 +1052,52 @@ export default function RegisterPage() {
                               if (officeMatch) label = officeMatch.title;
 
                               return (
-                                <div key={d}>
-                                  <h6 className="text-[10px] md:text-[11px] text-cyan-400/40 uppercase tracking-[0.15em] mb-3">{label}</h6>
-                                  <div className="flex flex-wrap gap-2 md:gap-3">
-                                    {subs.map((sub) => {
+                                <div key={d} className="flex flex-col gap-4">
+                                  <div>
+                                    <h6 className="text-[10px] md:text-[11px] text-cyan-400/40 uppercase tracking-[0.15em] mb-3">{label}</h6>
+                                    <div className="flex flex-wrap gap-2 md:gap-3">
+                                      {subs.map((sub) => {
+                                        const uniqueSubKey = `${d}:${sub}`;
+                                        const selected = (form.sub_domains ? form.sub_domains.split(",") : []).includes(uniqueSubKey);
+                                        return (
+                                          <button key={sub} type="button" onClick={() => toggleSubDomain(uniqueSubKey)}
+                                            className={`px-4 py-2.5 rounded-[14px] border text-xs md:text-sm transition-all duration-300 cursor-pointer flex items-center gap-2 ${
+                                              selected ? "bg-cyan-500/10 border-cyan-400/70 text-cyan-300 shadow-[0_0_18px_rgba(0,247,255,0.1)]" : "bg-white/[0.025] border-white/10 text-white/60 hover:border-cyan-500/35 hover:text-white/85 hover:bg-white/[0.04]"
+                                            }`}>
+                                            {selected && <Check size={14} className="shrink-0 text-cyan-400" />}
+                                            {sub}
+                                          </button>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+                                  {subs.map(sub => {
                                       const uniqueSubKey = `${d}:${sub}`;
                                       const selected = (form.sub_domains ? form.sub_domains.split(",") : []).includes(uniqueSubKey);
-                                      return (
-                                        <button key={sub} type="button" onClick={() => toggleSubDomain(uniqueSubKey)}
-                                          className={`px-4 py-2.5 rounded-[14px] border text-xs md:text-sm transition-all duration-300 cursor-pointer flex items-center gap-2 ${
-                                            selected ? "bg-cyan-500/10 border-cyan-400/70 text-cyan-300 shadow-[0_0_18px_rgba(0,247,255,0.1)]" : "bg-white/[0.025] border-white/10 text-white/60 hover:border-cyan-500/35 hover:text-white/85 hover:bg-white/[0.04]"
-                                          }`}>
-                                          {selected && <Check size={14} className="shrink-0 text-cyan-400" />}
-                                          {sub}
-                                        </button>
-                                      );
-                                    })}
-                                  </div>
+                                      if (selected && nestedSubdomainMap[uniqueSubKey] && nestedSubdomainMap[uniqueSubKey].length > 0) {
+                                          return (
+                                              <div key={`nested-${sub}`} className="pl-4 md:pl-6 border-l-2 border-cyan-500/20">
+                                                  <h6 className="text-[9px] md:text-[10px] text-cyan-400/30 uppercase tracking-[0.15em] mb-2">{sub} Specialization</h6>
+                                                  <div className="flex flex-wrap gap-2">
+                                                    {nestedSubdomainMap[uniqueSubKey].map(nestedSub => {
+                                                        const nestedKey = `${uniqueSubKey}:${nestedSub}`;
+                                                        const nestedSelected = (form.sub_domains ? form.sub_domains.split(",") : []).includes(nestedKey);
+                                                        return (
+                                                            <button key={nestedSub} type="button" onClick={() => toggleSubDomain(nestedKey)}
+                                                                className={`px-3 py-1.5 rounded-[10px] border text-[11px] md:text-xs transition-all duration-300 cursor-pointer flex items-center gap-1.5 ${
+                                                                  nestedSelected ? "bg-indigo-500/10 border-indigo-400/70 text-indigo-300 shadow-[0_0_12px_rgba(99,102,241,0.1)]" : "bg-white/[0.02] border-white/5 text-white/50 hover:border-indigo-500/35 hover:text-white/70"
+                                                                }`}>
+                                                                {nestedSelected && <Check size={12} className="shrink-0 text-indigo-400" />}
+                                                                {nestedSub}
+                                                            </button>
+                                                        );
+                                                    })}
+                                                  </div>
+                                              </div>
+                                          );
+                                      }
+                                      return null;
+                                  })}
                                 </div>
                               );
                             })}
