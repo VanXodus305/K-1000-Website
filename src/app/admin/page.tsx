@@ -479,11 +479,13 @@ export default function AdminPage() {
   const filteredRegistrations = useMemo(() => {
     if (!data) return [];
     const query = search.toLowerCase();
+    const safeQuery = query.replace('#', '');
     return data.filter((registration) => {
       const matchesSearch = !query
         || registration.full_name.toLowerCase().includes(query)
         || registration.kiit_email?.toLowerCase().includes(query)
-        || registration.phone.includes(query);
+        || registration.phone.includes(query)
+        || registration.id.toString().includes(safeQuery);
       const matchesDomain = !domainFilter || getDomainList(registration.domain_choice).includes(domainFilter);
       return matchesSearch && matchesDomain;
     });
@@ -492,11 +494,13 @@ export default function AdminPage() {
   const filteredInterviews = useMemo(() => {
     if (!interviews) return [];
     const query = search.toLowerCase();
+    const safeQuery = query.replace('#', '');
     return interviews.filter((interview) => {
       const matchesSearch = !query
         || interview.full_name?.toLowerCase().includes(query)
         || interview.panelist_name?.toLowerCase().includes(query)
-        || interview.panelist_roll?.toLowerCase().includes(query);
+        || interview.panelist_roll?.toLowerCase().includes(query)
+        || interview.id.toString().includes(safeQuery);
       const matchesDomain = !domainFilter || getDomainList(interview.domain_choice).includes(domainFilter);
       return matchesSearch && matchesDomain;
     });
