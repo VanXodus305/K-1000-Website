@@ -64,7 +64,7 @@ const referredByOptions = [
   "Campus 6 - Utkarsh Singh", "Campus 6 - Shreyash Singh",
   "Campus 6 - Rishabh", "Campus 6 - Subham",
   "Campus 25 - Ankit", "Campus 25 - Satyam", "Campus 25 - Debadrito",
-  "Campus 25 - Jay Gupta", "Campus 25 - Bidisha"
+  "Campus 25 - Jay Gupta", "Campus 25 - Bidisha", "Bishal Pandey"
 ];
 
 const technicalSkillOptions = [
