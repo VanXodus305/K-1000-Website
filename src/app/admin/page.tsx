@@ -256,7 +256,7 @@ function RegistrationTable({ registrations }: { registrations: Registration[] })
                     <div className="mt-2 flex flex-wrap gap-1.5">
                       {registration.sub_domains.split(",").map((sub) => (
                         <span key={sub} className="inline-flex items-center rounded-md border border-cyan-200 bg-cyan-50 px-2 py-1 text-xs font-medium text-cyan-700 dark:border-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300 capitalize">
-                          {sub.replace(":", " - ")}
+                          {sub.split(":").join(" - ")}
                         </span>
                       ))}
                     </div>
@@ -309,7 +309,7 @@ function RegistrationTable({ registrations }: { registrations: Registration[] })
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {registration.sub_domains.split(",").map((sub) => (
                   <span key={sub} className="inline-flex items-center rounded-md border border-cyan-200 bg-cyan-50 px-2 py-1 text-xs font-medium text-cyan-700 dark:border-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300 capitalize">
-                    {sub.replace(":", " - ")}
+                    {sub.split(":").join(" - ")}
                   </span>
                 ))}
               </div>
