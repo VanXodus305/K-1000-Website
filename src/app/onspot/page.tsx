@@ -54,6 +54,19 @@ const courseOptions = [
   "Others"
 ];
 
+const referralOptions = [
+  "Social Media (Instagram/LinkedIn)", "Friend or Senior", "Faculty Member",
+  "College Notice Board", "KIIT Website", "WhatsApp Group", "Campus Event", "Other",
+];
+
+const referredByOptions = [
+  "Campus 6 - Nikunj", "Campus 6 - Tanisha", "Campus 6 - Vivek", "Campus 6 - Sumit",
+  "Campus 6 - Utkarsh Singh", "Campus 6 - Shreyash Singh",
+  "Campus 6 - Rishabh", "Campus 6 - Subham",
+  "Campus 25 - Ankit", "Campus 25 - Satyam", "Campus 25 - Debadrito",
+  "Campus 25 - Jay Gupta", "Campus 25 - Bidisha", "Bishal Pandey"
+];
+
 const branchDomains = domains;
 
 const recruitingOfficeKeys = new Set(["ocd", "opcr", "oca", "occ"]);
@@ -280,6 +293,8 @@ type OnspotFormData = {
   course: string;
   domain_choice: string;
   sub_domains: string;
+  referral_source: string;
+  referred_by: string;
 };
 
 const initialForm: OnspotFormData = {
@@ -291,6 +306,8 @@ const initialForm: OnspotFormData = {
   course: "",
   domain_choice: "",
   sub_domains: "",
+  referral_source: "",
+  referred_by: "",
 };
 
 export default function OnspotRegistrationPage() {
@@ -448,8 +465,8 @@ export default function OnspotRegistrationPage() {
         non_technical_skills: [],
         motivation: "On-spot registration",
         experience: "",
-        referral_source: "On-spot",
-        referred_by: "",
+        referral_source: form.referral_source || "On-spot",
+        referred_by: form.referred_by || "",
       };
       if (form.course === "Others") payload.course = customCourse.trim();
 
@@ -771,6 +788,36 @@ export default function OnspotRegistrationPage() {
                 {errors.domain_choice && <p className="text-red-400 text-xs mt-3">{errors.domain_choice}</p>}
               </div>
 
+              {/* ─── Referral ─── */}
+              <div className="mb-8">
+                <div className="flex items-center gap-3 mb-5 pb-4 border-b border-white/10">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-[12px] border border-amber-300 bg-amber-400 text-black text-[10px] font-black shadow-[0_0_18px_rgba(255,191,0,0.55)]">04</div>
+                  <h2 className={`${conthrax} text-base sm:text-lg md:text-xl uppercase tracking-tight text-white`}>Referral</h2>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                  <Field label="How did you hear about K-1000?" required={false}>
+                    <CustomSelect
+                      value={form.referral_source}
+                      options={referralOptions.map((source) => ({ value: source, label: source }))}
+                      placeholder="Select source (optional)"
+                      ariaLabel="Referral source"
+                      inlineMenu
+                      onChange={(value) => update("referral_source", value)}
+                    />
+                  </Field>
+                  <Field label="Referred by a Campus Member?" required={false}>
+                    <CustomSelect
+                      value={form.referred_by}
+                      options={referredByOptions.map((source) => ({ value: source, label: source }))}
+                      placeholder="Select member (optional)"
+                      ariaLabel="Referred by member"
+                      inlineMenu
+                      onChange={(value) => update("referred_by", value)}
+                    />
+                  </Field>
+                </div>
+              </div>
+
               {/* ─── Summary & Actions ─── */}
               <div className="p-5 md:p-6 rounded-[24px] bg-amber-500/[0.018] border border-amber-500/10 mb-6">
                 <h5 className={`${conthrax} text-[9px] md:text-[10px] tracking-[0.2em] uppercase text-amber-400/60 mb-3`}>Quick Summary</h5>
@@ -785,6 +832,18 @@ export default function OnspotRegistrationPage() {
                     <>
                       <span className="text-white/30">Roles:</span>
                       <span className="text-white/70 capitalize">{form.sub_domains.split(",").map(sub => sub.replace(/:/g, " → ")).join(", ")}</span>
+                    </>
+                  )}
+                  {form.referral_source && (
+                    <>
+                      <span className="text-white/30">Referral:</span>
+                      <span className="text-white/70">{form.referral_source}</span>
+                    </>
+                  )}
+                  {form.referred_by && (
+                    <>
+                      <span className="text-white/30">Referred By:</span>
+                      <span className="text-white/70">{form.referred_by}</span>
                     </>
                   )}
                 </div>
