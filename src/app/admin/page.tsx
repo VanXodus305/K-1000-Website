@@ -20,7 +20,9 @@ import { domains } from "../../data/domain";
 import { offices } from "../../data/offices";
 import RoomBuilder from "../../components/admin/RoomBuilder";
 import WaitingRoom from "../../components/admin/WaitingRoom";
+import Ongoing from "../../components/admin/Ongoing";
 import { useSSEStream } from "../../hooks/useSSEStream";
+import { OnspotForm } from "../onspot/page";
 
 const API = (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/+$/, "");
 
@@ -70,7 +72,7 @@ type Interview = {
   criteria?: Criterion[];
 };
 
-type Tab = "registrations" | "interviews" | "room_builder" | "waiting_room" | "ongoing" | "new_registration";
+type Tab = "registrations" | "interviews" | "room_builder" | "waiting_room" | "ongoing" | "walk_in";
 
 const tabLabels: Record<Tab, string> = {
   registrations: "Registrations",
@@ -78,7 +80,7 @@ const tabLabels: Record<Tab, string> = {
   room_builder: "Panel Room Builder",
   waiting_room: "Waiting Room",
   ongoing: "Ongoing",
-  new_registration: "New Registration",
+  walk_in: "Walk In",
 };
 
 const domainLabels: Record<string, string> = {};
@@ -543,7 +545,7 @@ export default function AdminPage() {
     { key: "room_builder", label: "Panel Room Builder", icon: <Grid size={16} /> },
     { key: "waiting_room", label: "Waiting Room", icon: <Clock size={16} /> },
     { key: "ongoing", label: "Ongoing", icon: <Radio size={16} /> },
-    { key: "new_registration", label: "New Registration", icon: <Plus size={16} /> },
+    { key: "walk_in", label: "Walk In", icon: <Plus size={16} /> },
   ];
 
   return (
@@ -704,10 +706,10 @@ export default function AdminPage() {
           ) : tab === "waiting_room" ? (
             <WaitingRoom apiUrl={API} authToken={password} liveCandidateStatusUpdate={lastCandidateStatusUpdate} />
           ) : tab === "ongoing" ? (
-            <div className="p-8 text-center text-gray-500">Ongoing tab content coming soon</div>
-          ) : tab === "new_registration" ? (
-            <div className="h-[800px] w-full overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
-              <iframe src="/onspot" className="h-full w-full border-none" title="Registration App" />
+            <Ongoing apiUrl={API} authToken={password} livePanelUpdate={lastPanelUpdate} />
+          ) : tab === "walk_in" ? (
+            <div className="w-full overflow-hidden rounded-2xl border border-gray-200 bg-[#020202] shadow-sm dark:border-gray-800">
+              <OnspotForm isEmbed />
             </div>
           ) : (
             <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">

@@ -277,7 +277,7 @@ export default function PanelistPage() {
                 livePanelUpdate={lastPanelUpdate}
               />
             ) : tab === "room_builder" ? (
-              <RoomBuilder apiUrl={API} authToken={password} livePanelUpdate={lastPanelUpdate} />
+              <RoomBuilder apiUrl={API} authToken={password} livePanelUpdate={lastPanelUpdate} panelistRole={role} />
             ) : tab === "waiting_room" ? (
               <WaitingRoom apiUrl={API} authToken={password} liveCandidateStatusUpdate={lastCandidateStatusUpdate} fixedDomainFilter={role} />
             ) : null}

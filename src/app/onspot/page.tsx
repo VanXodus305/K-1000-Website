@@ -310,7 +310,7 @@ const initialForm: OnspotFormData = {
   referred_by: "",
 };
 
-export default function OnspotRegistrationPage() {
+export function OnspotForm({ isEmbed = false }: { isEmbed?: boolean }) {
   const [form, setForm] = useState<OnspotFormData>(initialForm);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -511,16 +511,21 @@ export default function OnspotRegistrationPage() {
     return <div className="min-h-screen bg-[#020202]" />;
   }
 
-  if (storedReceipt) {
+  if (storedReceipt && !isEmbed) {
     return <AlreadyRegistered receipt={storedReceipt} />;
   }
 
   return (
-    <div className="relative w-full min-h-screen bg-[#020202] text-white selection:bg-amber-500/30 flex flex-col overflow-x-hidden cursor-default">
-      <CubeBackground zIndex={0} disableLinesOnMobile />
-      <SharedHeader />
-      <div className="fixed inset-0 bg-[radial-gradient(circle_at_20%_18%,rgba(255,191,0,0.08)_0%,transparent_30%),radial-gradient(circle_at_82%_72%,rgba(255,140,0,0.045)_0%,transparent_34%),linear-gradient(180deg,rgba(0,0,0,0.2),#020202_88%)] pointer-events-none z-[1]" />
-      <div className="fixed inset-0 opacity-[0.06] pointer-events-none z-[1] bg-[linear-gradient(rgba(255,191,0,0.18)_1px,transparent_1px),linear-gradient(90deg,rgba(255,191,0,0.18)_1px,transparent_1px)] bg-[size:72px_72px]" />
+    <div className={`relative w-full ${isEmbed ? "" : "min-h-screen bg-[#020202] text-white"} selection:bg-amber-500/30 flex flex-col overflow-x-hidden cursor-default`}>
+      {!isEmbed && <CubeBackground zIndex={0} disableLinesOnMobile />}
+      {!isEmbed && <SharedHeader />}
+      
+      {!isEmbed && (
+        <>
+          <div className="fixed inset-0 bg-[radial-gradient(circle_at_20%_18%,rgba(255,191,0,0.08)_0%,transparent_30%),radial-gradient(circle_at_82%_72%,rgba(255,140,0,0.045)_0%,transparent_34%),linear-gradient(180deg,rgba(0,0,0,0.2),#020202_88%)] pointer-events-none z-[1]" />
+          <div className="fixed inset-0 opacity-[0.06] pointer-events-none z-[1] bg-[linear-gradient(rgba(255,191,0,0.18)_1px,transparent_1px),linear-gradient(90deg,rgba(255,191,0,0.18)_1px,transparent_1px)] bg-[size:72px_72px]" />
+        </>
+      )}
 
       {toast && (
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}
@@ -554,6 +559,7 @@ export default function OnspotRegistrationPage() {
       )}
 
       {/* ─── HERO ─── */}
+      {!isEmbed && (
       <section className="relative z-10 pt-24 md:pt-32 pb-5 md:pb-7 text-center px-4">
         <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: "circOut" }}>
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-amber-400/30 bg-amber-400/[0.06] mb-5">
@@ -589,9 +595,10 @@ export default function OnspotRegistrationPage() {
           </motion.div>
         </motion.div>
       </section>
+      )}
 
       {/* ─── FORM ─── */}
-      <div className="relative z-10 max-w-3xl mx-auto w-full px-4 pb-16 md:pb-20">
+      <div className={`relative z-10 max-w-3xl mx-auto w-full px-4 pb-16 ${isEmbed ? "pt-6" : "md:pb-20"}`}>
         <motion.div
           initial={{ opacity: 0, y: 22 }}
           animate={{ opacity: 1, y: 0 }}
@@ -865,9 +872,13 @@ export default function OnspotRegistrationPage() {
         </motion.div>
       </div>
 
-      <Footer />
+      {!isEmbed && <Footer />}
     </div>
   );
+}
+
+export default function OnspotPage() {
+  return <OnspotForm />;
 }
 
 function AlreadyRegistered({ receipt }: { receipt: OnspotReceipt }) {

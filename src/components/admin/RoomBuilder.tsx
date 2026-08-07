@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import {
   Plus,
   Grid,
@@ -20,14 +20,31 @@ interface RoomBuilderProps {
   apiUrl: string;
   authToken: string;
   livePanelUpdate?: PanelUpdatedPayload | null;
+  panelistRole?: string;
 }
+
+const AVAILABLE_PANEL_ROLES = [
+  // Recruiting Offices
+  "Office of Creativity & Design",
+  "Office of Public & Corporate Relations",
+  "Office of Campus Ambassadors",
+  "Office of Content & Communications",
+  // Roles
+  "Marketing", "Photography and videograph", "Management", "General Member", "Mentors",
+  // Training & Projects
+  "App Development", "Web Development", "Game Development", "Design & UI/UX", "CyberSecurity", "DSA&CP", "Java", "AI/ML", "Data Analytics", "Data Analyst", "Blockchain", "IoT", "Linux",
+  // Research
+  "Medical Imaging", "Deep learning/ Machine learning", "Astronomy/Space technology", "Defence technology", "Game theory", "Finance and Economics", "Quantum", "Bio-Tech",
+  // Domains
+  "Internship Opportunities", "Higher Studies", "Events & Exhibitions", "Research & Publications", "Finance & Sponsorship", "Training Program", "Projects & Hackathons"
+];
 
 interface RoomWithPanels extends Room {
   panels: Panel[];
   gridDimensions: { rows: number; cols: number };
 }
 
-export default function RoomBuilder({ apiUrl, authToken, livePanelUpdate }: RoomBuilderProps) {
+export default function RoomBuilder({ apiUrl, authToken, livePanelUpdate, panelistRole }: RoomBuilderProps) {
   const [rooms, setRooms] = useState<RoomWithPanels[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -51,6 +68,15 @@ export default function RoomBuilder({ apiUrl, authToken, livePanelUpdate }: Room
     status: "empty",
     current_candidate_id: "",
   });
+
+  // Calculate unallocated roles
+  const allocatedRoles = useMemo(() => {
+    return rooms.flatMap(r => r.panels.map(p => p.name));
+  }, [rooms]);
+
+  const unallocatedRoles = useMemo(() => {
+    return AVAILABLE_PANEL_ROLES.filter(r => !allocatedRoles.includes(r)).sort();
+  }, [allocatedRoles]);
 
   // Fetch Rooms & Panels
   const fetchAllData = useCallback(async () => {
@@ -85,8 +111,30 @@ export default function RoomBuilder({ apiUrl, authToken, livePanelUpdate }: Room
             }
           })
         );
-        
-        setRooms(roomsWithPanels);
+        // Apply Panelist Filtering logic
+        if (panelistRole) {
+          const searchPhrase = (panelistRole.split(":")[1] || panelistRole).trim().toLowerCase();
+          const shortToLong: Record<string, string> = {
+            "osg": "office of strategy & growth",
+            "oti": "office of technology & innovation",
+            "ocd": "office of creativity & design",
+            "opcr": "office of public & corporate relations",
+            "oca": "office of campus ambassadors",
+            "occ": "office of content & communications",
+          };
+          const mappedSearchPhrase = shortToLong[searchPhrase] || searchPhrase;
+
+          const filteredRooms = roomsWithPanels.map((room) => {
+            const matchingPanels = room.panels.filter((p) => {
+              return p.name.toLowerCase().includes(mappedSearchPhrase) || mappedSearchPhrase.includes(p.name.toLowerCase());
+            });
+            return { ...room, panels: matchingPanels };
+          }).filter((room) => room.panels.length > 0); // Hide rooms that don't have this panelist's panels
+          
+          setRooms(filteredRooms);
+        } else {
+          setRooms(roomsWithPanels);
+        }
       } else {
         setError(data.message || "Failed to load rooms");
       }
@@ -108,9 +156,59 @@ export default function RoomBuilder({ apiUrl, authToken, livePanelUpdate }: Room
     return () => clearInterval(intervalId);
   }, [fetchAllData]);
 
+  const audioCtxRef = useRef<AudioContext | null>(null);
+
+  // Initialize AudioContext on first user interaction to bypass autoplay policies
+  useEffect(() => {
+    const initAudio = () => {
+      if (!audioCtxRef.current) {
+        const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+        if (AudioContext) {
+          audioCtxRef.current = new AudioContext();
+        }
+      }
+      if (audioCtxRef.current && audioCtxRef.current.state === "suspended") {
+        audioCtxRef.current.resume();
+      }
+    };
+    
+    document.addEventListener("click", initAudio);
+    return () => document.removeEventListener("click", initAudio);
+  }, []);
+
+  // Helper to play a tone reliably
+  const playTone = useCallback((status: string) => {
+    try {
+      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContext) return;
+      
+      const ctx = audioCtxRef.current || new AudioContext();
+      if (!audioCtxRef.current) audioCtxRef.current = ctx;
+      
+      if (ctx.state === "suspended") ctx.resume();
+      
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(status === "ongoing" ? 880 : 440, ctx.currentTime);
+      gain.gain.setValueAtTime(0.2, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.5);
+    } catch (e) {
+      console.error("Could not play audio tone", e);
+    }
+  }, []);
+
   // Handle SSE Live Panel Update
   useEffect(() => {
     if (!livePanelUpdate) return;
+    
+    // Play tone for incoming updates
+    playTone(livePanelUpdate.status);
+
     setRooms((prevRooms) => {
       return prevRooms.map((r) => {
         if (r.id === livePanelUpdate.room_id) {
@@ -140,6 +238,25 @@ export default function RoomBuilder({ apiUrl, authToken, livePanelUpdate }: Room
             if (p.grid_position_y > maxRow) maxRow = p.grid_position_y;
             if (p.grid_position_x > maxCol) maxCol = p.grid_position_x;
           });
+
+          // If panelistRole is set, only update if the new panel belongs to the panelist
+          if (panelistRole) {
+            const searchPhrase = (panelistRole.split(":")[1] || panelistRole).trim().toLowerCase();
+            const shortToLong: Record<string, string> = {
+              "osg": "office of strategy & growth",
+              "oti": "office of technology & innovation",
+              "ocd": "office of creativity & design",
+              "opcr": "office of public & corporate relations",
+              "oca": "office of campus ambassadors",
+              "occ": "office of content & communications",
+            };
+            const mappedSearchPhrase = shortToLong[searchPhrase] || searchPhrase;
+            
+            const matchingPanels = newPanels.filter((p) => {
+              return p.name.toLowerCase().includes(mappedSearchPhrase) || mappedSearchPhrase.includes(p.name.toLowerCase());
+            });
+            return { ...r, panels: matchingPanels, gridDimensions: { rows: maxRow + 1, cols: maxCol + 1 } };
+          }
 
           return { ...r, panels: newPanels, gridDimensions: { rows: maxRow + 1, cols: maxCol + 1 } };
         }
@@ -184,11 +301,9 @@ export default function RoomBuilder({ apiUrl, authToken, livePanelUpdate }: Room
   const handleOpenAddPanel = (roomId: number, x: number, y: number) => {
     setActiveRoomId(roomId);
     setEditingPanel(null);
-    const room = rooms.find(r => r.id === roomId);
-    const existingCount = room ? room.panels.length : 0;
     
     setPanelForm({
-      name: `Panel ${existingCount + 1}`,
+      name: "",
       grid_position_x: x,
       grid_position_y: y,
       status: "empty",
@@ -278,6 +393,10 @@ export default function RoomBuilder({ apiUrl, authToken, livePanelUpdate }: Room
   // Toggle Panel Status handler (View Mode)
   const handleTogglePanelStatus = async (panel: Panel) => {
     const newStatus = panel.status === "empty" ? "ongoing" : "empty";
+    
+    // Optimistically play tone on user click
+    playTone(newStatus);
+    
     try {
       const res = await fetch(`${apiUrl}/api/panels/${panel.id}`, {
         method: "PUT",
@@ -336,18 +455,20 @@ export default function RoomBuilder({ apiUrl, authToken, livePanelUpdate }: Room
           <h2 className="font-semibold text-gray-900 dark:text-white">Panel Rooms Overview</h2>
         </div>
         <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => setIsEditMode(!isEditMode)}
-            className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors ${
-              isEditMode
-                ? "bg-amber-100 text-amber-700 hover:bg-amber-200 dark:bg-amber-900/40 dark:text-amber-400 dark:hover:bg-amber-900/60"
-                : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-            }`}
-          >
-            <Settings size={14} />
-            {isEditMode ? "Exit Edit Mode" : "Edit Rooms"}
-          </button>
+          {!panelistRole && (
+            <button
+              type="button"
+              onClick={() => setIsEditMode(!isEditMode)}
+              className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors ${
+                isEditMode
+                  ? "bg-amber-100 text-amber-700 hover:bg-amber-200 dark:bg-amber-900/40 dark:text-amber-400 dark:hover:bg-amber-900/60"
+                  : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+              }`}
+            >
+              <Settings size={14} />
+              {isEditMode ? "Exit Edit Mode" : "Edit Rooms"}
+            </button>
+          )}
           
           <button
             type="button"
@@ -614,16 +735,22 @@ export default function RoomBuilder({ apiUrl, authToken, livePanelUpdate }: Room
             <form onSubmit={handleSavePanel} className="mt-4 space-y-4">
               <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Panel Name *
+                  Panel Role *
                 </label>
-                <input
-                  type="text"
+                <select
                   required
                   value={panelForm.name}
                   onChange={(e) => setPanelForm({ ...panelForm, name: e.target.value })}
-                  placeholder="e.g. Panel A1"
                   className="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-900 outline-none focus:border-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                />
+                >
+                  <option value="" disabled>Select an unallocated role...</option>
+                  {editingPanel && !unallocatedRoles.includes(editingPanel.name) && (
+                    <option value={editingPanel.name}>{editingPanel.name}</option>
+                  )}
+                  {unallocatedRoles.map(r => (
+                    <option key={r} value={r}>{r}</option>
+                  ))}
+                </select>
               </div>
 
               <div className="grid grid-cols-2 gap-4">

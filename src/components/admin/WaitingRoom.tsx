@@ -212,8 +212,17 @@ export default function WaitingRoom({ apiUrl, authToken, liveCandidateStatusUpda
 
   // Filtered Candidates computation
   const filteredCandidates = useMemo(() => {
+    const assignedCandidateIds = new Set(
+      availablePanels
+        .filter((p) => p.current_candidate_id)
+        .map((p) => Number(p.current_candidate_id))
+    );
+
     const query = search.toLowerCase().trim();
     return candidates.filter((c) => {
+      // Hide candidates who are currently assigned to an ongoing panel
+      if (assignedCandidateIds.has(c.id)) return false;
+
       const matchesSearch =
         !query ||
         c.full_name.toLowerCase().includes(query) ||
@@ -232,7 +241,7 @@ export default function WaitingRoom({ apiUrl, authToken, liveCandidateStatusUpda
         
       return matchesSearch && matchesDomain && matchesFixedDomain;
     });
-  }, [candidates, search, domainFilter, fixedDomainFilter]);
+  }, [candidates, search, domainFilter, fixedDomainFilter, availablePanels]);
 
   const uniqueDomains = useMemo(() => {
     return Array.from(
