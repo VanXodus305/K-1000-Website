@@ -6,6 +6,7 @@ import {
   CheckCircle2,
   ClipboardCheck,
   Filter,
+  Plus,
   Search,
   ShieldCheck,
   Users,
@@ -69,13 +70,15 @@ type Interview = {
   criteria?: Criterion[];
 };
 
-type Tab = "registrations" | "interviews" | "room_builder" | "waiting_room";
+type Tab = "registrations" | "interviews" | "room_builder" | "waiting_room" | "ongoing" | "new_registration";
 
 const tabLabels: Record<Tab, string> = {
   registrations: "Registrations",
   interviews: "Interviews",
   room_builder: "Panel Room Builder",
   waiting_room: "Waiting Room",
+  ongoing: "Ongoing",
+  new_registration: "New Registration",
 };
 
 const domainLabels: Record<string, string> = {};
@@ -539,6 +542,8 @@ export default function AdminPage() {
     { key: "interviews", label: "Interviews", icon: <ClipboardCheck size={16} /> },
     { key: "room_builder", label: "Panel Room Builder", icon: <Grid size={16} /> },
     { key: "waiting_room", label: "Waiting Room", icon: <Clock size={16} /> },
+    { key: "ongoing", label: "Ongoing", icon: <Radio size={16} /> },
+    { key: "new_registration", label: "New Registration", icon: <Plus size={16} /> },
   ];
 
   return (
@@ -557,23 +562,7 @@ export default function AdminPage() {
             </p>
 
             <form onSubmit={handleSubmit} className="mt-8 space-y-5">
-              <div className="grid grid-cols-2 gap-1.5 rounded-xl bg-gray-100 p-1 dark:bg-gray-800">
-                {tabsList.map((item) => (
-                  <button
-                    key={item.key}
-                    type="button"
-                    onClick={() => setTab(item.key)}
-                    className={`flex items-center justify-center gap-1.5 rounded-lg px-2.5 py-2 text-xs font-medium transition-all ${
-                      tab === item.key
-                        ? "bg-white text-gray-900 shadow-sm dark:bg-gray-700 dark:text-white"
-                        : "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
-                    }`}
-                  >
-                    {item.icon}
-                    <span>{item.label}</span>
-                  </button>
-                ))}
-              </div>
+
 
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -710,11 +699,16 @@ export default function AdminPage() {
             )}
           </div>
 
-          {/* Tab Content Display */}
           {tab === "room_builder" ? (
             <RoomBuilder apiUrl={API} authToken={password} livePanelUpdate={lastPanelUpdate} />
           ) : tab === "waiting_room" ? (
             <WaitingRoom apiUrl={API} authToken={password} liveCandidateStatusUpdate={lastCandidateStatusUpdate} />
+          ) : tab === "ongoing" ? (
+            <div className="p-8 text-center text-gray-500">Ongoing tab content coming soon</div>
+          ) : tab === "new_registration" ? (
+            <div className="h-[800px] w-full overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
+              <iframe src="/onspot" className="h-full w-full border-none" title="Registration App" />
+            </div>
           ) : (
             <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
               <FilterBar

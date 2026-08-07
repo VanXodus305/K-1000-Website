@@ -21,6 +21,7 @@ interface WaitingRoomProps {
   apiUrl: string;
   authToken: string;
   liveCandidateStatusUpdate?: CandidateStatusUpdatedPayload | null;
+  fixedDomainFilter?: string;
 }
 
 const domainLabels: Record<string, string> = {};
@@ -55,7 +56,7 @@ function formatRelativeTime(dateString: string) {
   }).format(date);
 }
 
-export default function WaitingRoom({ apiUrl, authToken, liveCandidateStatusUpdate }: WaitingRoomProps) {
+export default function WaitingRoom({ apiUrl, authToken, liveCandidateStatusUpdate, fixedDomainFilter }: WaitingRoomProps) {
   const [candidates, setCandidates] = useState<WaitingCandidate[]>([]);
   const [availablePanels, setAvailablePanels] = useState<Panel[]>([]);
   const [selectedPanels, setSelectedPanels] = useState<Record<number, number>>({});
@@ -221,9 +222,17 @@ export default function WaitingRoom({ apiUrl, authToken, liveCandidateStatusUpda
         String(c.id).includes(query);
       const matchesDomain =
         !domainFilter || getDomainList(c.domain_choice).includes(domainFilter);
-      return matchesSearch && matchesDomain;
+      
+      let matchesFixedDomain = true;
+      if (fixedDomainFilter) {
+        const fullCandidateDomainStr = `${c.domain_choice} ${c.sub_domains || ""}`.toLowerCase();
+        const searchPhrase = (fixedDomainFilter.split(":")[1] || fixedDomainFilter).trim().toLowerCase();
+        matchesFixedDomain = fullCandidateDomainStr.includes(searchPhrase) || (c.domain_choice.toLowerCase() === searchPhrase);
+      }
+        
+      return matchesSearch && matchesDomain && matchesFixedDomain;
     });
-  }, [candidates, search, domainFilter]);
+  }, [candidates, search, domainFilter, fixedDomainFilter]);
 
   const uniqueDomains = useMemo(() => {
     return Array.from(

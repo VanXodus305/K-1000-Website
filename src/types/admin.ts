@@ -31,6 +31,7 @@ export interface WaitingCandidate {
   academic_year?: string;
   course?: string;
   domain_choice: string;
+  sub_domains?: string;
   motivation?: string;
   experience?: string;
   skills?: string[];
