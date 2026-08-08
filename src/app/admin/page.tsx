@@ -705,6 +705,29 @@ export default function AdminPage() {
             </section>
           )}
 
+          {/* Domain Breakdown for Interviews */}
+          {tab === "interviews" && interviews && (
+            <section className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+              {Object.entries(
+                interviews.reduce((acc, curr) => {
+                  const rawDomain = curr.panelist_domain || curr.domain_choice;
+                  const domain = getDomainList(rawDomain)[0] || "Unknown";
+                  acc[domain] = (acc[domain] || 0) + 1;
+                  return acc;
+                }, {} as Record<string, number>)
+              )
+                .sort((a, b) => b[1] - a[1])
+                .map(([domain, count]) => (
+                  <div key={domain} className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                    <p className="truncate text-xs font-medium text-gray-500 dark:text-gray-400" title={getDomainLabel(domain)}>
+                      {getDomainLabel(domain)}
+                    </p>
+                    <p className="mt-1 font-mono text-xl font-bold text-gray-900 dark:text-white">{count}</p>
+                  </div>
+                ))}
+            </section>
+          )}
+
           {/* Navigation Tabs Bar */}
           <div className="mb-6 flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-3 shadow-sm dark:border-gray-800 dark:bg-gray-900 md:flex-row md:items-center md:justify-between">
             <div className="flex flex-wrap gap-2 rounded-xl bg-gray-100 p-1 dark:bg-gray-800">
