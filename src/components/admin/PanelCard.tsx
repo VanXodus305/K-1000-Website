@@ -87,7 +87,7 @@ export default function PanelCard({ panel, onEdit, onDelete, onAssignCandidate, 
 
       {/* Action Buttons Footer */}
       <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-3 dark:border-gray-800/60">
-        {!isEditMode && onToggleStatus && (
+        {onToggleStatus && (
           <button
             type="button"
             onClick={() => onToggleStatus(panel)}
