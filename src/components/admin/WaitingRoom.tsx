@@ -323,7 +323,17 @@ export default function WaitingRoom({ apiUrl, authToken, liveCandidateStatusUpda
       if (fixedDomainFilter) {
         const fullCandidateDomainStr = `${c.domain_choice} ${c.sub_domains || ""}`.toLowerCase();
         const searchPhrase = (fixedDomainFilter.split(":")[1] || fixedDomainFilter).trim().toLowerCase();
-        matchesFixedDomain = fullCandidateDomainStr.includes(searchPhrase) || (c.domain_choice.toLowerCase() === searchPhrase);
+        const shortToLong: Record<string, string> = {
+          "osg": "office of strategy & growth",
+          "oti": "office of technology & innovation",
+          "ocd": "office of creativity & design",
+          "opcr": "office of public & corporate relations",
+          "oca": "office of campus ambassadors",
+          "occ": "office of content & communications",
+        };
+        const mappedSearchPhrase = shortToLong[searchPhrase] || searchPhrase;
+        
+        matchesFixedDomain = fullCandidateDomainStr.includes(searchPhrase) || fullCandidateDomainStr.includes(mappedSearchPhrase) || (c.domain_choice.toLowerCase() === searchPhrase) || (c.domain_choice.toLowerCase() === mappedSearchPhrase);
       }
         
       return matchesSearch && matchesDomain && matchesFixedDomain;
@@ -337,8 +347,31 @@ export default function WaitingRoom({ apiUrl, authToken, liveCandidateStatusUpda
   }, [unassignedCandidates]);
 
   const emptyPanels = useMemo(() => {
-    return availablePanels.filter((p) => p.status === "empty");
-  }, [availablePanels]);
+    return availablePanels.filter((p) => {
+      if (p.status !== "empty") return false;
+      
+      if (fixedDomainFilter) {
+        if (p.name === fixedDomainFilter) return true;
+        
+        // Legacy fallback for non-colon panels
+        if (!p.name.includes(":")) {
+          const searchPhrase = (fixedDomainFilter.split(":")[1] || fixedDomainFilter).trim().toLowerCase();
+          const shortToLong: Record<string, string> = {
+            "osg": "office of strategy & growth",
+            "oti": "office of technology & innovation",
+            "ocd": "office of creativity & design",
+            "opcr": "office of public & corporate relations",
+            "oca": "office of campus ambassadors",
+            "occ": "office of content & communications",
+          };
+          const mappedSearchPhrase = shortToLong[searchPhrase] || searchPhrase;
+          return p.name.toLowerCase().includes(mappedSearchPhrase) || mappedSearchPhrase.includes(p.name.toLowerCase());
+        }
+        return false;
+      }
+      return true;
+    });
+  }, [availablePanels, fixedDomainFilter]);
 
   return (
     <div className="space-y-6">
