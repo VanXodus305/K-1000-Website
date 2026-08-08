@@ -401,6 +401,7 @@ function InterviewTable({ interviews }: { interviews: Interview[] }) {
               <div>
                 <p className="font-mono text-xs text-blue-600 dark:text-blue-400">#{interview.id}</p>
                 <h3 className="mt-1 font-medium text-gray-900 dark:text-white">{interview.full_name}</h3>
+                <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{interview.roll_number}</p>
               </div>
               <StatusBadge status={interview.status} />
             </div>
