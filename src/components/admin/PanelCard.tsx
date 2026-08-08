@@ -11,9 +11,10 @@ interface PanelCardProps {
   onAssignCandidate?: (panel: Panel) => void;
   onToggleStatus?: (panel: Panel) => void;
   isEditMode?: boolean;
+  roomName?: string;
 }
 
-export default function PanelCard({ panel, onEdit, onDelete, onAssignCandidate, onToggleStatus, isEditMode }: PanelCardProps) {
+export default function PanelCard({ panel, onEdit, onDelete, onAssignCandidate, onToggleStatus, isEditMode, roomName }: PanelCardProps) {
   const isOngoing = panel.status === "ongoing";
 
   return (
@@ -51,9 +52,10 @@ export default function PanelCard({ panel, onEdit, onDelete, onAssignCandidate, 
           </span>
         </div>
 
-        <p className="mt-1 font-mono text-[11px] text-gray-500 dark:text-gray-400">
-          Grid: ({panel.grid_position_x}, {panel.grid_position_y})
-        </p>
+        <div className="mt-1 flex items-center justify-between font-mono text-[11px] text-gray-500 dark:text-gray-400">
+          <p>Grid: ({panel.grid_position_x}, {panel.grid_position_y})</p>
+          {roomName && <p>Room: {roomName}</p>}
+        </div>
 
         {/* Candidate Info Box */}
         <div

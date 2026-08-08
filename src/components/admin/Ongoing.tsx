@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { Radio, ShieldAlert } from "lucide-react";
-import { Panel, PanelUpdatedPayload } from "../../types/admin";
+import { Panel, PanelUpdatedPayload, Room } from "../../types/admin";
 import PanelCard from "./PanelCard";
 
 interface OngoingProps {
@@ -13,38 +13,46 @@ interface OngoingProps {
 
 export default function Ongoing({ apiUrl, authToken, livePanelUpdate }: OngoingProps) {
   const [panels, setPanels] = useState<Panel[]>([]);
+  const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const fetchPanels = useCallback(async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${apiUrl}/api/panels`, {
-        headers: { Authorization: authToken },
-      });
-      const data = await res.json();
-      if (data.success && Array.isArray(data.data)) {
-        setPanels(data.data);
+      const [panelsRes, roomsRes] = await Promise.all([
+        fetch(`${apiUrl}/api/panels`, { headers: { Authorization: authToken } }),
+        fetch(`${apiUrl}/api/rooms`, { headers: { Authorization: authToken } }),
+      ]);
+      const panelsData = await panelsRes.json();
+      const roomsData = await roomsRes.json();
+
+      if (panelsData.success && Array.isArray(panelsData.data)) {
+        setPanels(panelsData.data);
       } else {
-        setError(data.message || "Failed to fetch panels");
+        setError(panelsData.message || "Failed to fetch panels");
+      }
+
+      if (roomsData.success && Array.isArray(roomsData.data)) {
+        setRooms(roomsData.data);
       }
     } catch {
-      setError("Network error fetching panels");
+      setError("Network error fetching data");
     } finally {
       setLoading(false);
     }
   }, [apiUrl, authToken]);
 
   useEffect(() => {
-    fetchPanels();
+    fetchData();
 
     // Fallback polling interval (since Vercel Serverless doesn't support SSE)
     const intervalId = setInterval(() => {
-      fetchPanels();
+      fetchData();
     }, 5000);
 
     return () => clearInterval(intervalId);
-  }, [fetchPanels]);
+  }, [fetchData]);
 
   useEffect(() => {
     if (!livePanelUpdate) return;
@@ -59,18 +67,6 @@ export default function Ongoing({ apiUrl, authToken, livePanelUpdate }: OngoingP
           candidate_name: livePanelUpdate.candidate_name,
         };
         return newPanels;
-      } else if (livePanelUpdate.status === "ongoing") {
-        // Newly ongoing panel
-        return [...prev, {
-          id: livePanelUpdate.id,
-          room_id: livePanelUpdate.room_id,
-          name: livePanelUpdate.name || "Unknown Panel",
-          grid_position_x: 0,
-          grid_position_y: 0,
-          status: "ongoing",
-          current_candidate_id: livePanelUpdate.current_candidate_id,
-          candidate_name: livePanelUpdate.candidate_name,
-        }];
       }
       return prev;
     });
@@ -79,24 +75,19 @@ export default function Ongoing({ apiUrl, authToken, livePanelUpdate }: OngoingP
   const ongoingPanels = panels.filter((p) => p.status === "ongoing");
 
   const handleToggleStatus = async (panel: Panel) => {
+    const newStatus = panel.status === "ongoing" ? "empty" : "ongoing";
     try {
-      const newStatus = panel.status === "ongoing" ? "empty" : "ongoing";
-      const payload: any = { status: newStatus };
-      if (newStatus === "empty") {
-        payload.current_candidate_id = null;
-      }
-
       const res = await fetch(`${apiUrl}/api/panels/${panel.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: authToken,
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ status: newStatus }),
       });
       const data = await res.json();
-      if (data.success) {
-        fetchPanels();
+      if (!data.success) {
+        setError(data.message || "Failed to update panel status");
       }
     } catch (err) {
       console.error(err);
@@ -142,7 +133,7 @@ export default function Ongoing({ apiUrl, authToken, livePanelUpdate }: OngoingP
                   <p className="truncate text-xs font-medium text-gray-500 dark:text-gray-400" title={domain}>
                     {domain}
                   </p>
-                  <p className="mt-1 font-mono text-lg font-bold text-gray-900 dark:text-white">{count}</p>
+                  <p className="mt-1 font-mono text-lg font-bold text-gray-900 dark:bg-white">{count}</p>
                 </div>
               ))}
             </div>
@@ -158,13 +149,17 @@ export default function Ongoing({ apiUrl, authToken, livePanelUpdate }: OngoingP
 
       {ongoingPanels.length > 0 ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {ongoingPanels.map((panel) => (
-            <PanelCard
-              key={panel.id}
-              panel={panel}
-              onToggleStatus={handleToggleStatus}
-            />
-          ))}
+          {ongoingPanels.map((panel) => {
+            const room = rooms.find(r => r.id === panel.room_id);
+            return (
+              <PanelCard
+                key={panel.id}
+                panel={panel}
+                roomName={room?.name}
+                onToggleStatus={handleToggleStatus}
+              />
+            );
+          })}
         </div>
       ) : (
         <div className="flex min-h-[300px] flex-col items-center justify-center rounded-2xl border border-dashed border-gray-300 bg-gray-50 text-center dark:border-gray-800 dark:bg-gray-900/50">
