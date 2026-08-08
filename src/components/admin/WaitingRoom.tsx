@@ -93,9 +93,20 @@ export default function WaitingRoom({ apiUrl, authToken, liveCandidateStatusUpda
         });
         const updateData = await updateRes.json();
         if (updateData.success) {
+          // Free the candidate from any ghost panels they might be stuck in
+          const ghostPanels = availablePanels.filter(p => p.current_candidate_id === candidateId);
+          for (const p of ghostPanels) {
+            await fetch(`${apiUrl}/api/panels/${p.id}`, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json", Authorization: authToken },
+              body: JSON.stringify({ status: "empty", current_candidate_id: null })
+            });
+          }
+
           setSuccessMessage(`Candidate ${rollData.data.full_name} added to waiting queue.`);
           setManualRoll("");
           fetchWaitingCandidates();
+          if (ghostPanels.length > 0) fetchPanels();
         } else {
           setError(updateData.message || "Failed to update status to waiting.");
         }
