@@ -67,6 +67,46 @@ export default function WaitingRoom({ apiUrl, authToken, liveCandidateStatusUpda
 
   const [search, setSearch] = useState("");
   const [domainFilter, setDomainFilter] = useState("");
+  
+  const [manualRoll, setManualRoll] = useState("");
+  const [isAdding, setIsAdding] = useState(false);
+
+  const handleAddManual = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!manualRoll.trim()) return;
+    setIsAdding(true);
+    setError("");
+    setSuccessMessage("");
+    try {
+      const rollRes = await fetch(`${apiUrl}/api/registration/by-roll/${manualRoll.trim()}`, { 
+        headers: { Authorization: authToken } 
+      });
+      const rollData = await rollRes.json();
+      
+      if (rollData.success && rollData.data) {
+        const candidateId = rollData.data.id;
+        const updateRes = await fetch(`${apiUrl}/api/registration/${candidateId}/status`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json", Authorization: authToken },
+          body: JSON.stringify({ status: "waiting" })
+        });
+        const updateData = await updateRes.json();
+        if (updateData.success) {
+          setSuccessMessage(`Candidate ${rollData.data.full_name} added to waiting queue.`);
+          setManualRoll("");
+          fetchWaitingCandidates();
+        } else {
+          setError(updateData.message || "Failed to update status to waiting.");
+        }
+      } else {
+        setError(rollData.message || "Candidate not found with this roll number.");
+      }
+    } catch {
+      setError("Network error while adding candidate manually.");
+    } finally {
+      setIsAdding(false);
+    }
+  };
 
   // Fetch Waiting Candidates from REST API
   const fetchWaitingCandidates = useCallback(async () => {
@@ -364,6 +404,22 @@ export default function WaitingRoom({ apiUrl, authToken, liveCandidateStatusUpda
           </div>
 
           <div className="flex items-center gap-3">
+            <form onSubmit={handleAddManual} className="flex items-center gap-2">
+              <input
+                type="text"
+                placeholder="Roll Number"
+                value={manualRoll}
+                onChange={(e) => setManualRoll(e.target.value)}
+                className="w-32 rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+              />
+              <button
+                type="submit"
+                disabled={isAdding || !manualRoll.trim()}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-amber-500 px-3 py-2 text-xs font-medium text-white transition-all hover:bg-amber-600 active:scale-95 disabled:opacity-50"
+              >
+                {isAdding ? "Adding..." : "+ Add"}
+              </button>
+            </form>
             <button
               type="button"
               onClick={() => {
