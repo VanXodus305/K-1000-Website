@@ -124,7 +124,6 @@ export default function Ongoing({ apiUrl, authToken, livePanelUpdate }: OngoingP
               panel={panel}
               onEdit={() => {}}
               onDelete={() => {}}
-              onToggleStatus={handleToggleStatus}
             />
           ))}
         </div>
