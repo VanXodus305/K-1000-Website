@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import {
   Users,
   Search,
@@ -171,6 +171,12 @@ export default function WaitingRoom({ apiUrl, authToken, liveCandidateStatusUpda
     return () => clearInterval(intervalId);
   }, [fetchWaitingCandidates, fetchPanels]);
 
+  // Use a ref to keep track of latest available panels without triggering effect re-runs
+  const availablePanelsRef = useRef(availablePanels);
+  useEffect(() => {
+    availablePanelsRef.current = availablePanels;
+  }, [availablePanels]);
+
   // Handle Live Candidate Status Update via SSE
   useEffect(() => {
     if (!liveCandidateStatusUpdate) return;
@@ -178,7 +184,7 @@ export default function WaitingRoom({ apiUrl, authToken, liveCandidateStatusUpda
     if (liveCandidateStatusUpdate.status === "waiting") {
       // Auto-purge the candidate from any ghost panels if they were scanned in from the mobile app
       // to ensure they don't get hidden by the assignedCandidateIds filter.
-      const ghostPanels = availablePanels.filter(p => Number(p.current_candidate_id) === liveCandidateStatusUpdate.id);
+      const ghostPanels = availablePanelsRef.current.filter(p => Number(p.current_candidate_id) === liveCandidateStatusUpdate.id);
       if (ghostPanels.length > 0) {
         ghostPanels.forEach(p => {
           fetch(`${apiUrl}/api/panels/${p.id}`, {
