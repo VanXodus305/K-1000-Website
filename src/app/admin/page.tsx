@@ -377,7 +377,14 @@ function InterviewTable({ interviews }: { interviews: Interview[] }) {
                   <p className="text-gray-900 dark:text-white">{interview.panelist_name}</p>
                   <p className="mt-1 text-xs text-gray-500">{interview.panelist_roll} · {interview.panelist_branch}</p>
                 </td>
-                <td className="px-6 py-4"><DomainBadges value={interview.domain_choice} /></td>
+                <td className="px-6 py-4">
+                  <DomainBadges value={interview.panelist_domain || interview.domain_choice} />
+                  {interview.panelist_domain && interview.domain_choice && interview.domain_choice !== interview.panelist_domain && (
+                    <p className="mt-1 text-[10px] text-gray-400">
+                      Also applied: <span className="font-medium text-gray-500">{interview.domain_choice.split(',').filter(d => d.trim() !== interview.panelist_domain).join(', ')}</span>
+                    </p>
+                  )}
+                </td>
                 <td className="px-6 py-4"><InterviewScore interview={interview} /></td>
                 <td className="px-6 py-4"><StatusBadge status={interview.status} /></td>
                 <td className="px-6 py-4 text-xs text-gray-500">{formatDate(interview.created_at)}</td>
@@ -407,7 +414,14 @@ function InterviewTable({ interviews }: { interviews: Interview[] }) {
                 <div className="mt-1"><InterviewScore interview={interview} /></div>
               </div>
             </div>
-            <div className="mt-3"><DomainBadges value={interview.domain_choice} /></div>
+            <div className="mt-3">
+              <DomainBadges value={interview.panelist_domain || interview.domain_choice} />
+              {interview.panelist_domain && interview.domain_choice && interview.domain_choice !== interview.panelist_domain && (
+                <p className="mt-1 text-[10px] text-gray-400">
+                  Also applied: <span className="font-medium text-gray-500">{interview.domain_choice.split(',').filter(d => d.trim() !== interview.panelist_domain).join(', ')}</span>
+                </p>
+              )}
+            </div>
             <p className="mt-3 text-right text-xs text-gray-500">{formatDate(interview.created_at)}</p>
           </article>
         ))}
