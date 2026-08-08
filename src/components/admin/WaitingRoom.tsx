@@ -225,8 +225,23 @@ export default function WaitingRoom({ apiUrl, authToken, liveCandidateStatusUpda
       });
       const dataPanel = await resPanel.json();
 
-      // Update Candidate status to "interviewed" or "in_interview"
-      await fetch(`${apiUrl}/api/registration/${candidateId}/status`, {
+      if (dataPanel.success) {
+        setSuccessMessage(
+          `Candidate "${candidate?.full_name || candidateId}" assigned to ${panel?.name || "Panel"}.`
+        );
+        fetchPanels();
+      } else {
+        setError(dataPanel.message || "Failed to assign candidate to panel.");
+      }
+    } catch {
+      setError("Network error performing panel assignment.");
+    }
+  };
+
+  // Permanently remove candidate from waiting queue
+  const handleMarkAsDone = async (candidateId: number) => {
+    try {
+      const res = await fetch(`${apiUrl}/api/registration/${candidateId}/status`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -234,19 +249,15 @@ export default function WaitingRoom({ apiUrl, authToken, liveCandidateStatusUpda
         },
         body: JSON.stringify({ status: "interviewed" }),
       });
-
-      if (dataPanel.success) {
-        setSuccessMessage(
-          `Candidate "${candidate?.full_name || candidateId}" assigned to ${panel?.name || "Panel"}.`
-        );
-        // Remove assigned candidate from local queue
+      const data = await res.json();
+      if (data.success) {
+        setSuccessMessage(`Candidate #${candidateId} marked as completely done.`);
         setCandidates((prev) => prev.filter((c) => c.id !== candidateId));
-        fetchPanels();
       } else {
-        setError(dataPanel.message || "Failed to assign candidate to panel.");
+        setError(data.message || "Failed to mark candidate as done.");
       }
     } catch {
-      setError("Network error performing panel assignment.");
+      setError("Network error marking candidate as done.");
     }
   };
 
@@ -528,35 +539,39 @@ export default function WaitingRoom({ apiUrl, authToken, liveCandidateStatusUpda
                         <select
                           value={selectedPanels[c.id] || ""}
                           onChange={(e) =>
-                            setSelectedPanels({
-                              ...selectedPanels,
+                            setSelectedPanels((prev) => ({
+                              ...prev,
                               [c.id]: Number(e.target.value),
-                            })
+                            }))
                           }
-                          className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs text-gray-900 outline-none focus:border-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                          className="w-40 rounded-lg border border-gray-300 bg-white py-1.5 pl-3 pr-8 text-xs text-gray-900 outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                         >
-                          <option value="">Select Panel...</option>
+                          <option value="" disabled>
+                            Select Panel
+                          </option>
                           {emptyPanels.map((p) => (
                             <option key={p.id} value={p.id}>
-                              {p.name} (Empty)
+                              {p.name}
                             </option>
                           ))}
-                          {availablePanels
-                            .filter((p) => p.status === "ongoing")
-                            .map((p) => (
-                              <option key={p.id} value={p.id}>
-                                {p.name} (Ongoing)
-                              </option>
-                            ))}
                         </select>
-
                         <button
                           type="button"
                           onClick={() => handleAssignToPanel(c.id)}
                           disabled={!selectedPanels[c.id]}
-                          className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+                          className="inline-flex items-center gap-1.5 rounded-lg bg-cyan-600 px-3 py-1.5 text-xs font-medium text-white transition-all hover:bg-cyan-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
                         >
-                          <CheckCircle2 size={13} /> Assign
+                          <CheckCircle2 size={14} />
+                          Assign
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleMarkAsDone(c.id)}
+                          title="Mark as completely done (remove from queue)"
+                          className="inline-flex items-center gap-1.5 rounded-lg bg-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 transition-all hover:bg-gray-300 active:scale-95 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                        >
+                          <X size={14} />
+                          Done
                         </button>
                       </div>
                     </td>

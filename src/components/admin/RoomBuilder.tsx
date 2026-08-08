@@ -24,19 +24,50 @@ interface RoomBuilderProps {
 }
 
 const AVAILABLE_PANEL_ROLES = [
-  // Recruiting Offices
-  "Office of Creativity & Design",
-  "Office of Public & Corporate Relations",
-  "Office of Campus Ambassadors",
-  "Office of Content & Communications",
-  // Roles
-  "Marketing", "Photography and videograph", "Management", "General Member", "Mentors",
-  // Training & Projects
-  "App Development", "Web Development", "Game Development", "Design & UI/UX", "CyberSecurity", "DSA&CP", "Java", "AI/ML", "Data Analytics", "Data Analyst", "Blockchain", "IoT", "Linux",
-  // Research
-  "Medical Imaging", "Deep learning/ Machine learning", "Astronomy/Space technology", "Defence technology", "Game theory", "Finance and Economics", "Quantum", "Bio-Tech",
-  // Domains
-  "Internship Opportunities", "Higher Studies", "Events & Exhibitions", "Research & Publications", "Finance & Sponsorship", "Training Program", "Projects & Hackathons"
+  "Internship: General Member",
+  "Internship: Management",
+  "Higher: General Member",
+  "Higher: Management",
+  "Events: General Member",
+  "Events: Marketing",
+  "Events: Photography and videograph",
+  "Projects: Mentors",
+  "Projects: Management",
+  "Projects: General Member",
+  "Projects: AI/ML",
+  "Projects: Data Analyst",
+  "Projects: IoT",
+  "Projects: Linux",
+  "Projects: Java",
+  "Projects: Blockchain",
+  "Projects: Web Development",
+  "Projects: Data Analytics",
+  "Training: General Member",
+  "Training: App Development",
+  "Training: Web Development",
+  "Training: Game Development",
+  "Training: Design & UI/UX",
+  "Training: CyberSecurity",
+  "Training: DSA&CP",
+  "Training: Java",
+  "Training: AI/ML",
+  "Training: Data Analytics",
+  "Research: Medical Imaging",
+  "Research: Deep learning/ Machine learning",
+  "Research: Astronomy/Space technology",
+  "Research: Defence technology",
+  "Research: Game theory",
+  "Research: Finance and Economics",
+  "Research: Quantum",
+  "Research: Bio-Tech",
+  "Finance: General Member",
+  "Finance: Management",
+  "Office: OSG",
+  "Office: OTI",
+  "Office: OCD",
+  "Office: OPCR",
+  "Office: OCA",
+  "Office: OCC"
 ];
 
 interface RoomWithPanels extends Room {
