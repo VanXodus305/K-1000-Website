@@ -17,6 +17,7 @@ export interface Panel {
   status: "empty" | "ongoing" | string;
   current_candidate_id?: number | null;
   candidate_name?: string | null;
+  candidate_roll?: string | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -59,6 +60,7 @@ export interface PanelUpdatedPayload {
   status: "empty" | "ongoing" | string;
   current_candidate_id?: number | null;
   candidate_name?: string;
+  candidate_roll?: string;
   updated_at?: string;
 }
 

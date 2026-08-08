@@ -578,6 +578,9 @@ export default function WaitingRoom({ apiUrl, authToken, liveCandidateStatusUpda
                     </td>
                     <td className="px-6 py-4">
                       <p className="font-semibold text-gray-900 dark:text-white">{c.full_name}</p>
+                      <p className="mt-0.5 text-xs font-mono font-medium text-amber-600 dark:text-amber-400">
+                        {c.kiit_email?.split('@')[0] || "No Roll"}
+                      </p>
                       <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{c.kiit_email}</p>
                       {c.academic_year && (
                         <p className="mt-0.5 text-[11px] text-gray-400">

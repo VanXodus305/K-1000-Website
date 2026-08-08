@@ -72,6 +72,11 @@ export default function PanelCard({ panel, onEdit, onDelete, onAssignCandidate, 
               <p className="font-semibold text-gray-900 dark:text-white">
                 {panel.candidate_name || `Candidate #${panel.current_candidate_id}`}
               </p>
+              {panel.candidate_roll && (
+                <p className="font-mono text-[11px] font-medium text-cyan-600 dark:text-cyan-400">
+                  {panel.candidate_roll}
+                </p>
+              )}
               <p className="font-mono text-[11px] text-gray-400">
                 ID: #{panel.current_candidate_id}
               </p>
