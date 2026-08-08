@@ -291,17 +291,18 @@ export default function WaitingRoom({ apiUrl, authToken, liveCandidateStatusUpda
   };
 
   // Filtered Candidates computation
-  const filteredCandidates = useMemo(() => {
+  const unassignedCandidates = useMemo(() => {
     const assignedCandidateIds = new Set(
       availablePanels
         .filter((p) => p.current_candidate_id)
         .map((p) => Number(p.current_candidate_id))
     );
+    return candidates.filter(c => !assignedCandidateIds.has(c.id));
+  }, [candidates, availablePanels]);
 
+  const filteredCandidates = useMemo(() => {
     const query = search.toLowerCase().trim();
-    return candidates.filter((c) => {
-      // Hide candidates who are currently assigned to an ongoing panel
-      if (assignedCandidateIds.has(c.id)) return false;
+    return unassignedCandidates.filter((c) => {
 
       const matchesSearch =
         !query ||
@@ -325,9 +326,9 @@ export default function WaitingRoom({ apiUrl, authToken, liveCandidateStatusUpda
 
   const uniqueDomains = useMemo(() => {
     return Array.from(
-      new Set(candidates.flatMap((c) => getDomainList(c.domain_choice)))
+      new Set(unassignedCandidates.flatMap((c) => getDomainList(c.domain_choice)))
     ).sort();
-  }, [candidates]);
+  }, [unassignedCandidates]);
 
   const emptyPanels = useMemo(() => {
     return availablePanels.filter((p) => p.status === "empty");
@@ -344,7 +345,7 @@ export default function WaitingRoom({ apiUrl, authToken, liveCandidateStatusUpda
                 Waiting Candidates
               </p>
               <p className="mt-2 font-mono text-3xl font-bold text-amber-500 dark:text-amber-400">
-                {candidates.length}
+                {unassignedCandidates.length}
               </p>
               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Active in queue</p>
             </div>
@@ -439,7 +440,7 @@ export default function WaitingRoom({ apiUrl, authToken, liveCandidateStatusUpda
               Live Waiting Queue
             </h2>
             <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
-              {candidates.length} Waiting
+              {unassignedCandidates.length} Waiting
             </span>
           </div>
 

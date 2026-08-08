@@ -49,7 +49,7 @@ const panelistGroups = [
   "Training: Web Development",
   "Training: Game Development",
   "Training: Design & UI/UX",
-  "Training: CyberSecurity",
+  "Training: Cyber Security",
   "Training: DSA&CP",
   "Training: Java",
   "Training: AI/ML",
