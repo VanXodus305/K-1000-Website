@@ -289,6 +289,7 @@ type OnspotFormData = {
   phone: string;
   kiit_email: string;
   gender: string;
+  date_of_birth: string;
   academic_year: string;
   course: string;
   domain_choice: string;
@@ -302,6 +303,7 @@ const initialForm: OnspotFormData = {
   phone: "",
   kiit_email: "",
   gender: "",
+  date_of_birth: "",
   academic_year: "",
   course: "",
   domain_choice: "",
@@ -409,6 +411,7 @@ export function OnspotForm({ isEmbed = false }: { isEmbed?: boolean }) {
     if (!form.kiit_email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.kiit_email)) errs.kiit_email = "Invalid email address";
     else if (!form.kiit_email.toLowerCase().endsWith(".ac.in")) errs.kiit_email = "Must be a valid .ac.in email";
     if (!form.gender) errs.gender = "Select your gender";
+    if (!form.date_of_birth) errs.date_of_birth = "Date of birth is required";
     if (!form.academic_year) errs.academic_year = "Select your academic year";
     if (!form.course) errs.course = "Select your course";
     else if (form.course === "Others" && !customCourse.trim()) errs.customCourse = "Please specify your course";
@@ -629,6 +632,9 @@ export function OnspotForm({ isEmbed = false }: { isEmbed?: boolean }) {
                       ariaLabel="Gender"
                       onChange={(value) => update("gender", value)}
                     />
+                  </Field>
+                  <Field label="Date of Birth" error={errors.date_of_birth}>
+                    <input type="date" value={form.date_of_birth} onChange={(e) => update("date_of_birth", e.target.value)} className={`${inputCls} [color-scheme:dark]`} />
                   </Field>
                   <Field label="Phone" error={errors.phone}>
                     <input type="tel" value={form.phone} onChange={(e) => update("phone", e.target.value)} placeholder="+91 9876543210" className={inputCls} />
