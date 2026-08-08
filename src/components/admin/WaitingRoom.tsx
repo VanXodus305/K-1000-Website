@@ -79,7 +79,8 @@ export default function WaitingRoom({ apiUrl, authToken, liveCandidateStatusUpda
     setSuccessMessage("");
     try {
       const rollRes = await fetch(`${apiUrl}/api/registration/by-roll/${manualRoll.trim()}`, { 
-        headers: { Authorization: authToken } 
+        headers: { Authorization: authToken },
+        cache: "no-store",
       });
       const rollData = await rollRes.json();
       
@@ -115,6 +116,7 @@ export default function WaitingRoom({ apiUrl, authToken, liveCandidateStatusUpda
     try {
       const res = await fetch(`${apiUrl}/api/registrations?status=waiting`, {
         headers: { Authorization: authToken },
+        cache: "no-store",
       });
       const data = await res.json();
       if (data.success && Array.isArray(data.data)) {
@@ -134,6 +136,7 @@ export default function WaitingRoom({ apiUrl, authToken, liveCandidateStatusUpda
     try {
       const res = await fetch(`${apiUrl}/api/panels`, {
         headers: { Authorization: authToken },
+        cache: "no-store",
       });
       const data = await res.json();
       if (data.success && Array.isArray(data.data)) {
