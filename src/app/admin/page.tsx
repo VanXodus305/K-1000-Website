@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import {
   LogOut,
   CheckCircle2,
@@ -427,13 +427,33 @@ export default function AdminPage() {
   const [search, setSearch] = useState("");
   const [domainFilter, setDomainFilter] = useState("");
 
+  // Load session on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("adminSession");
+      if (stored) {
+        try {
+          const { savedPassword } = JSON.parse(stored);
+          if (savedPassword) {
+            setPassword(savedPassword);
+            fetchData("registrations", savedPassword);
+          }
+        } catch (e) {
+          localStorage.removeItem("adminSession");
+        }
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Connect Custom SSE Stream Hook
   const { status: sseStatus, lastCandidateStatusUpdate, lastPanelUpdate, reconnect } = useSSEStream({
     apiUrl: API,
     authToken: password,
   });
 
-  const fetchData = async (nextTab: Tab) => {
+  const fetchData = async (nextTab: Tab, overridePassword?: string) => {
+    const currentPassword = overridePassword || password;
     setLoading(true);
     setError("");
     setTab(nextTab);
@@ -443,7 +463,7 @@ export default function AdminPage() {
     try {
       if (nextTab === "registrations") {
         const response = await fetch(`${API}/api/admin/registrations`, {
-          headers: { Authorization: password },
+          headers: { Authorization: currentPassword },
         });
         const result = await response.json();
         if (!result.success) {
@@ -453,9 +473,12 @@ export default function AdminPage() {
           setData(result.data);
           setInterviews(null);
           setIsAuthenticated(true);
+          if (typeof window !== "undefined") {
+            localStorage.setItem("adminSession", JSON.stringify({ savedPassword: currentPassword }));
+          }
         }
       } else if (nextTab === "interviews") {
-        const response = await fetch(`${API}/api/interviews/with-registration?password=${encodeURIComponent(password)}`);
+        const response = await fetch(`${API}/api/interviews/with-registration?password=${encodeURIComponent(currentPassword)}`);
         const result = await response.json();
         if (!result.success) {
           setError(result.message || "Unable to load interviews.");
@@ -464,10 +487,16 @@ export default function AdminPage() {
           setInterviews(result.data);
           setData(null);
           setIsAuthenticated(true);
+          if (typeof window !== "undefined") {
+            localStorage.setItem("adminSession", JSON.stringify({ savedPassword: currentPassword }));
+          }
         }
       } else {
         // For room_builder or waiting_room, authenticate session
         setIsAuthenticated(true);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("adminSession", JSON.stringify({ savedPassword: currentPassword }));
+        }
       }
     } catch {
       setError("The admin server could not be reached.");
@@ -537,6 +566,9 @@ export default function AdminPage() {
     setSearch("");
     setDomainFilter("");
     setError("");
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("adminSession");
+    }
   };
 
   const tabsList: { key: Tab; label: string; icon: React.ReactNode }[] = [
