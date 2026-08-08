@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   LogOut,
   Clock,
@@ -80,6 +80,25 @@ export default function PanelistPage() {
   const [error, setError] = useState("");
   const [tab, setTab] = useState<Tab>("evaluation");
 
+  // Load session on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("panelistSession");
+      if (stored) {
+        try {
+          const { savedRole, savedPassword } = JSON.parse(stored);
+          if (savedRole && savedPassword) {
+            setRole(savedRole);
+            setPassword(savedPassword);
+            setIsAuthenticated(true);
+          }
+        } catch (e) {
+          localStorage.removeItem("panelistSession");
+        }
+      }
+    }
+  }, []);
+
   const { status: sseStatus, lastCandidateStatusUpdate, lastPanelUpdate } = useSSEStream({
     apiUrl: API,
     authToken: password,
@@ -107,6 +126,9 @@ export default function PanelistPage() {
         const data = await res.json();
         if (res.ok && data.success) {
           setIsAuthenticated(true);
+          if (typeof window !== "undefined") {
+            localStorage.setItem("panelistSession", JSON.stringify({ savedRole: role, savedPassword: password }));
+          }
         } else {
           throw new Error(data.message || "Unauthorized");
         }
@@ -122,6 +144,9 @@ export default function PanelistPage() {
     setPassword("");
     setRole("");
     setError("");
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("panelistSession");
+    }
   };
 
   const tabsList: { key: Tab; label: string; icon: React.ReactNode }[] = [
