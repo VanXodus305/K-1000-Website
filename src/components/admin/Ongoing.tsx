@@ -67,6 +67,18 @@ export default function Ongoing({ apiUrl, authToken, livePanelUpdate }: OngoingP
           candidate_name: livePanelUpdate.candidate_name,
         };
         return newPanels;
+      } else if (livePanelUpdate.status === "ongoing") {
+        // Newly ongoing panel
+        return [...prev, {
+          id: livePanelUpdate.id,
+          room_id: livePanelUpdate.room_id,
+          name: livePanelUpdate.name || "Unknown Panel",
+          grid_position_x: 0,
+          grid_position_y: 0,
+          status: "ongoing",
+          current_candidate_id: livePanelUpdate.current_candidate_id,
+          candidate_name: livePanelUpdate.candidate_name,
+        }];
       }
       return prev;
     });
