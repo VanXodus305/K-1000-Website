@@ -34,33 +34,31 @@ export default function DisplayPage() {
 
         if (ongoing.length > 0) {
           const newest = ongoing[0];
-          const updatedTime = new Date(newest.updated_at).getTime();
-          const now = Date.now();
+          const updateId = `${newest.id}-${newest.updated_at}`;
           
-          // If the newest call is less than 15 seconds old
-          if (now - updatedTime < 15000) {
-            // Only trigger if it's a new update we haven't processed
-            const updateId = `${newest.id}-${newest.updated_at}`;
-            if (lastProcessedUpdate.current !== updateId) {
-              lastProcessedUpdate.current = updateId;
-              setActiveCall(newest);
-              
-              if (typeof window !== "undefined" && "speechSynthesis" in window) {
-                 try {
-                   const candidateStr = newest.candidate_name ? `Candidate ${newest.candidate_name}` : `Candidate number ${newest.current_candidate_id}`;
-                   const panelStr = newest.name.replace(/[^a-zA-Z0-9 ]/g, " ");
-                   const msg = new SpeechSynthesisUtterance(`${candidateStr}, please report to ${panelStr}.`);
-                   msg.rate = 0.85;
-                   window.speechSynthesis.speak(msg);
-                 } catch (e) {
-                   console.error("Failed to play audio chime", e);
-                 }
-              }
-              
-              setTimeout(() => {
-                setActiveCall(null);
-              }, 12000);
+          if (lastProcessedUpdate.current === null) {
+            // Initial load - don't trigger the active call popup, just set the initial state
+            lastProcessedUpdate.current = updateId;
+          } else if (lastProcessedUpdate.current !== updateId) {
+            // A truly new update has arrived while the page is open!
+            lastProcessedUpdate.current = updateId;
+            setActiveCall(newest);
+            
+            if (typeof window !== "undefined" && "speechSynthesis" in window) {
+               try {
+                 const candidateStr = newest.candidate_name ? `Candidate ${newest.candidate_name}` : `Candidate number ${newest.current_candidate_id}`;
+                 const panelStr = newest.name.replace(/[^a-zA-Z0-9 ]/g, " ");
+                 const msg = new SpeechSynthesisUtterance(`${candidateStr}, please report to ${panelStr}.`);
+                 msg.rate = 0.85;
+                 window.speechSynthesis.speak(msg);
+               } catch (e) {
+                 console.error("Failed to play audio chime", e);
+               }
             }
+            
+            setTimeout(() => {
+              setActiveCall(null);
+            }, 12000);
           }
         }
       }
