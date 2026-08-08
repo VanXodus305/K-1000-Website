@@ -175,6 +175,21 @@ export default function WaitingRoom({ apiUrl, authToken, liveCandidateStatusUpda
   useEffect(() => {
     if (!liveCandidateStatusUpdate) return;
     
+    if (liveCandidateStatusUpdate.status === "waiting") {
+      // Auto-purge the candidate from any ghost panels if they were scanned in from the mobile app
+      // to ensure they don't get hidden by the assignedCandidateIds filter.
+      const ghostPanels = availablePanels.filter(p => Number(p.current_candidate_id) === liveCandidateStatusUpdate.id);
+      if (ghostPanels.length > 0) {
+        ghostPanels.forEach(p => {
+          fetch(`${apiUrl}/api/panels/${p.id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json", Authorization: authToken },
+            body: JSON.stringify({ status: "empty", current_candidate_id: null })
+          });
+        });
+      }
+    }
+
     setCandidates((prev) => {
       const existingIndex = prev.findIndex((c) => c.id === liveCandidateStatusUpdate.id);
 
