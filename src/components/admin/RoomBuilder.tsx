@@ -446,7 +446,7 @@ export default function RoomBuilder({ apiUrl, authToken, livePanelUpdate, paneli
           grid_position_x: panel.grid_position_x,
           grid_position_y: panel.grid_position_y,
           status: newStatus,
-          current_candidate_id: panel.current_candidate_id || null,
+          current_candidate_id: newStatus === "empty" ? null : (panel.current_candidate_id || null),
         }),
       });
       const data = await res.json();
