@@ -157,7 +157,11 @@ export default function RoomBuilder({ apiUrl, authToken, livePanelUpdate, paneli
 
           const filteredRooms = roomsWithPanels.map((room) => {
             const matchingPanels = room.panels.filter((p) => {
-              return p.name.toLowerCase().includes(mappedSearchPhrase) || mappedSearchPhrase.includes(p.name.toLowerCase());
+              if (p.name === panelistRole) return true;
+              if (!p.name.includes(":")) {
+                return p.name.toLowerCase().includes(mappedSearchPhrase) || mappedSearchPhrase.includes(p.name.toLowerCase());
+              }
+              return false;
             });
             return { ...room, panels: matchingPanels };
           }).filter((room) => room.panels.length > 0); // Hide rooms that don't have this panelist's panels
@@ -284,7 +288,11 @@ export default function RoomBuilder({ apiUrl, authToken, livePanelUpdate, paneli
             const mappedSearchPhrase = shortToLong[searchPhrase] || searchPhrase;
             
             const matchingPanels = newPanels.filter((p) => {
-              return p.name.toLowerCase().includes(mappedSearchPhrase) || mappedSearchPhrase.includes(p.name.toLowerCase());
+              if (p.name === panelistRole) return true;
+              if (!p.name.includes(":")) {
+                return p.name.toLowerCase().includes(mappedSearchPhrase) || mappedSearchPhrase.includes(p.name.toLowerCase());
+              }
+              return false;
             });
             return { ...r, panels: matchingPanels, gridDimensions: { rows: maxRow + 1, cols: maxCol + 1 } };
           }
