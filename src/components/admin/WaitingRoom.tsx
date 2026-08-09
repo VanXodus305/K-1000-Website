@@ -16,6 +16,7 @@ import {
 import { WaitingCandidate, CandidateStatusUpdatedPayload, Panel } from "../../types/admin";
 import { domains } from "../../data/domain";
 import { offices } from "../../data/offices";
+import { AVAILABLE_PANEL_ROLES } from "../../data/panelRoles";
 
 interface WaitingRoomProps {
   apiUrl: string;
@@ -621,15 +622,26 @@ export default function WaitingRoom({ apiUrl, authToken, liveCandidateStatusUpda
                           >
                             <option value="" disabled>Select Panel</option>
                             {(() => {
-                              const grouped = emptyPanels
-                                .filter(p => p.name.includes(":"))
-                                .reduce((acc, p) => {
-                                  const parts = p.name.split(":");
-                                  const groupName = parts[0].trim();
-                                  if (!acc[groupName]) acc[groupName] = [];
-                                  acc[groupName].push(p);
-                                  return acc;
-                                }, {} as Record<string, Panel[]>);
+                              const grouped = emptyPanels.reduce((acc, p) => {
+                                let groupName = "Other";
+                                if (p.name.includes(":")) {
+                                  groupName = p.name.split(":")[0].trim();
+                                } else {
+                                  // Legacy panel mapping: search in AVAILABLE_PANEL_ROLES
+                                  const match = AVAILABLE_PANEL_ROLES.find((r) =>
+                                    r.toLowerCase().includes(p.name.toLowerCase())
+                                  );
+                                  if (match) {
+                                    groupName = match.split(":")[0].trim();
+                                  } else {
+                                    groupName = "Uncategorized";
+                                  }
+                                }
+                                
+                                if (!acc[groupName]) acc[groupName] = [];
+                                acc[groupName].push(p);
+                                return acc;
+                              }, {} as Record<string, Panel[]>);
 
                               return Object.entries(grouped).map(([group, panels]) => (
                                 <optgroup key={group} label={group}>

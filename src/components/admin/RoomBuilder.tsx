@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { Room, Panel, PanelUpdatedPayload } from "../../types/admin";
 import PanelCard from "./PanelCard";
+import { AVAILABLE_PANEL_ROLES } from "../../data/panelRoles";
 
 interface RoomBuilderProps {
   apiUrl: string;
@@ -22,53 +23,6 @@ interface RoomBuilderProps {
   livePanelUpdate?: PanelUpdatedPayload | null;
   panelistRole?: string;
 }
-
-const AVAILABLE_PANEL_ROLES = [
-  "Internship: General Member",
-  "Internship: Management",
-  "Higher: General Member",
-  "Higher: Management",
-  "Events: General Member",
-  "Events: Marketing",
-  "Events: Photography and videograph",
-  "Projects: Mentors",
-  "Projects: Management",
-  "Projects: General Member",
-  "Projects: AI/ML",
-  "Projects: Data Analyst",
-  "Projects: IoT",
-  "Projects: Linux",
-  "Projects: Java",
-  "Projects: Blockchain",
-  "Projects: Web Development",
-  "Projects: Data Analytics",
-  "Training: General Member",
-  "Training: App Development",
-  "Training: Web Development",
-  "Training: Game Development",
-  "Training: Design & UI/UX",
-  "Training: Cyber Security",
-  "Training: DSA&CP",
-  "Training: Java",
-  "Training: AI/ML",
-  "Training: Data Analytics",
-  "Research: Medical Imaging",
-  "Research: Deep learning/ Machine learning",
-  "Research: Astronomy/Space technology",
-  "Research: Defence technology",
-  "Research: Game theory",
-  "Research: Finance and Economics",
-  "Research: Quantum",
-  "Research: Bio-Tech",
-  "Finance: General Member",
-  "Finance: Management",
-  "Office: OSG",
-  "Office: OTI",
-  "Office: OCD",
-  "Office: OPCR",
-  "Office: OCA",
-  "Office: OCC"
-];
 
 interface RoomWithPanels extends Room {
   panels: Panel[];
