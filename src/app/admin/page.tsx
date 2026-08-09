@@ -463,7 +463,8 @@ export default function AdminPage() {
   // Connect Custom SSE Stream Hook
   const { status: sseStatus, lastCandidateStatusUpdate, lastPanelUpdate, reconnect } = useSSEStream({
     apiUrl: API,
-    authToken: password,
+    authToken: isAuthenticated ? password : "",
+    enabled: isAuthenticated,
   });
 
   const fetchData = async (nextTab: Tab, overridePassword?: string) => {

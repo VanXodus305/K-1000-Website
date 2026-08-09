@@ -11,7 +11,7 @@ import {
 const DEFAULT_API_URL = (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/+$/, "");
 
 export function useSSEStream(options: SSEStreamOptions = {}) {
-  const { apiUrl = DEFAULT_API_URL, authToken, onCandidateStatusUpdated, onPanelUpdated } = options;
+  const { apiUrl = DEFAULT_API_URL, authToken, enabled = true, onCandidateStatusUpdated, onPanelUpdated } = options;
 
   const [status, setStatus] = useState<SSEConnectionStatus | "Polling">("Disconnected");
   const [lastCandidateStatusUpdate, setLastCandidateStatusUpdate] = useState<CandidateStatusUpdatedPayload | null>(null);
@@ -33,6 +33,11 @@ export function useSSEStream(options: SSEStreamOptions = {}) {
     if (eventSourceRef.current) {
       eventSourceRef.current.close();
       eventSourceRef.current = null;
+    }
+
+    if (!enabled) {
+      setStatus("Disconnected");
+      return;
     }
 
     const baseUrl = apiUrl || (typeof window !== "undefined" ? window.location.origin : "");
@@ -91,7 +96,7 @@ export function useSSEStream(options: SSEStreamOptions = {}) {
         setStatus("Error");
       });
     }
-  }, [apiUrl, authToken]);
+  }, [apiUrl, authToken, enabled]);
 
   useEffect(() => {
     connectRef.current = connect;

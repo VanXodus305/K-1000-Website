@@ -69,6 +69,7 @@ export type SSEConnectionStatus = "Connected" | "Reconnecting" | "Error" | "Conn
 export interface SSEStreamOptions {
   apiUrl?: string;
   authToken?: string;
+  enabled?: boolean;
   onCandidateStatusUpdated?: (payload: CandidateStatusUpdatedPayload) => void;
   onPanelUpdated?: (payload: PanelUpdatedPayload) => void;
 }

@@ -56,7 +56,8 @@ export default function PanelistPage() {
 
   const { status: sseStatus, lastCandidateStatusUpdate, lastPanelUpdate } = useSSEStream({
     apiUrl: API,
-    authToken: password,
+    authToken: isAuthenticated ? password : "",
+    enabled: isAuthenticated,
   });
 
   const fetchData = async (nextTab: Tab) => {

@@ -16,6 +16,7 @@ export default function SuperadminPage() {
   const { status: sseStatus } = useSSEStream({
     apiUrl: API,
     authToken: isAuthenticated ? password : "",
+    enabled: isAuthenticated,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
