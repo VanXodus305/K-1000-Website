@@ -628,11 +628,17 @@ export default function WaitingRoom({ apiUrl, authToken, liveCandidateStatusUpda
                                   groupName = p.name.split(":")[0].trim();
                                 } else {
                                   // Legacy panel mapping: search in AVAILABLE_PANEL_ROLES
+                                  const name = p.name.toLowerCase();
                                   const match = AVAILABLE_PANEL_ROLES.find((r) =>
-                                    r.toLowerCase().includes(p.name.toLowerCase())
+                                    r.toLowerCase().includes(name)
                                   );
+                                  
                                   if (match) {
                                     groupName = match.split(":")[0].trim();
+                                  } else if (name.includes("higher")) {
+                                    groupName = "Higher";
+                                  } else if (name.includes("office") || name.includes("opcr") || name.includes("oca") || name.includes("ocd") || name.includes("occ")) {
+                                    groupName = "Office";
                                   } else {
                                     groupName = "Uncategorized";
                                   }

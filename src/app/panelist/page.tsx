@@ -14,6 +14,7 @@ import RoomBuilder from "../../components/admin/RoomBuilder";
 import WaitingRoom from "../../components/admin/WaitingRoom";
 import EvaluationForm from "../../components/panelist/EvaluationForm";
 import { useSSEStream } from "../../hooks/useSSEStream";
+import { AVAILABLE_PANEL_ROLES } from "../../data/panelRoles";
 
 const API = (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/+$/, "");
 
@@ -24,52 +25,7 @@ const tabLabels: Record<Tab, string> = {
   waiting_room: "Waiting Room",
 };
 
-const panelistGroups = [
-  "Internship: General Member",
-  "Internship: Management",
-  "Higher: General Member",
-  "Higher: Management",
-  "Events: General Member",
-  "Events: Marketing",
-  "Events: Photography and videograph",
-  "Projects: Mentors",
-  "Projects: Management",
-  "Projects: General Member",
-  "Projects: AI/ML",
-  "Projects: Data Analyst",
-  "Projects: IoT",
-  "Projects: Linux",
-  "Projects: Java",
-  "Projects: Blockchain",
-  "Projects: Web Development",
-  "Projects: Data Analytics",
-  "Training: General Member",
-  "Training: App Development",
-  "Training: Web Development",
-  "Training: Game Development",
-  "Training: Design & UI/UX",
-  "Training: Cyber Security",
-  "Training: DSA&CP",
-  "Training: Java",
-  "Training: AI/ML",
-  "Training: Data Analytics",
-  "Research: Medical Imaging",
-  "Research: Deep learning/ Machine learning",
-  "Research: Astronomy/Space technology",
-  "Research: Defence technology",
-  "Research: Game theory",
-  "Research: Finance and Economics",
-  "Research: Quantum",
-  "Research: Bio-Tech",
-  "Finance: General Member",
-  "Finance: Management",
-  "Office: OSG",
-  "Office: OTI",
-  "Office: OCD",
-  "Office: OPCR",
-  "Office: OCA",
-  "Office: OCC"
-];
+
 
 export default function PanelistPage() {
   const [role, setRole] = useState("");
@@ -179,7 +135,7 @@ export default function PanelistPage() {
                   className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition-all focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-950 dark:focus:border-blue-500 mb-4"
                 >
                   <option value="" disabled>Select your domain / sub-domain</option>
-                  {panelistGroups.map((group) => (
+                  {AVAILABLE_PANEL_ROLES.map((group) => (
                     <option key={group} value={group}>{group}</option>
                   ))}
                 </select>

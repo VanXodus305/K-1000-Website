@@ -175,7 +175,7 @@ const subdomainMap: Record<string, string[]> = {
   higher: ["General Member", "Management"],
   events: ["General Member"],
   projects: ["Mentors", "Management", "General Member"],
-  training: ["General Member", "App Development", "Web Development", "Game Development", "Design & UI/UX", "CyberSecurity", "DSA&CP", "Java", "AI/ML", "Data Analytics"],
+  training: ["General Member", "App Development", "Web Development", "Game Development", "Design & UI/UX", "Cyber Security", "DSA&CP", "Java", "AI/ML", "Data Analytics"],
   research: ["Medical Imaging", "Deep learning/ Machine learning", "Astronomy/Space technology", "Defence technology", "Game theory", "Finance and Economics", "Quantum", "Bio-Tech"],
   finance: ["General Member", "Management"],
 };
