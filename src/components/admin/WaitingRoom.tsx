@@ -621,13 +621,15 @@ export default function WaitingRoom({ apiUrl, authToken, liveCandidateStatusUpda
                           >
                             <option value="" disabled>Select Panel</option>
                             {(() => {
-                              const grouped = emptyPanels.reduce((acc, p) => {
-                                const parts = p.name.split(":");
-                                const groupName = parts.length > 1 ? parts[0].trim() : "Other";
-                                if (!acc[groupName]) acc[groupName] = [];
-                                acc[groupName].push(p);
-                                return acc;
-                              }, {} as Record<string, Panel[]>);
+                              const grouped = emptyPanels
+                                .filter(p => p.name.includes(":"))
+                                .reduce((acc, p) => {
+                                  const parts = p.name.split(":");
+                                  const groupName = parts[0].trim();
+                                  if (!acc[groupName]) acc[groupName] = [];
+                                  acc[groupName].push(p);
+                                  return acc;
+                                }, {} as Record<string, Panel[]>);
 
                               return Object.entries(grouped).map(([group, panels]) => (
                                 <optgroup key={group} label={group}>

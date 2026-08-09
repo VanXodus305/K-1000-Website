@@ -13,7 +13,10 @@ export default function SuperadminPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const sseStatus = useSSEStream(isAuthenticated ? password : "");
+  const { status: sseStatus } = useSSEStream({
+    apiUrl: API,
+    authToken: isAuthenticated ? password : "",
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

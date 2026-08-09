@@ -169,6 +169,8 @@ export default function Ongoing({ apiUrl, authToken, livePanelUpdate }: OngoingP
                 panel={panel}
                 roomName={room?.name}
                 onToggleStatus={handleToggleStatus}
+                onEdit={() => {}}
+                onDelete={() => {}}
               />
             );
           })}
