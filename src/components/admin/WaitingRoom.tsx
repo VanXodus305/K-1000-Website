@@ -564,7 +564,7 @@ export default function WaitingRoom({ apiUrl, authToken, liveCandidateStatusUpda
                   <th className="px-6 py-4 font-medium">Candidate Info</th>
                   <th className="px-6 py-4 font-medium">Selected Domains</th>
                   <th className="px-6 py-4 font-medium">Check-In Time</th>
-                  <th className="px-6 py-4 font-medium">Quick Panel Assignment</th>
+                  {!fixedDomainFilter && <th className="px-6 py-4 font-medium">Quick Panel Assignment</th>}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
@@ -606,47 +606,59 @@ export default function WaitingRoom({ apiUrl, authToken, liveCandidateStatusUpda
                         <span>{formatRelativeTime(c.updated_at || c.created_at)}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <select
-                          value={selectedPanels[c.id] || ""}
-                          onChange={(e) =>
-                            setSelectedPanels((prev) => ({
-                              ...prev,
-                              [c.id]: Number(e.target.value),
-                            }))
-                          }
-                          className="w-40 rounded-lg border border-gray-300 bg-white py-1.5 pl-3 pr-8 text-xs text-gray-900 outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-                        >
-                          <option value="" disabled>
-                            Select Panel
-                          </option>
-                          {emptyPanels.map((p) => (
-                            <option key={p.id} value={p.id}>
-                              {p.name}
-                            </option>
-                          ))}
-                        </select>
-                        <button
-                          type="button"
-                          onClick={() => handleAssignToPanel(c.id)}
-                          disabled={!selectedPanels[c.id]}
-                          className="inline-flex items-center gap-1.5 rounded-lg bg-cyan-600 px-3 py-1.5 text-xs font-medium text-white transition-all hover:bg-cyan-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                          <CheckCircle2 size={14} />
-                          Assign
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleMarkAsDone(c.id)}
-                          title="Mark as completely done (remove from queue)"
-                          className="inline-flex items-center gap-1.5 rounded-lg bg-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 transition-all hover:bg-gray-300 active:scale-95 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
-                        >
-                          <X size={14} />
-                          Done
-                        </button>
-                      </div>
-                    </td>
+                    {!fixedDomainFilter && (
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <select
+                            value={selectedPanels[c.id] || ""}
+                            onChange={(e) =>
+                              setSelectedPanels((prev) => ({
+                                ...prev,
+                                [c.id]: Number(e.target.value),
+                              }))
+                            }
+                            className="w-40 rounded-lg border border-gray-300 bg-white py-1.5 pl-3 pr-8 text-xs text-gray-900 outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                          >
+                            <option value="" disabled>Select Panel</option>
+                            {(() => {
+                              const grouped = emptyPanels.reduce((acc, p) => {
+                                const parts = p.name.split(":");
+                                const groupName = parts.length > 1 ? parts[0].trim() : "Other";
+                                if (!acc[groupName]) acc[groupName] = [];
+                                acc[groupName].push(p);
+                                return acc;
+                              }, {} as Record<string, Panel[]>);
+
+                              return Object.entries(grouped).map(([group, panels]) => (
+                                <optgroup key={group} label={group}>
+                                  {panels.map((p) => (
+                                    <option key={p.id} value={p.id}>{p.name}</option>
+                                  ))}
+                                </optgroup>
+                              ));
+                            })()}
+                          </select>
+                          <button
+                            type="button"
+                            onClick={() => handleAssignToPanel(c.id)}
+                            disabled={!selectedPanels[c.id]}
+                            className="inline-flex items-center gap-1.5 rounded-lg bg-cyan-600 px-3 py-1.5 text-xs font-medium text-white transition-all hover:bg-cyan-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            <CheckCircle2 size={14} />
+                            Assign
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleMarkAsDone(c.id)}
+                            title="Mark as completely done (remove from queue)"
+                            className="inline-flex items-center gap-1.5 rounded-lg bg-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 transition-all hover:bg-gray-300 active:scale-95 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                          >
+                            <X size={14} />
+                            Done
+                          </button>
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>

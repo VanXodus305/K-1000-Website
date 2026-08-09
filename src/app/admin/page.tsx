@@ -72,12 +72,11 @@ type Interview = {
   criteria?: Criterion[];
 };
 
-type Tab = "registrations" | "interviews" | "room_builder" | "waiting_room" | "ongoing" | "walk_in";
+type Tab = "registrations" | "interviews" | "waiting_room" | "ongoing" | "walk_in";
 
 const tabLabels: Record<Tab, string> = {
   registrations: "Registrations",
   interviews: "Interviews",
-  room_builder: "Panel Room Builder",
   waiting_room: "Waiting Room",
   ongoing: "Ongoing",
   walk_in: "Walk In",
@@ -507,7 +506,7 @@ export default function AdminPage() {
           }
         }
       } else {
-        // For room_builder or waiting_room, authenticate session
+        // For waiting_room, authenticate session
         setIsAuthenticated(true);
         if (typeof window !== "undefined") {
           localStorage.setItem("adminSession", JSON.stringify({ savedPassword: currentPassword }));
@@ -589,7 +588,6 @@ export default function AdminPage() {
   const tabsList: { key: Tab; label: string; icon: React.ReactNode }[] = [
     { key: "registrations", label: "Registrations", icon: <Users size={16} /> },
     { key: "interviews", label: "Interviews", icon: <ClipboardCheck size={16} /> },
-    { key: "room_builder", label: "Panel Room Builder", icon: <Grid size={16} /> },
     { key: "waiting_room", label: "Waiting Room", icon: <Clock size={16} /> },
     { key: "ongoing", label: "Ongoing", icon: <Radio size={16} /> },
     { key: "walk_in", label: "Walk In", icon: <Plus size={16} /> },
@@ -771,9 +769,7 @@ export default function AdminPage() {
             )}
           </div>
 
-          {tab === "room_builder" ? (
-            <RoomBuilder apiUrl={API} authToken={password} livePanelUpdate={lastPanelUpdate} />
-          ) : tab === "waiting_room" ? (
+          {tab === "waiting_room" ? (
             <WaitingRoom apiUrl={API} authToken={password} liveCandidateStatusUpdate={lastCandidateStatusUpdate} />
           ) : tab === "ongoing" ? (
             <Ongoing apiUrl={API} authToken={password} livePanelUpdate={lastPanelUpdate} />

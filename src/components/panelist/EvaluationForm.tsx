@@ -29,14 +29,42 @@ export default function EvaluationForm({ password, role, panelistName, panelistR
   // Auto-populate when an admin assigns a candidate to a panel that matches this panelist's role
   useEffect(() => {
     if (livePanelUpdate && livePanelUpdate.status === "ongoing" && livePanelUpdate.current_candidate_id) {
-      // If the panel name matches the panelist's role, or we just want to load it
-      // Let's fetch the candidate by ID and if it matches domain, we set it.
-      // Wait, since admin assigned it to the panel, if the panel matches role:
       if (livePanelUpdate.name === role) {
         fetchCandidateById(livePanelUpdate.current_candidate_id);
       }
+    } else if (livePanelUpdate && livePanelUpdate.status === "empty" && livePanelUpdate.name === role) {
+      setCandidate(null);
+      setRollNumber("");
     }
   }, [livePanelUpdate]);
+
+  // Fetch initial panel state on mount to persist candidate assignment
+  useEffect(() => {
+    const fetchInitialState = async () => {
+      try {
+        const res = await fetch(`${API}/api/rooms`, {
+          headers: { Authorization: password },
+        });
+        const data = await res.json();
+        if (data.success && Array.isArray(data.data)) {
+          for (const room of data.data) {
+            const pRes = await fetch(`${API}/api/rooms/${room.id}`, { headers: { Authorization: password } });
+            const pData = await pRes.json();
+            if (pData.success && Array.isArray(pData.data.panels)) {
+              const myPanel = pData.data.panels.find((p: any) => p.name === role && p.status === "ongoing" && p.current_candidate_id);
+              if (myPanel) {
+                fetchCandidateById(myPanel.current_candidate_id);
+                return;
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch initial panel state:", err);
+      }
+    };
+    fetchInitialState();
+  }, [role, password]);
 
   const fetchCandidateById = async (id: number | string) => {
     setLoading(true);

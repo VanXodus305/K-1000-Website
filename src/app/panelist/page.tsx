@@ -17,11 +17,10 @@ import { useSSEStream } from "../../hooks/useSSEStream";
 
 const API = (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/+$/, "");
 
-type Tab = "evaluation" | "room_builder" | "waiting_room";
+type Tab = "evaluation" | "waiting_room";
 
 const tabLabels: Record<Tab, string> = {
   evaluation: "Evaluation",
-  room_builder: "Panel Room Builder",
   waiting_room: "Waiting Room",
 };
 
@@ -151,7 +150,6 @@ export default function PanelistPage() {
 
   const tabsList: { key: Tab; label: string; icon: React.ReactNode }[] = [
     { key: "evaluation", label: "Evaluation", icon: <FileEdit size={16} /> },
-    { key: "room_builder", label: "Panel Room Builder", icon: <Grid size={16} /> },
     { key: "waiting_room", label: "Waiting Room", icon: <Clock size={16} /> },
   ];
 
@@ -301,10 +299,10 @@ export default function PanelistPage() {
                 panelistRoll="N/A" 
                 livePanelUpdate={lastPanelUpdate}
               />
-            ) : tab === "room_builder" ? (
-              <RoomBuilder apiUrl={API} authToken={password} livePanelUpdate={lastPanelUpdate} panelistRole={role} />
             ) : tab === "waiting_room" ? (
-              <WaitingRoom apiUrl={API} authToken={password} liveCandidateStatusUpdate={lastCandidateStatusUpdate} fixedDomainFilter={role} />
+              <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900/50">
+                <WaitingRoom apiUrl={API} authToken={password} fixedDomainFilter={role} />
+              </div>
             ) : null}
           </div>
         </main>
