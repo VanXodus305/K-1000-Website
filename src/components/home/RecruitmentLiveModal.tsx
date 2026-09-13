@@ -7,7 +7,7 @@ import { X } from "lucide-react";
 
 const conthrax = "font-['Conthrax',_sans-serif]";
 const orbitron = "font-['Orbitron',_sans-serif]";
-const RECRUITMENT_NOTICE_KEY = "k1000-recruitment-live-notice-seen-2026";
+const RECRUITMENT_NOTICE_KEY = "k1000-ignithon-2-registration-notice-seen-september-2026-v2";
 
 export default function RecruitmentLiveModal() {
   const [isVisible, setIsVisible] = useState(false);
@@ -15,10 +15,10 @@ export default function RecruitmentLiveModal() {
   useEffect(() => {
     try {
       if (!window.localStorage.getItem(RECRUITMENT_NOTICE_KEY)) {
-        setIsVisible(true);
+        queueMicrotask(() => setIsVisible(true));
       }
     } catch {
-      setIsVisible(true);
+      queueMicrotask(() => setIsVisible(true));
     }
   }, []);
 
@@ -88,31 +88,24 @@ export default function RecruitmentLiveModal() {
               </div>
 
               <h2 id="recruitment-live-title" className={`${conthrax} mt-6 text-2xl uppercase tracking-tight text-white sm:text-4xl`}>
-                Recruitment Is Live
+                Ignithon 2.0 Registration Is Live
               </h2>
 
               <div className="mt-6 rounded-[22px] border border-cyan-300/18 bg-cyan-400/[0.045] px-4 py-4">
-                <p className={`${orbitron} text-[9px] uppercase tracking-[0.28em] text-white/32`}>Recruitment Dates</p>
+                <p className={`${orbitron} text-[9px] uppercase tracking-[0.28em] text-white/32`}>Registration Dates</p>
                 <p className={`${conthrax} mt-2 text-lg uppercase tracking-[0.08em] text-cyan-200 sm:text-xl`}>
-                  8th & 9th August 2026
+                  26th & 27th September 2026
                 </p>
               </div>
 
-              <div className="mt-7 grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="mt-7">
                 <Link
-                  href="/register"
+                  href="/events"
                   onClick={dismissNotice}
                   className={`${conthrax} rounded-full border border-cyan-300 bg-cyan-300 px-5 py-3 text-[10px] uppercase tracking-[0.26em] text-black transition-all hover:bg-white hover:border-white`}
                 >
                   Register Now
                 </Link>
-                <button
-                  type="button"
-                  onClick={dismissNotice}
-                  className={`${conthrax} rounded-full border border-white/12 bg-white/[0.025] px-5 py-3 text-[10px] uppercase tracking-[0.26em] text-white/55 transition-all hover:border-cyan-300/40 hover:text-cyan-100`}
-                >
-                  Close
-                </button>
               </div>
             </div>
           </motion.div>

@@ -1,0 +1,39 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getIgnithonSession, isValidEmail, normalizeEmail, setIgnithonSession } from "@/lib/ignithon-auth";
+import { getIgnithonCollections } from "@/lib/ignithon-db";
+import { checkRateLimit } from "@/lib/ignithon-rate-limit";
+
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ teamId: string }> }) {
+  const session = await getIgnithonSession();
+  const teamId = Number((await params).teamId);
+  if (!session || session.teamId !== teamId || session.role !== "leader") return NextResponse.json({ error: "Only the current team leader can transfer leadership." }, { status: 403 });
+  if (!checkRateLimit(`leader-transfer:${session.email}`, 10)) return NextResponse.json({ error: "Too many leadership transfer attempts. Please try again shortly." }, { status: 429 });
+
+  try {
+    const body = await request.json() as { email?: unknown };
+    const targetEmail = typeof body.email === "string" ? normalizeEmail(body.email) : "";
+    if (!isValidEmail(targetEmail) || targetEmail === session.email) return NextResponse.json({ error: "Select another active team member." }, { status: 400 });
+
+    const { teams, participants } = await getIgnithonCollections();
+    const [team, target] = await Promise.all([
+      teams.findOne({ id: teamId }),
+      participants.findOne({ team_id: teamId, email: targetEmail, status: "ACTIVE" }),
+    ]);
+    if (!team || !target) return NextResponse.json({ error: "The selected active team member was not found." }, { status: 404 });
+    const currentLeader = team.members.find((member) => member.role === "leader");
+    const targetMember = team.members.find((member) => member.email === targetEmail);
+    if (currentLeader?.email !== session.email || targetMember?.role !== "member") return NextResponse.json({ error: "Leadership has changed or the selected person is not eligible." }, { status: 409 });
+
+    const result = await teams.updateOne(
+      { id: teamId, members: { $elemMatch: { email: session.email, role: "leader" } } },
+      [{ $set: { members: { $map: { input: "$members", as: "member", in: { email: "$$member.email", role: { $cond: [{ $eq: ["$$member.email", targetEmail] }, "leader", "member"] } } } } } }],
+    );
+    if (!result.modifiedCount) return NextResponse.json({ error: "Leadership changed before this request completed. Refresh and try again." }, { status: 409 });
+
+    await setIgnithonSession({ email: session.email, teamId, role: "member" });
+    return NextResponse.json({ ok: true, previousLeader: session.email, leader: targetEmail });
+  } catch (error) {
+    console.error("Ignithon leadership transfer failed", error);
+    return NextResponse.json({ error: "Unable to transfer leadership right now." }, { status: 500 });
+  }
+}

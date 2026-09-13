@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence, useScroll, useSpring } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 import { EVENTS, K1000Event } from "@/data/event";
 import { Calendar, ExternalLink, ShieldCheck, ChevronRight, Zap } from "lucide-react";
 import SharedHeader from "../../components/ui/SharedHeader";
@@ -180,6 +181,20 @@ const Events = () => {
                       </h2>
                     </div>
 
+                    {selectedEvent.status === "UPCOMING" ? (
+                      <motion.div
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.97 }}
+                      >
+                        <Link
+                          href={selectedEvent.link}
+                          className={`${conthrax} self-start sm:self-auto flex-shrink-0 flex items-center gap-2 sm:gap-3 px-5 sm:px-7 lg:px-8 py-3 sm:py-4 bg-cyan-500 text-black rounded-full font-black text-[9px] sm:text-[10px] uppercase tracking-widest shadow-[0_0_30px_rgba(0,247,255,0.4)] cursor-pointer whitespace-nowrap`}
+                        >
+                          <span>Register Now</span>
+                          <ChevronRight size={12} />
+                        </Link>
+                      </motion.div>
+                    ) : (
                     <motion.a
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.97 }}
@@ -191,6 +206,7 @@ const Events = () => {
                       <span>Launch Report</span>
                       <ExternalLink size={12} />
                     </motion.a>
+                    )}
                   </div>
                 </div>
 

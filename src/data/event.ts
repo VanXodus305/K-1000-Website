@@ -111,6 +111,22 @@ export const EVENTS: K1000Event[] = [
       "Felicitation by the Vice Chancellor and Registrar of KIIT."
     ],
     gallery: ["/events/ignithon.png"]
+  },
+  {
+    id: "ignithon-2-2026",
+    title: "Ignithon 2.0",
+    date: "26th & 27th September 2026",
+    description: "K-1000's inaugural 12-hour hackathon, Ignithon, challenged participants to build functional solutions from scratch across three difficulty tiers.",
+    category: "Hackathon",
+    link: "/events/ignithon2.0",
+    status: "UPCOMING",
+    highlights: [
+      "12-Hour Sprint: Rapid prototyping from ideation to deployment.",
+      "Tiered tracks for Beginner, Intermediate, and Advanced developers.",
+      "Over 1000+ registration interests across the campus.",
+      "Felicitation by the Vice Chancellor and Registrar of KIIT."
+    ],
+    gallery: ["/events/ignithon.png"]
   }
 ];
 
