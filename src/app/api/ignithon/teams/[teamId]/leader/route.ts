@@ -17,10 +17,11 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     const { teams, participants } = await getIgnithonCollections();
     const [team, target, currentLeader] = await Promise.all([
       teams.findOne({ id: teamId }),
-      participants.findOne({ team_id: teamId, email: targetEmail, status: "ACTIVE" }),
-      participants.findOne({ team_id: teamId, email: session.email, status: "ACTIVE" }),
+      participants.findOne({ email: targetEmail, status: "ACTIVE" }),
+      participants.findOne({ email: session.email, status: "ACTIVE" }),
     ]);
     if (!team || !target || !currentLeader) return NextResponse.json({ error: "The selected active team member was not found." }, { status: 404 });
+    if (!target.team_id.equals(team._id) || !currentLeader.team_id.equals(team._id)) return NextResponse.json({ error: "The selected person is not an active member of this team." }, { status: 409 });
     const targetIsMember = team.members.some((memberId) => memberId.equals(target._id));
     if (!team.members[0]?.equals(currentLeader._id) || !targetIsMember) return NextResponse.json({ error: "Leadership has changed or the selected person is not eligible." }, { status: 409 });
 
@@ -28,7 +29,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
     const result = await teams.updateOne(
       { id: teamId, "members.0": currentLeader._id },
-      { $set: { members: nextMembers } },
+      { $set: { members: nextMembers, updatedAt: new Date() } },
     );
     if (!result.modifiedCount) return NextResponse.json({ error: "Leadership changed before this request completed. Refresh and try again." }, { status: 409 });
 

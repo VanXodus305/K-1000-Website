@@ -1,7 +1,6 @@
 "use client";
 
 import { FormEvent, useEffect, useId, useRef, useState } from "react";
-import Image from "next/image";
 import { Check, ChevronDown, ChevronRight, Crown, LogOut, Pencil, Plus, QrCode, Trash2, X } from "lucide-react";
 import SharedHeader from "../../../components/ui/SharedHeader";
 import Footer from "../../../components/footer/Footer";
@@ -9,10 +8,11 @@ import CubeBackground from "../../../components/ui/CubeBackground";
 import { isKiitEmailDomain } from "@/lib/ignithon-identity";
 
 const conthrax = "font-['Conthrax',_sans-serif]";
+const orbitron = "font-['Orbitron',_sans-serif]";
 const inputClass = "min-h-12 w-full min-w-0 rounded-[16px] border border-white/10 bg-[#020606]/80 px-4 py-3 text-base text-white outline-none transition-all placeholder:text-white/25 focus:border-cyan-400/70 focus:bg-cyan-500/[0.025] sm:text-sm";
 const closeButtonClass = "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/10 bg-black/25 text-white/45 transition-colors hover:border-cyan-300/40 hover:text-cyan-200";
-type Member = { name: string; email: string; roll_no: number; qr_separator: string; hostel: string | null; phone: string; branch: string; year: number; team_id: number };
-type Portal = { team: { id: number; name: string; leader_email: string; member_count: number }; participants: Member[]; session: { email: string; role: "leader" | "member" } };
+type Member = { id: string; name: string; email: string; roll_no: string; qr_separator: string; hostel: string | null; phone: string; branch: string; year: number; team_id: string };
+type Portal = { team: { id: number; name: string; room: string | null; points: number; leader_email: string; member_count: number }; participants: Member[]; session: { email: string; role: "leader" | "member" } };
 type MemberDraft = { name: string; email: string; roll_no: string; hostel: string; phone: string; branch: string; year: string };
 const blankMember: MemberDraft = { name: "", email: "", roll_no: "", hostel: "", phone: "", branch: "", year: "" };
 const branchOptions = [
@@ -30,12 +30,13 @@ const branchOptions = [
   "Mechanical Engineering (Automobile)", "Mechatronics Engineering", "Others",
 ];
 const RETURNING_IDENTITY_COOKIE = "ignithon_returning_identity";
-const REMEMBERED_PORTAL_TTL_SECONDS = 60 * 60 * 24 * 100;
+const REMEMBERED_PORTAL_TTL_SECONDS = 60 * 60 * 24 * 120;
 const academicYearOptions = [
   { value: "1", label: "1st Year" },
   { value: "2", label: "2nd Year" },
   { value: "3", label: "3rd Year" },
   { value: "4", label: "4th Year" },
+  { value: "5", label: "5th Year" },
 ];
 
 function rememberReturningIdentity(rollNo: string, teamId: string) {
@@ -82,7 +83,7 @@ export default function IgnithonRegistrationPage() {
       setAccess(remembered);
       void (async () => {
         try {
-          await readJson(await fetch("/api/ignithon/session", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ rollNo: Number(remembered.rollNo), teamId: Number(remembered.teamId) }) }));
+          await readJson(await fetch("/api/ignithon/session", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ rollNo: remembered.rollNo, teamId: Number(remembered.teamId) }) }));
           await loadPortal(remembered.teamId);
         } catch {
           // The remembered identity only restores an active, matching registration.
@@ -95,21 +96,21 @@ export default function IgnithonRegistrationPage() {
 
   const handleAccess = async (event: FormEvent) => {
     event.preventDefault(); setLoading(true); setMessage("");
-    try { await readJson(await fetch("/api/ignithon/session", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ rollNo: Number(access.rollNo), teamId: Number(access.teamId) }) })); rememberReturningIdentity(access.rollNo, access.teamId); await loadPortal(access.teamId); }
+    try { await readJson(await fetch("/api/ignithon/session", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ rollNo: access.rollNo, teamId: Number(access.teamId) }) })); rememberReturningIdentity(access.rollNo, access.teamId); await loadPortal(access.teamId); }
     catch (error) { setMessage(error instanceof Error ? error.message : "Unable to access the portal."); }
     finally { setLoading(false); }
   };
 
   const handleCreate = async (event: FormEvent) => {
     event.preventDefault(); setLoading(true); setMessage("");
-    try { const result = await readJson(await fetch("/api/ignithon/teams", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: teamName, leader: { ...leader, roll_no: Number(leader.roll_no), year: Number(leader.year), hostel: leader.hostel || null } }) })); rememberReturningIdentity(leader.roll_no, String(result.teamId)); await loadPortal(String(result.teamId)); }
+    try { const result = await readJson(await fetch("/api/ignithon/teams", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: teamName, leader: { ...leader, roll_no: leader.roll_no, year: Number(leader.year), hostel: leader.hostel || null } }) })); rememberReturningIdentity(leader.roll_no, String(result.teamId)); await loadPortal(String(result.teamId)); }
     catch (error) { setMessage(error instanceof Error ? error.message : "Unable to create the team."); }
     finally { setLoading(false); }
   };
 
   const addMember = async (event: FormEvent) => {
     event.preventDefault(); if (!portal) return false; setLoading(true); setMessage("");
-    try { await readJson(await fetch(`/api/ignithon/teams/${portal.team.id}/participants`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...member, roll_no: Number(member.roll_no), year: Number(member.year), hostel: member.hostel || null }) })); await loadPortal(String(portal.team.id)); setMember(blankMember); return true; }
+    try { await readJson(await fetch(`/api/ignithon/teams/${portal.team.id}/participants`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...member, roll_no: member.roll_no, year: Number(member.year), hostel: member.hostel || null }) })); await loadPortal(String(portal.team.id)); setMember(blankMember); return true; }
     catch (error) { setMessage(error instanceof Error ? error.message : "Unable to add this participant."); return false; }
     finally { setLoading(false); }
   };
@@ -175,7 +176,23 @@ export default function IgnithonRegistrationPage() {
         {portal ? (
           <PortalView portal={portal} member={member} setMember={setMember} addMember={addMember} removeMember={removeMember} transferLeadership={transferLeadership} refreshPortal={() => loadPortal(String(portal.team.id))} logout={logout} loading={loading} notify={setMessage} />
         ) : (
-          <section ref={entryCardRef} className="mx-auto w-full max-w-2xl scroll-mt-24 rounded-[24px] border border-white/10 bg-white/[0.025] p-4 shadow-[0_24px_80px_rgba(0,0,0,0.35)] backdrop-blur-xl sm:scroll-mt-28 sm:rounded-[28px] sm:p-8">
+          <section ref={entryCardRef} className="mx-auto grid w-full max-w-5xl scroll-mt-24 gap-8 rounded-[24px] border border-white/10 bg-white/[0.025] p-4 shadow-[0_24px_80px_rgba(0,0,0,0.35)] backdrop-blur-xl sm:scroll-mt-28 sm:rounded-[28px] sm:p-8 md:grid-cols-[0.76fr_1.24fr] md:gap-10 md:p-10">
+            <div className="flex flex-col justify-between border-b border-white/10 pb-6 md:border-b-0 md:border-r md:pb-0 md:pr-10">
+              <div>
+                <p className={`${orbitron} text-[9px] uppercase tracking-[0.28em] text-cyan-300/55`}>Ignithon 2.0 access</p>
+                <h2 className={`${conthrax} mt-3 text-xl uppercase leading-tight tracking-tight text-white sm:text-2xl`}>
+                  {entryMode === "register" ? "Build your team" : "Return to your team"}
+                </h2>
+                <p className="mt-4 text-sm leading-relaxed text-white/45">
+                  {entryMode === "register" ? "Create the team record once, then use your portal to manage the roster." : "Use the roll number and Team ID already assigned to your registration."}
+                </p>
+              </div>
+              <div className="mt-8 hidden rounded-[18px] border border-cyan-300/15 bg-cyan-400/[0.04] p-4 md:block">
+                <p className={`${orbitron} text-[8px] uppercase tracking-[0.24em] text-cyan-300/60`}>Registration window</p>
+                <p className={`${conthrax} mt-2 text-xs uppercase tracking-[0.1em] text-white/70`}>26–27 September 2026</p>
+              </div>
+            </div>
+            <div className="min-w-0">
             {entryMode === "register" ? (
               <>
                 <h2 className={`${conthrax} text-sm uppercase tracking-wider text-cyan-300 sm:text-base`}>
@@ -219,6 +236,7 @@ export default function IgnithonRegistrationPage() {
                 </div>
               </>
             )}
+            </div>
           </section>
         )}
       </main>
@@ -261,7 +279,10 @@ function MemberFields({ value, setValue, nameLabel = "Full name" }: { value: Mem
   return (
     <>
       <input className={inputClass} required value={value.name} onChange={(event) => update("name", event.target.value)} placeholder={nameLabel} aria-label={nameLabel} />
-      <input className={inputClass} required type="email" value={value.email} onChange={(event) => updateEmail(event.target.value)} placeholder="Email address" aria-label="Email address" />
+      <div className="min-w-0">
+        <input className={`${inputClass} ${value.email && !isKiitEmailDomain(value.email) ? "border-red-300/60 focus:border-red-300" : ""}`} required type="email" value={value.email} onChange={(event) => updateEmail(event.target.value)} placeholder="KIIT email address" aria-label="KIIT email address" aria-invalid={Boolean(value.email && !isKiitEmailDomain(value.email))} />
+        {value.email && !isKiitEmailDomain(value.email) && <p className="mt-1.5 px-1 text-[11px] leading-relaxed text-red-200/85">Only an approved KIIT email address is allowed.</p>}
+      </div>
       <input className={inputClass} required inputMode="numeric" value={value.roll_no} onChange={(event) => update("roll_no", event.target.value.replace(/\D/g, ""))} placeholder="Roll / user ID" aria-label="Roll or user ID" />
       <input className={inputClass} required value={value.phone} onChange={(event) => update("phone", event.target.value)} placeholder="Phone" aria-label="Phone" />
       <InHouseSelect value={value.branch} onChange={(next) => update("branch", next)} placeholder="Branch" ariaLabel="Branch" options={branchOptions.map((branch) => ({ value: branch, label: branch }))} />
@@ -325,7 +346,7 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
             </div>
             <div className="mt-5 flex justify-center">
               <div className="shrink-0 overflow-hidden rounded-[20px] border border-white/15 bg-white p-3 shadow-[0_0_30px_rgba(0,247,255,0.12)]">
-                <BrandedPersonalQr value={`${signedInParticipant.roll_no}${signedInParticipant.qr_separator}${portal.team.id}`} name={signedInParticipant.name} />
+                <BrandedPersonalQr value={`${signedInParticipant.id}|${portal.team.id}`} name={signedInParticipant.name} />
               </div>
             </div>
           </div>
@@ -367,7 +388,7 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
                     <span className={`${conthrax} rounded-full border px-3 py-1.5 text-[8px] uppercase tracking-[0.16em] ${isTeamLeader ? "border-cyan-400/35 bg-cyan-400/10 text-cyan-200" : "border-white/10 bg-white/[0.035] text-white/45"}`}>
                       {isTeamLeader ? "Team Leader" : `Member ${memberIndex}`}
                     </span>
-                    <span className={`${conthrax} text-xl text-white/10`}>{String(isTeamLeader ? 0 : memberIndex).padStart(2, "0")}</span>
+                    <span className={`${conthrax} text-xl text-white/10`}>{String(isTeamLeader ? 1 : memberIndex + 1)}</span>
                   </div>
                   <div className={`mt-auto min-w-0 pt-8 ${canEditCard ? "pb-12" : ""}`}>
                     <h3 className={`${conthrax} break-words text-base uppercase leading-snug text-white`}>{participant.name}</h3>
@@ -463,14 +484,14 @@ function BrandedPersonalQr({ value, name }: { value: string; name: string }) {
         height: 320,
         type: "svg",
         data: value,
-        image: "/k1000-small.png",
+        image: "/k1000-qr-logo.png",
         margin: 12,
         qrOptions: { errorCorrectionLevel: "H" },
         dotsOptions: { color: "#020202", type: "square" },
         cornersSquareOptions: { color: "#020202", type: "extra-rounded" },
         cornersDotOptions: { color: "#020202", type: "dot" },
         backgroundOptions: { color: "#ffffff" },
-        imageOptions: { hideBackgroundDots: true, imageSize: 0.26, margin: 5 },
+        imageOptions: { hideBackgroundDots: true, imageSize: 0.27, margin: 0 },
       });
       await qrCode.getRawData("svg");
       if (cancelled) return;
@@ -488,11 +509,6 @@ function BrandedPersonalQr({ value, name }: { value: string; name: string }) {
   return (
     <div role="img" aria-label={`Personal QR code for ${name}`} className="relative h-[220px] w-[220px] min-h-[220px] min-w-[220px] shrink-0 sm:h-[260px] sm:w-[260px] sm:min-h-[260px] sm:min-w-[260px]">
       <div ref={containerRef} className={`flex h-full w-full items-center justify-center overflow-hidden rounded-[16px] bg-white [&_svg]:block [&_svg]:h-full [&_svg]:w-full ${ready ? "" : "animate-pulse"}`} />
-      {ready && (
-        <div aria-hidden="true" className="pointer-events-none absolute left-1/2 top-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-xl border-2 border-white/90 bg-[#020202] p-1 shadow-[0_0_0_4px_white] sm:h-[72px] sm:w-[72px]">
-          <Image src="/k1000-small.png" alt="" width={72} height={72} className="h-full w-full object-contain" />
-        </div>
-      )}
       {!ready && <span className={`${conthrax} pointer-events-none absolute inset-0 flex items-center justify-center text-center text-[9px] uppercase tracking-[0.18em] text-black/45`}>Generating secure QR</span>}
     </div>
   );

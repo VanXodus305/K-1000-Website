@@ -4,8 +4,7 @@ const QR_SEPARATOR_LENGTH = 5;
 const QR_SEPARATOR_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
 export type IgnithonParticipantQrIdentity = {
-  rollNo: number;
-  separator: string;
+  participantId: string;
   teamId: number;
 };
 
@@ -14,17 +13,19 @@ export function createIgnithonQrSeparator() {
   return Array.from(bytes, (byte) => QR_SEPARATOR_ALPHABET[byte % QR_SEPARATOR_ALPHABET.length]).join("");
 }
 
-export function getIgnithonParticipantQrValue({ rollNo, separator, teamId }: IgnithonParticipantQrIdentity) {
-  return `${rollNo}${separator}${teamId}`;
+export function getIgnithonParticipantQrValue({ participantId, teamId }: IgnithonParticipantQrIdentity) {
+  return `${participantId}|${teamId}`;
 }
 
 export function readIgnithonParticipantQrValue(value: string): IgnithonParticipantQrIdentity | null {
-  const match = value.trim().toUpperCase().match(new RegExp(`^(\\d+)([A-Z0-9]{${QR_SEPARATOR_LENGTH}})(\\d{4})$`));
-  if (!match) return null;
-  const rollNo = Number(match[1]);
-  const teamId = Number(match[3]);
-  if (!Number.isSafeInteger(rollNo) || rollNo <= 0 || teamId < 1000 || teamId > 9999) return null;
-  return { rollNo, separator: match[2], teamId };
+  const parts = value.trim().split("|");
+  if (parts.length !== 2) return null;
+
+  const participantId = parts[0].trim().toLowerCase();
+  const teamId = Number(parts[1].trim());
+  const isObjectId = /^[a-f0-9]{24}$/.test(participantId);
+  if (!isObjectId || !Number.isSafeInteger(teamId) || teamId < 1000 || teamId > 9999) return null;
+  return { participantId, teamId };
 }
 
 export function addIgnithonQrLogo(svg: string, logoDataUri: string) {

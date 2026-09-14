@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { isKiitEmailDomain } from "./ignithon-identity";
 
 const COOKIE_NAME = "ignithon_session";
-const SESSION_TTL_SECONDS = 60 * 60 * 24 * 100;
+const SESSION_TTL_SECONDS = 60 * 60 * 24 * 120;
 
 export type IgnithonSession = {
   email: string;
@@ -66,11 +66,11 @@ export const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test
 export const getKiitRollNumber = (email: string) => {
   if (!isKiitEmail(email)) return null;
   const localPart = normalizeEmail(email).split("@")[0];
-  return /^\d+$/.test(localPart) ? Number(localPart) : null;
+  return /^\d+$/.test(localPart) ? localPart : null;
 };
 
-export const hasValidRegistrationIdentity = (email: string, rollNo: number | undefined) => {
-  if (!isValidEmail(email) || !Number.isInteger(rollNo) || Number(rollNo) <= 0) return false;
+export const hasValidRegistrationIdentity = (email: string, rollNo: string | undefined) => {
+  if (!isValidEmail(email) || !isKiitEmail(email) || typeof rollNo !== "string" || !/^\d+$/.test(rollNo) || Number(rollNo) <= 0) return false;
   const kiitRollNumber = getKiitRollNumber(email);
   return kiitRollNumber === null || kiitRollNumber === rollNo;
 };

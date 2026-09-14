@@ -18,12 +18,12 @@ export async function GET(request: NextRequest) {
       teams.find({}).sort({ id: 1 }).toArray(),
       participants.find({}).sort({ team_id: 1, status: 1, roll_no: 1 }).toArray(),
     ]);
-    const teamsById = new Map(teamRecords.map((team) => [team.id, team]));
+    const teamsByObjectId = new Map(teamRecords.map((team) => [team._id.toHexString(), team]));
     const rows = participantRecords.map((participant) => {
-      const team = teamsById.get(participant.team_id);
+      const team = teamsByObjectId.get(participant.team_id.toHexString());
       const role = team?.members[0]?.equals(participant._id) ? "leader" : "member";
       return {
-        team_id: participant.team_id,
+        team_id: team?.id ?? "",
         team_name: team?.name ?? "",
         role,
         status: participant.status,
@@ -34,23 +34,23 @@ export async function GET(request: NextRequest) {
         branch: participant.branch,
         year: participant.year,
         hostel: participant.hostel ?? "Day boarder",
-        checked_in_at: participant.checked_in_at?.toISOString() ?? "",
-        checked_in_by: participant.checked_in_by ?? "",
+        attendance: participant.attendance === true,
+        updatedAt: participant.updatedAt?.toISOString() ?? "",
         removed_at: participant.removed_at?.toISOString() ?? "",
       };
     });
 
     const format = request.nextUrl.searchParams.get("format");
     if (format === "csv") {
-      const headers = Object.keys(rows[0] ?? { team_id: "", team_name: "", role: "", status: "", name: "", email: "", roll_no: "", phone: "", branch: "", year: "", hostel: "", checked_in_at: "", checked_in_by: "", removed_at: "" });
+      const headers = Object.keys(rows[0] ?? { team_id: "", team_name: "", role: "", status: "", name: "", email: "", roll_no: "", phone: "", branch: "", year: "", hostel: "", attendance: false, updatedAt: "", removed_at: "" });
       const csv = [headers.map(csvCell).join(","), ...rows.map((row) => headers.map((header) => csvCell(row[header as keyof typeof row])).join(","))].join("\n");
       return new NextResponse(csv, { headers: { "Content-Type": "text/csv; charset=utf-8", "Content-Disposition": `attachment; filename="ignithon-registrations-${new Date().toISOString().slice(0, 10)}.csv"`, "Cache-Control": "private, no-store" } });
     }
 
     return NextResponse.json({
       generatedAt: new Date().toISOString(),
-      summary: { teams: teamRecords.length, registrations: rows.length, active: rows.filter((row) => row.status === "ACTIVE").length, checkedIn: rows.filter((row) => row.checked_in_at).length },
-      teams: teamRecords.map((team) => ({ id: team.id, name: team.name, memberCount: team.members.length })),
+      summary: { teams: teamRecords.length, registrations: rows.length, active: rows.filter((row) => row.status === "ACTIVE").length, checkedIn: rows.filter((row) => row.attendance).length },
+      teams: teamRecords.map((team) => ({ id: team.id, name: team.name, room: team.room ?? null, points: team.points, memberCount: team.members.length })),
       registrations: rows,
     }, { headers: { "Cache-Control": "private, no-store" } });
   } catch (error) {

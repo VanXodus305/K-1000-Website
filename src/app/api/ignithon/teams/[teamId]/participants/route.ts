@@ -8,7 +8,7 @@ const MAX_TEAM_SIZE = 4;
 const COOLING_PERIOD_MS = 5 * 60 * 1000;
 
 function validParticipant(value: Partial<ParticipantInput>) {
-  return Boolean(value.name?.trim() && value.email && hasValidRegistrationIdentity(value.email, value.roll_no) && value.phone?.trim() && value.branch?.trim() && Number.isInteger(value.year) && Number(value.year) >= 1 && Number(value.year) <= 4);
+  return Boolean(value.name?.trim() && value.email && hasValidRegistrationIdentity(value.email, value.roll_no) && value.phone?.trim() && value.branch?.trim() && Number.isInteger(value.year) && Number(value.year) >= 1 && Number(value.year) <= 5);
 }
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ teamId: string }> }) {
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     if (existing?.status === "ACTIVE") return NextResponse.json({ error: "This participant is already registered in a team." }, { status: 409 });
     if (existing?.removed_at && Date.now() - existing.removed_at.getTime() < COOLING_PERIOD_MS) return NextResponse.json({ error: "This participant can join another team after the five-minute cooling period." }, { status: 409 });
 
-    const participant = { name: input.name!.trim(), email, roll_no: input.roll_no!, qr_separator: existing?.qr_separator ?? await allocateIgnithonQrSeparator(participants), hostel: input.hostel?.trim() || null, phone: input.phone!.trim(), branch: input.branch!.trim(), year: input.year!, team_id: teamId, status: "ACTIVE" as const };
+    const participant = { name: input.name!.trim(), email, roll_no: input.roll_no!.trim(), qr_separator: existing?.qr_separator ?? await allocateIgnithonQrSeparator(participants), hostel: input.hostel?.trim() || null, phone: input.phone!.trim(), branch: input.branch!.trim(), year: input.year!, team_id: team._id, status: "ACTIVE" as const, attendance: existing?.attendance ?? false, is_kiit_student: existing?.is_kiit_student ?? false, updatedAt: new Date() };
     let participantId;
     if (existing) {
       await participants.updateOne({ _id: existing._id }, { $set: participant, $unset: { removed_at: "" } });
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     } else {
       participantId = (await participants.insertOne(participant)).insertedId;
     }
-    await teams.updateOne({ id: teamId }, { $push: { members: participantId } });
+    await teams.updateOne({ id: teamId }, { $push: { members: participantId }, $set: { updatedAt: new Date() } });
     return NextResponse.json({ participant }, { status: 201 });
   } catch (error) {
     console.error("Ignithon participant creation failed", error);

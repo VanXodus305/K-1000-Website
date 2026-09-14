@@ -8,24 +8,26 @@ export type IgnithonTeam = {
   name: string;
   members: ObjectId[];
   points: number;
-  checked_in_at?: Date;
-  checked_in_by?: string;
+  room?: string | null;
+  updatedAt?: Date;
+  createdAt?: Date;
 };
 
 export type IgnithonParticipant = {
   name: string;
   email: string;
-  roll_no: number;
+  roll_no: string;
   qr_separator: string;
-  team_id: number;
+  team_id: ObjectId;
   hostel: string | null;
   phone: string;
   branch: string;
   year: number;
   status: ParticipantStatus;
+  attendance: boolean;
+  is_kiit_student: boolean;
+  updatedAt?: Date;
   removed_at?: Date;
-  checked_in_at?: Date;
-  checked_in_by?: string;
 };
 
 export type ParticipantInput = Omit<IgnithonParticipant, "team_id" | "status" | "removed_at">;

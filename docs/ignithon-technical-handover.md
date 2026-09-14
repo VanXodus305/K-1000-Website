@@ -135,7 +135,7 @@ This also uses two writes without a transaction. If one write fails, inspect and
 - A member may edit only the participant whose email equals the signed session email.
 - Editable fields are only `name`, `phone`, `branch`, `year`, and `hostel`.
 - Email, roll number, Team ID, status, role, QR identity, check-in fields, and removal fields are not editable through this endpoint.
-- Trim string updates, convert blank hostel to `null`, and require year to be an integer from 1 through 4.
+- Trim string updates, convert blank hostel to `null`, and require year to be an integer from 1 through 5.
 
 #### Transfer team leadership
 
@@ -151,19 +151,19 @@ This also uses two writes without a transaction. If one write fails, inspect and
 
 - Require `x-ignithon-scanner-key` to match `IGNITHON_SCANNER_KEY` using timing-safe comparison.
 - Rate-limit by scanner IP: 120 requests per 60-second in-memory window.
-- Parse only the exact `ROLL_NO + QR_SEPARATOR + TEAM_ID` personal identity format, where `QR_SEPARATOR` is the participant's stored random five-character uppercase alphanumeric code.
+- Parse only the exact `PARTICIPANT_OBJECT_ID + | + TEAM_ID` personal identity format. `PARTICIPANT_OBJECT_ID` is the participant document's 24-character MongoDB ObjectId and `TEAM_ID` is the team's unique numeric `id`.
 - Never treat readable QR text as authorization; query the live team and active participant and verify that the participant ObjectId is present in the ordered team roster.
 - There is no team QR or team-level scan operation.
-- Preserve the first check-in timestamp. Repeated scans return `alreadyCheckedIn: true` and must not create another record.
+- Set `attendance` to `true` on the first valid scan. Repeated scans return `alreadyCheckedIn: true` and must not create another attendance record.
 - Limit supplied `scannerId` to 80 characters; default to `scanner`.
 
 ### Input and identity rules
 
 - Team IDs are integers from 1000 through 9999.
-- Years are integers from 1 through 4.
-- Roll numbers are positive integers.
+- Years are integers from 1 through 5.
+- Roll numbers are digit-only strings. They may be converted to numbers only for validation, never for persistence or lookup.
 - Emails are trimmed and lowercased before persistence or comparison.
-- Any syntactically valid email is accepted. If a numeric `@kiit.ac.in` email is supplied, its local part must equal `roll_no`.
+- Only email addresses from the approved KIIT domain array are accepted. If a numeric KIIT email is supplied, its local part must equal `roll_no`.
 - Blank hostel means day boarder and is stored as `null`, not an empty string.
 - Team size is four people total: one leader plus at most three members.
 
@@ -173,11 +173,11 @@ This also uses two writes without a transaction. If one write fails, inspect and
 
 The `ignithon_session` cookie contains base64url-encoded JSON with email, Team ID, role, and expiry, followed by an HMAC-SHA256 signature. It is signed, not encrypted; never put additional private data in it.
 
-The server must verify the signature using timing-safe comparison and reject expired or malformed payloads. Cookie properties are HTTP-only, SameSite=Lax, path `/`, secure in production, and 100-day maximum age.
+The server must verify the signature using timing-safe comparison and reject expired or malformed payloads. Cookie properties are HTTP-only, SameSite=Lax, path `/`, secure in production, and 120-day maximum age.
 
 Returning login accepts only roll number plus Team ID. The server looks up an active participant and derives email and role from MongoDB before signing the session. Never accept a client-supplied role or email as authoritative during login.
 
-The client-readable `ignithon_returning_identity` cookie stores only roll number and Team ID for 100 days. On a later visit, the portal uses it to restore an active matching team session and redirect the same browser back into that team portal. Logout clears `ignithon_session`; it does not clear the remembered identity.
+The client-readable `ignithon_returning_identity` cookie stores only roll number and Team ID for 120 days. On a later visit, the portal uses it to restore an active matching team session and redirect the same browser back into that team portal. Logout clears `ignithon_session`; it does not clear the remembered identity.
 
 #### Admin access
 
@@ -196,7 +196,8 @@ The client-readable `ignithon_returning_identity` cookie stores only roll number
 
 ### Personal QR contract
 
-- The only QR value is `ROLL_NO + QR_SEPARATOR + TEAM_ID`; the separator is a stored random five-character uppercase alphanumeric code unique to that participant.
+- The only QR value is `PARTICIPANT_OBJECT_ID|TEAM_ID`, for example `6aa6ff1486d1869698a45560|3766`.
+- `TEAM_ID` is the team's public numeric `id`, not the team's MongoDB `_id`.
 - The QR belongs to the currently signed-in participant in the portal UI.
 - The value is intentionally readable and therefore provides identity only, never authorization.
 - QR SVG responses are private and `no-store`.
@@ -416,8 +417,9 @@ id: Integer, unique four-digit Team ID
 name: String
 members: [ObjectId] (ordered participant references; index 0 is leader)
 points: Integer
-checked_in_at?: Date
-checked_in_by?: String
+room: String | null
+createdAt?: Date
+updatedAt?: Date
 ```
 
 ### `ignithon-participants`
@@ -425,22 +427,23 @@ checked_in_by?: String
 ```text
 name: String
 email: String, unique
-roll_no: Integer, unique
-qr_separator: String, unique five-character alphanumeric QR code
-team_id: Integer (reference to ignithon-teams.id)
+roll_no: String, unique digit-only value
+qr_separator: String, legacy participant field retained for schema compatibility
+team_id: ObjectId (reference to ignithon-teams._id)
 hostel: String | null
 phone: String
 branch: String
 year: Integer
 status: "ACTIVE" | "REMOVED"
+attendance: Boolean
+is_kiit_student: Boolean
+updatedAt?: Date
 removed_at?: Date
-checked_in_at?: Date
-checked_in_by?: String
 ```
 
 The application creates unique indexes for Team ID, participant roll number, and participant email. It also creates a team/status lookup index.
 
-The September 2026 migration converted legacy `{ email, role }` team-member objects into ordered participant ObjectIds and removed `is_kiit_student`. The idempotent verifier is `scripts/migrate-ignithon-member-references.mjs`; run it with `node --env-file=.env ...` for a dry run and add `--apply` only for an authorized migration. Apply mode writes a permission-restricted backup under `/tmp` before changing either owned collection.
+The September 2026 migration converts legacy `{ email, role }` team-member objects into ordered participant ObjectIds and converts legacy numeric participant `team_id` values to the owning team's MongoDB `_id`. The idempotent verifier is `scripts/migrate-ignithon-member-references.mjs`; run it with `node --env-file=.env ...` for a dry run and add `--apply` only for an authorized migration. Apply mode writes a permission-restricted backup under `/tmp` before changing either owned collection.
 
 ## Business rules
 
@@ -456,8 +459,8 @@ The September 2026 migration converted legacy `{ email, role }` team-member obje
 
 Returning users authenticate with their unique roll number plus four-digit Team ID. The server resolves the participant's email and role from MongoDB before creating the session.
 
-- `ignithon_session`: signed, HTTP-only, SameSite=Lax authentication cookie; 100-day lifetime.
-- `ignithon_returning_identity`: remembers roll number and Team ID for 100 days and survives logout. It restores the matching active team portal in the same browser.
+- `ignithon_session`: signed, HTTP-only, SameSite=Lax authentication cookie; 120-day lifetime.
+- `ignithon_returning_identity`: remembers roll number and Team ID for 120 days and survives logout. It restores the matching active team portal in the same browser.
 - `ignithon-team-id`: local-storage convenience value used to reopen a portal while the signed server session remains valid. It is removed on logout.
 
 Logout clears only the authenticated session and local portal pointer. The remembered identity remains available for the next login.
@@ -509,12 +512,18 @@ Never commit `.env`. The repository ignores all `.env*` files.
 
 ## QR and attendance
 
-- Participant QRs contain `ROLL_NO + random-five-character-QR-code + TEAM_ID` as one readable text value.
+- Participant QRs contain `PARTICIPANT_OBJECT_ID|TEAM_ID` as one readable text value. The QR uses the transparent K-1000 mark from `public/k1000-qr-logo.png` at a 27% embedded image size, with no separate center placeholder.
 - There is no team QR.
 - The backend treats the QR as identity only and validates it against the live team roster and participant record.
-- First scan records `checked_in_at` and `checked_in_by`.
-- Repeated scans are idempotent and return the original check-in timestamp.
+- First scan changes `attendance` to `true` and updates `updatedAt`.
+- Repeated scans are idempotent and return `alreadyCheckedIn: true` without changing attendance again.
 - Scanner requests are API-key protected and rate limited.
+
+## Event assets and registration presentation
+
+- The `/events` gallery uses WebP assets under `public/events/` to reduce first-load transfer size.
+- The Ignithon registration entry screen supports 1st through 5th Year and displays the approved KIIT email-domain validation message inline.
+- The home registration notice uses the enlarged K-1000 mark and omits the obsolete “K-1000 event access” label.
 
 ## Admin registry
 

@@ -18,19 +18,20 @@ export async function getIgnithonCollections() {
 }
 
 export function serializeParticipant(participant: WithId<IgnithonParticipant>) {
-  const { _id: _internalId, ...publicParticipant } = participant;
-  void _internalId;
+  const { _id, team_id, ...publicParticipant } = participant;
   return {
     ...publicParticipant,
+    id: _id.toHexString(),
+    team_id: team_id.toHexString(),
+    updatedAt: participant.updatedAt?.toISOString() ?? null,
     removed_at: participant.removed_at?.toISOString() ?? null,
-    checked_in_at: participant.checked_in_at?.toISOString() ?? null,
   };
 }
 
 export async function findTeamAndParticipants(teams: Collection<IgnithonTeam>, participants: Collection<IgnithonParticipant>, teamId: number) {
   const team = await teams.findOne({ id: teamId });
   if (!team) return { team: null, members: [] };
-  const activeParticipants = await participants.find({ _id: { $in: team.members }, team_id: teamId, status: "ACTIVE" }).toArray();
+  const activeParticipants = await participants.find({ _id: { $in: team.members }, team_id: team._id, status: "ACTIVE" }).toArray();
   const byId = new Map(activeParticipants.map((participant) => [participant._id.toHexString(), participant]));
   const members = team.members.map((memberId) => byId.get(memberId.toHexString())).filter((member): member is NonNullable<typeof member> => Boolean(member));
   return { team, members };

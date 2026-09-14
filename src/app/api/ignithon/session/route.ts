@@ -8,14 +8,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Too many access attempts. Please try again shortly." }, { status: 429 });
   }
   try {
-    const body = await request.json() as { rollNo?: number; teamId?: number };
-    if (!Number.isInteger(body.rollNo) || Number(body.rollNo) <= 0 || !Number.isInteger(body.teamId) || (body.teamId ?? 0) < 1000 || (body.teamId ?? 0) > 9999) {
+    const body = await request.json() as { rollNo?: string | number; teamId?: number };
+    const rollNo = typeof body.rollNo === "number" ? String(body.rollNo) : body.rollNo?.trim();
+    if (!rollNo || !/^\d+$/.test(rollNo) || Number(rollNo) <= 0 || !Number.isInteger(body.teamId) || (body.teamId ?? 0) < 1000 || (body.teamId ?? 0) > 9999) {
       return NextResponse.json({ error: "Enter your registered roll number and four-digit Team ID." }, { status: 400 });
     }
     const teamId = Number(body.teamId);
     const { teams, participants } = await getIgnithonCollections();
     const team = await teams.findOne({ id: teamId });
-    const participant = await participants.findOne({ roll_no: Number(body.rollNo), team_id: teamId, status: "ACTIVE" });
+    const participant = team ? await participants.findOne({ roll_no: rollNo, team_id: team._id, status: "ACTIVE" }) : null;
     if (!team || !participant) return NextResponse.json({ error: "No active team membership matches those details." }, { status: 401 });
     const role = team.members[0]?.equals(participant._id) ? "leader" : "member";
     await setIgnithonSession({ email: participant.email, teamId, role });

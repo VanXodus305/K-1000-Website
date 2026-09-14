@@ -42,7 +42,7 @@ export default function RecruitmentLiveModal() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="recruitment-live-title"
-            className="relative w-full max-w-[520px] overflow-hidden rounded-[30px] border border-cyan-300/25 bg-[#020707]/92 p-5 text-center text-white shadow-[0_0_80px_rgba(0,247,255,0.16)] sm:p-7"
+            className="relative w-full max-w-[600px] overflow-hidden rounded-[28px] border border-cyan-300/25 bg-[#020707]/95 p-5 text-left text-white shadow-[0_0_80px_rgba(0,247,255,0.16)] sm:rounded-[32px] sm:p-8"
             initial={{ opacity: 0, y: 24, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 16, scale: 0.97 }}
@@ -66,33 +66,43 @@ export default function RecruitmentLiveModal() {
             </button>
 
             <div className="relative z-10">
-              <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-[26px] border border-cyan-300/20 bg-black/45 shadow-[inset_0_0_26px_rgba(0,247,255,0.08),0_0_36px_rgba(0,247,255,0.12)]">
+              <div className="flex items-start gap-4 pr-10">
+                <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-[24px] border border-cyan-300/20 bg-black/45 shadow-[inset_0_0_26px_rgba(0,247,255,0.08),0_0_36px_rgba(0,247,255,0.12)] sm:h-28 sm:w-28 sm:rounded-[28px]">
                 <img
                   src="/k1000-small.png"
                   alt="K-1000"
-                  className="h-16 w-auto brightness-110 drop-shadow-[0_0_16px_rgba(0,247,255,0.35)]"
+                  className="h-16 w-auto brightness-110 drop-shadow-[0_0_16px_rgba(0,247,255,0.35)] sm:h-20"
                 />
+                </div>
+                <div className="min-w-0 pt-1">
+                  <h2 id="recruitment-live-title" className={`${conthrax} mt-3 max-w-[420px] text-xl uppercase leading-[1.12] tracking-tight text-white sm:text-3xl`}>
+                    Ignithon 2.0 registration is live
+                  </h2>
+                </div>
               </div>
 
-              <h2 id="recruitment-live-title" className={`${conthrax} mt-6 text-2xl uppercase tracking-tight text-white sm:text-4xl`}>
-                Ignithon 2.0 Registration Is Live
-              </h2>
+              <p className="mt-6 max-w-[500px] text-sm leading-relaxed text-white/55 sm:text-base">
+                Register your team, receive your Team ID, and manage your participant roster from the Ignithon 2.0 portal.
+              </p>
 
-              <div className="mt-6 rounded-[22px] border border-cyan-300/18 bg-cyan-400/[0.045] px-4 py-4">
+              <div className="mt-6 rounded-[20px] border border-cyan-300/18 bg-cyan-400/[0.045] px-4 py-4 sm:px-5">
                 <p className={`${orbitron} text-[9px] uppercase tracking-[0.28em] text-white/32`}>Registration Dates</p>
                 <p className={`${conthrax} mt-2 text-lg uppercase tracking-[0.08em] text-cyan-200 sm:text-xl`}>
                   26th & 27th September 2026
                 </p>
               </div>
 
-              <div className="mt-7">
+              <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
                 <Link
                   href="/events"
                   onClick={dismissNotice}
-                  className={`${conthrax} rounded-full border border-cyan-300 bg-cyan-300 px-5 py-3 text-[10px] uppercase tracking-[0.26em] text-black transition-all hover:bg-white hover:border-white`}
+                  className={`${conthrax} inline-flex min-h-12 items-center justify-center rounded-full border border-cyan-300 bg-cyan-300 px-6 py-3 text-[10px] uppercase tracking-[0.22em] text-black transition-all hover:border-white hover:bg-white`}
                 >
                   Register Now
                 </Link>
+                <button type="button" onClick={dismissNotice} className={`${conthrax} min-h-12 rounded-full border border-white/10 px-6 py-3 text-[10px] uppercase tracking-[0.22em] text-white/50 transition-all hover:border-cyan-300/35 hover:text-cyan-100`}>
+                  Continue browsing
+                </button>
               </div>
             </div>
           </motion.div>

@@ -15,7 +15,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ tea
     const role = team.members[0]?.equals(currentParticipant._id) ? "leader" : "member";
     if (role !== session.role) await setIgnithonSession({ email: session.email, teamId, role });
     return NextResponse.json({
-      team: { id: team.id, name: team.name, leader_email: members[0]?.email ?? "", member_count: members.length },
+      team: { id: team.id, name: team.name, room: team.room ?? null, points: team.points, leader_email: members[0]?.email ?? "", member_count: members.length },
       participants: members.map(serializeParticipant),
       session: { ...session, role },
     });

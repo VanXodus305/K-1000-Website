@@ -14,7 +14,7 @@ function validParticipant(value: Partial<ParticipantInput>) {
     value.name?.trim() &&
     value.email && hasValidRegistrationIdentity(value.email, value.roll_no) &&
     value.phone?.trim() && value.branch?.trim() &&
-    Number.isInteger(value.year) && Number(value.year) >= 1 && Number(value.year) <= 4,
+    Number.isInteger(value.year) && Number(value.year) >= 1 && Number(value.year) <= 5,
   );
 }
 
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
       }
       const existingParticipant = participantByEmail;
       if (existingParticipant.status === "ACTIVE") {
-        const existingTeam = await teams.findOne({ id: existingParticipant.team_id });
+        const existingTeam = await teams.findOne({ _id: existingParticipant.team_id });
         const isExistingLeader = existingTeam?.members[0]?.equals(existingParticipant._id);
         if (existingTeam && isExistingLeader) {
           await setIgnithonSession({ email: leaderEmail, teamId: existingTeam.id, role: "leader" });
@@ -61,17 +61,18 @@ export async function POST(request: NextRequest) {
 
     const qrSeparator = await allocateIgnithonQrSeparator(participants);
     const participant: ParticipantInput = {
-      name: leader.name!.trim(), email: leaderEmail, roll_no: leader.roll_no!,
+      name: leader.name!.trim(), email: leaderEmail, roll_no: leader.roll_no!.trim(),
       qr_separator: qrSeparator,
       hostel: leader.hostel?.trim() || null, phone: leader.phone!.trim(),
-      branch: leader.branch!.trim(), year: leader.year!,
+      branch: leader.branch!.trim(), year: leader.year!, attendance: false, is_kiit_student: false, updatedAt: new Date(),
     };
     let teamId: number | null = null;
     let teamResult: Awaited<ReturnType<typeof teams.insertOne>> | null = null;
     for (let attempt = 0; attempt < 30; attempt += 1) {
       const candidateId = await generateTeamId(teams);
       try {
-        teamResult = await teams.insertOne({ id: candidateId, name: body.name.trim(), members: [], points: 0 });
+        const now = new Date();
+        teamResult = await teams.insertOne({ id: candidateId, name: body.name.trim(), members: [], points: 0, room: null, createdAt: now, updatedAt: now });
         teamId = candidateId;
         break;
       } catch (error) {
@@ -80,10 +81,10 @@ export async function POST(request: NextRequest) {
     }
     if (!teamResult || teamId === null) throw new Error("Unable to allocate a unique team ID");
     try {
-      const participantResult = await participants.insertOne({ ...participant, team_id: teamId, status: "ACTIVE" });
-      await teams.updateOne({ _id: teamResult.insertedId }, { $set: { members: [participantResult.insertedId] } });
+      const participantResult = await participants.insertOne({ ...participant, team_id: teamResult.insertedId, status: "ACTIVE" });
+      await teams.updateOne({ _id: teamResult.insertedId }, { $set: { members: [participantResult.insertedId], updatedAt: new Date() } });
     } catch (error) {
-      await Promise.all([teams.deleteOne({ _id: teamResult.insertedId }), participants.deleteOne({ team_id: teamId, email: leaderEmail })]);
+      await Promise.all([teams.deleteOne({ _id: teamResult.insertedId }), participants.deleteOne({ team_id: teamResult.insertedId, email: leaderEmail })]);
       throw error;
     }
 

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { ObjectId } from "mongodb";
 import { hasValidApiKey } from "@/lib/ignithon-api-key";
 import { getIgnithonCollections } from "@/lib/ignithon-db";
 import { readIgnithonParticipantQrValue } from "@/lib/ignithon-qr";
@@ -17,30 +18,28 @@ export async function POST(request: NextRequest) {
     const identity = readIgnithonParticipantQrValue(body.token);
     if (!identity) return NextResponse.json({ error: "Invalid Ignithon participant QR code." }, { status: 400 });
 
-    const scannerId = typeof body.scannerId === "string" ? body.scannerId.trim().slice(0, 80) : "scanner";
     const { teams, participants } = await getIgnithonCollections();
-    const [team, participant] = await Promise.all([
-      teams.findOne({ id: identity.teamId }, { projection: { _id: 0, id: 1, name: 1, members: 1 } }),
-      participants.findOne({ team_id: identity.teamId, roll_no: identity.rollNo, qr_separator: identity.separator, status: "ACTIVE" }),
-    ]);
+    const team = await teams.findOne({ id: identity.teamId });
+    const participant = team && ObjectId.isValid(identity.participantId)
+      ? await participants.findOne({ _id: new ObjectId(identity.participantId), team_id: team._id, status: "ACTIVE" })
+      : null;
     if (!team || !participant || !team.members.some((memberId) => memberId.equals(participant._id))) {
       return NextResponse.json({ error: "This registration is no longer active." }, { status: 404 });
     }
 
-    const existingCheckIn = participant.checked_in_at;
-    const checkedInAt = existingCheckIn ?? new Date();
-    if (!existingCheckIn) {
+    const alreadyCheckedIn = participant.attendance === true;
+    if (!alreadyCheckedIn) {
       await participants.updateOne(
-        { _id: participant._id, checked_in_at: { $exists: false } },
-        { $set: { checked_in_at: checkedInAt, checked_in_by: scannerId } },
+        { _id: participant._id, attendance: { $ne: true } },
+        { $set: { attendance: true, updatedAt: new Date() } },
       );
     }
 
     return NextResponse.json({
       ok: true,
       scanType: "participant",
-      alreadyCheckedIn: Boolean(existingCheckIn),
-      checkedInAt: checkedInAt.toISOString(),
+      alreadyCheckedIn,
+      attendance: true,
       participant: { name: participant.name, email: participant.email, rollNo: participant.roll_no, role: team.members[0]?.equals(participant._id) ? "leader" : "member" },
       team: { id: team.id, name: team.name },
     });
