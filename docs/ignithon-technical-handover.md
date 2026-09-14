@@ -11,7 +11,7 @@ This section is the normative contract for any LLM or developer continuing the I
 - An LLM **MUST NOT** query or modify unrelated collections in the configured database.
 - Existing historical event data **MUST** remain intact. Ignithon 2.0 is an additional event and registration system.
 - Secrets **MUST NOT** be written into source code, Markdown, logs, browser URLs, Git commits, or client-side bundles.
-- `.env.local` is the local secret source and is Git-ignored. Deployment secrets belong in the hosting provider's environment configuration.
+- `.env` is the local test secret source and is Git-ignored. Deployment secrets belong in the hosting provider's environment configuration; never deploy the file itself.
 - After changing an environment value, restart the Next.js process because server modules may have captured environment values when loaded.
 
 ### Source-of-truth hierarchy
@@ -22,7 +22,7 @@ When documentation and code disagree, inspect these files before changing behavi
 2. `src/lib/ignithon-db.ts` — collection names, indexes, serialization, and shared queries.
 3. `src/lib/mongodb.ts` — connection lifecycle and database selection.
 4. `src/lib/ignithon-auth.ts` — session signing and registration-identity rules.
-5. `src/lib/ignithon-qr.ts` — encrypted QR contracts.
+5. `src/lib/ignithon-qr.ts` — unified personal QR identity format.
 6. `src/app/api/ignithon/**/route.ts` — authorization, validation, and writes.
 7. This handover — intended product invariants and operational constraints.
 
@@ -77,7 +77,7 @@ Consequences an LLM must preserve:
 Membership is intentionally represented twice:
 
 ```text
-ignithon-teams.members[]                 -> { email, role }
+ignithon-teams.members[]                 -> ordered participant ObjectId references
 ignithon-participants.team_id + status  -> team membership record
 ```
 
@@ -85,11 +85,11 @@ For every active participant:
 
 1. There **MUST** be exactly one participant document with `status: "ACTIVE"`.
 2. Its `team_id` **MUST** reference one existing team.
-3. That team's `members` array **MUST** contain the participant's normalized email exactly once.
-4. Exactly one member reference per team **MUST** have `role: "leader"`.
+3. That team's `members` array **MUST** contain the participant's MongoDB `_id` exactly once.
+4. `members[0]` **MUST** reference the team leader. There is no persisted role field.
 5. The leader must also exist as an active participant document for the same Team ID.
 
-Any future write path that changes membership **MUST** update both collections. Reads of the portal use active participant documents; authorization roles come from `team.members`. Do not infer the leader from participant sort order or array position. Find the member reference whose role is `leader`.
+Any future write path that changes membership **MUST** update both collections. Reads resolve active participant documents in the exact order of `team.members`; authorization derives the leader from index `0`. Never sort the ordered roster before deriving leadership.
 
 ### Write protocols
 
@@ -101,9 +101,9 @@ Any future write path that changes membership **MUST** update both collections. 
 4. Reject an existing email or roll number. If that active record is already the leader of its team, reopen that team instead of creating a duplicate.
 5. A person previously registered as a member must never create a new team as its leader, including after removal. The only supported promotion path is an authorized leadership transfer inside that person's current active team.
 6. Generate a random integer from 1000 through 9999; check for collision; retry at most 30 times.
-7. Insert the team first with one leader reference and zero points.
-8. Insert the leader participant as active.
-9. If leader insertion fails, delete only the just-created team as compensating rollback.
+7. Insert the team first with an empty member array.
+8. Insert the leader participant as active, then store its inserted ObjectId at `members[0]`.
+9. If either participant insertion or the reference update fails, delete only the just-created team and participant as compensating rollback.
 10. Issue the signed leader session only after both inserts succeed.
 
 #### Add a member
@@ -115,16 +115,16 @@ Any future write path that changes membership **MUST** update both collections. 
 5. Reject any active record matching either email or roll number.
 6. If a removed record exists, require at least five minutes since `removed_at`.
 7. Reactivate the existing participant document when present; otherwise insert a new document.
-8. Push one `{ email, role: "member" }` reference into the team.
+8. Push the active participant document's ObjectId into the ordered team member array.
 
 This operation currently uses two writes without a MongoDB transaction. A future LLM should prefer a transaction when the deployment topology supports transactions, or implement an explicit compensating rollback. Never add retry logic that can push duplicate member references.
 
 #### Remove a member
 
 1. Require a valid leader session for the same Team ID.
-2. Reject attempts to remove the member reference whose role is `leader`.
+2. Reject attempts to remove the participant referenced by `members[0]`.
 3. Set participant `status` to `REMOVED` and `removed_at` to the current server time.
-4. Pull that email from the team's member array.
+4. Pull that participant ObjectId from the team's member array.
 5. Keep the participant document so uniqueness, history, and cooling-period enforcement remain possible.
 
 This also uses two writes without a transaction. If one write fails, inspect and repair the cross-collection invariant before retrying.
@@ -135,38 +135,35 @@ This also uses two writes without a transaction. If one write fails, inspect and
 - A member may edit only the participant whose email equals the signed session email.
 - Editable fields are only `name`, `phone`, `branch`, `year`, and `hostel`.
 - Email, roll number, Team ID, status, role, QR identity, check-in fields, and removal fields are not editable through this endpoint.
-- Trim string updates, convert blank hostel to `null`, and require year to be an integer from 1 through 6.
+- Trim string updates, convert blank hostel to `null`, and require year to be an integer from 1 through 4.
 
 #### Transfer team leadership
 
 1. Require a valid session for the same Team ID with role `leader`.
 2. Rate-limit by the current leader email: 10 attempts per 60-second in-memory window.
-3. Accept only the normalized email of another active participant in the same team whose current role is `member`.
-4. Replace the team's complete role assignment atomically so the selected member is the sole `leader` and every other roster entry is a `member`.
+3. Accept only the normalized email of another active participant referenced by the same team outside index `0`.
+4. Reorder the member-reference array atomically so the selected participant moves to index `0`; preserve all other references.
 5. Include the current leader identity in the update filter so concurrent or stale transfers fail with `409`.
 6. Immediately replace the initiating user's signed session with a member session. The promoted leader obtains leader permissions on their next login; server authorization must always derive their current role from the team record.
-7. Do not modify either participant document during a transfer. Participant identity and Team ID remain unchanged; only `ignithon-teams.members[].role` changes.
+7. Do not modify either participant document during a transfer. Participant identity and Team ID remain unchanged; only the ordered member references change.
 
 #### Check in by QR
 
 - Require `x-ignithon-scanner-key` to match `IGNITHON_SCANNER_KEY` using timing-safe comparison.
 - Rate-limit by scanner IP: 120 requests per 60-second in-memory window.
-- Never trust readable QR metadata by itself.
-- Decrypt and authenticate the QR token, then query the live team or active participant.
-- Team QR: match both token Team ID and token Team Name to MongoDB, then set team `checked_in_at` and `checked_in_by`.
-- Participant QR: match token Team ID and normalized token email to an active participant, then set participant check-in fields.
+- Parse only the exact `ROLL_NO + QR_SEPARATOR + TEAM_ID` personal identity format, where `QR_SEPARATOR` is the participant's stored random five-character uppercase alphanumeric code.
+- Never treat readable QR text as authorization; query the live team and active participant and verify that the participant ObjectId is present in the ordered team roster.
+- There is no team QR or team-level scan operation.
 - Preserve the first check-in timestamp. Repeated scans return `alreadyCheckedIn: true` and must not create another record.
 - Limit supplied `scannerId` to 80 characters; default to `scanner`.
 
 ### Input and identity rules
 
 - Team IDs are integers from 1000 through 9999.
-- Years are integers from 1 through 6.
+- Years are integers from 1 through 4.
 - Roll numbers are positive integers.
 - Emails are trimmed and lowercased before persistence or comparison.
-- KIIT students must use an email ending in `@kiit.ac.in`.
-- For a KIIT student, the numeric email local part must equal `roll_no`; for example, roll `12345` requires `12345@kiit.ac.in`.
-- Non-KIIT participants may use a syntactically valid normal email and provide their college roll/ID number separately.
+- Any syntactically valid email is accepted. If a numeric `@kiit.ac.in` email is supplied, its local part must equal `roll_no`.
 - Blank hostel means day boarder and is stored as `null`, not an empty string.
 - Team size is four people total: one leader plus at most three members.
 
@@ -176,11 +173,11 @@ This also uses two writes without a transaction. If one write fails, inspect and
 
 The `ignithon_session` cookie contains base64url-encoded JSON with email, Team ID, role, and expiry, followed by an HMAC-SHA256 signature. It is signed, not encrypted; never put additional private data in it.
 
-The server must verify the signature using timing-safe comparison and reject expired or malformed payloads. Cookie properties are HTTP-only, SameSite=Lax, path `/`, secure in production, and 30-day maximum age.
+The server must verify the signature using timing-safe comparison and reject expired or malformed payloads. Cookie properties are HTTP-only, SameSite=Lax, path `/`, secure in production, and 100-day maximum age.
 
 Returning login accepts only roll number plus Team ID. The server looks up an active participant and derives email and role from MongoDB before signing the session. Never accept a client-supplied role or email as authoritative during login.
 
-The client-readable `ignithon_returning_identity` cookie stores only roll number and Team ID for form prefill. It survives logout for 180 days but grants no server authorization. Logout clears `ignithon_session`; it does not clear the remembered identity.
+The client-readable `ignithon_returning_identity` cookie stores only roll number and Team ID for 100 days. On a later visit, the portal uses it to restore an active matching team session and redirect the same browser back into that team portal. Logout clears `ignithon_session`; it does not clear the remembered identity.
 
 #### Admin access
 
@@ -197,18 +194,13 @@ The client-readable `ignithon_returning_identity` cookie stores only roll number
 - The scanner key has no access to admin endpoints.
 - The scanner developer must call the scan endpoint from a trusted backend. Never embed the scanner key in a public JavaScript or mobile application bundle.
 
-### QR cryptography contract
+### Personal QR contract
 
-- Derive a 256-bit key by SHA-256 hashing `IGNITHON_QR_SECRET`; fall back to `IGNITHON_SESSION_SECRET` only when the dedicated secret is missing.
-- Encrypt payload JSON with AES-256-GCM and a fresh random 12-byte IV.
-- Token structure is `version.iv.ciphertext.authenticationTag`, with binary parts encoded as base64url.
-- Current token version is `1` and event identifier is `ignithon-2.0`.
-- Participant payload contains `kind`, event, Team ID, and normalized email.
-- Team payload contains `kind`, event, Team ID, and Team Name.
-- Rotating the QR secret invalidates every previously rendered QR.
+- The only QR value is `ROLL_NO + QR_SEPARATOR + TEAM_ID`; the separator is a stored random five-character uppercase alphanumeric code unique to that participant.
+- The QR belongs to the currently signed-in participant in the portal UI.
+- The value is intentionally readable and therefore provides identity only, never authorization.
 - QR SVG responses are private and `no-store`.
 - Participant QR generation requires leader access or the same participant session.
-- Team QR generation requires any valid session for that team.
 
 ### Serialization and data exposure
 
@@ -240,7 +232,7 @@ Before editing:
 
 1. Read this complete document and the source-of-truth files listed above.
 2. Inspect `git status`; preserve unrelated user changes in the dirty worktree.
-3. Confirm that `.env.local` remains ignored and never print secret values.
+3. Confirm that `.env` remains ignored and never print secret values.
 4. Identify which collection, route, session role, and invariant the change affects.
 
 After editing:
@@ -280,7 +272,6 @@ POST /api/ignithon/teams
   "leader": {
     "name": "Leader Name",
     "email": "1234567@kiit.ac.in",
-    "is_kiit_student": true,
     "roll_no": 1234567,
     "hostel": "KP-10",
     "phone": "9999999999",
@@ -323,7 +314,6 @@ Cookie: ignithon_session=...
 {
   "name": "Member Name",
   "email": "member@example.com",
-  "is_kiit_student": false,
   "roll_no": 7654321,
   "hostel": null,
   "phone": "9999999999",
@@ -376,7 +366,6 @@ Success returns `200 { "ok": true, "coolingPeriodSeconds": 300 }`. Non-leaders r
 ### QR images
 
 ```http
-GET /api/ignithon/teams/1234/qr
 GET /api/ignithon/teams/1234/participants/member%40example.com/qr
 Cookie: ignithon_session=...
 ```
@@ -390,7 +379,7 @@ POST /api/ignithon/scan
 x-ignithon-scanner-key: <server-side scanner key>
 
 {
-  "token": "<complete decoded QR value or opaque token>",
+  "token": "1234567Q7M2K1234",
   "scannerId": "gate-a-device-01"
 }
 ```
@@ -416,7 +405,7 @@ Missing or invalid keys return `401`. JSON and CSV responses are generated from 
 - Database: MongoDB, selected through `MONGODB_URI` and optional `MONGODB_DB`
 - Runtime: Next.js App Router server routes on the Node.js runtime
 
-This document intentionally contains no secret values. Local development values live in `.env.local`; production values must be configured in the deployment environment.
+This document intentionally contains no secret values. Local testing values live in the Git-ignored `.env`; production values must be configured in the deployment environment.
 
 ## Registration model
 
@@ -425,7 +414,7 @@ This document intentionally contains no secret values. Local development values 
 ```text
 id: Integer, unique four-digit Team ID
 name: String
-members: [{ email: String, role: "leader" | "member" }]
+members: [ObjectId] (ordered participant references; index 0 is leader)
 points: Integer
 checked_in_at?: Date
 checked_in_by?: String
@@ -436,9 +425,9 @@ checked_in_by?: String
 ```text
 name: String
 email: String, unique
-is_kiit_student: Boolean
 roll_no: Integer, unique
-team_id: Integer
+qr_separator: String, unique five-character alphanumeric QR code
+team_id: Integer (reference to ignithon-teams.id)
 hostel: String | null
 phone: String
 branch: String
@@ -450,6 +439,8 @@ checked_in_by?: String
 ```
 
 The application creates unique indexes for Team ID, participant roll number, and participant email. It also creates a team/status lookup index.
+
+The September 2026 migration converted legacy `{ email, role }` team-member objects into ordered participant ObjectIds and removed `is_kiit_student`. The idempotent verifier is `scripts/migrate-ignithon-member-references.mjs`; run it with `node --env-file=.env ...` for a dry run and add `--apply` only for an authorized migration. Apply mode writes a permission-restricted backup under `/tmp` before changing either owned collection.
 
 ## Business rules
 
@@ -465,8 +456,8 @@ The application creates unique indexes for Team ID, participant roll number, and
 
 Returning users authenticate with their unique roll number plus four-digit Team ID. The server resolves the participant's email and role from MongoDB before creating the session.
 
-- `ignithon_session`: signed, HTTP-only, SameSite=Lax authentication cookie; 30-day lifetime.
-- `ignithon_returning_identity`: remembers roll number and Team ID for 180 days and survives logout. It only prefills the login form and cannot authenticate a request.
+- `ignithon_session`: signed, HTTP-only, SameSite=Lax authentication cookie; 100-day lifetime.
+- `ignithon_returning_identity`: remembers roll number and Team ID for 100 days and survives logout. It restores the matching active team portal in the same browser.
 - `ignithon-team-id`: local-storage convenience value used to reopen a portal while the signed server session remains valid. It is removed on logout.
 
 Logout clears only the authenticated session and local portal pointer. The remembered identity remains available for the next login.
@@ -486,7 +477,6 @@ Important: roll number plus a four-digit Team ID is a convenience-level identity
 | `DELETE` | `/api/ignithon/teams/{teamId}/participants/{email}` | Remove member | Leader session |
 | `POST` | `/api/ignithon/session` | Login with roll number and Team ID | Rate limited |
 | `POST` | `/api/ignithon/session/logout` | Clear authenticated session | Current session |
-| `GET` | `/api/ignithon/teams/{teamId}/qr` | Render encrypted team QR | Team session |
 | `GET` | `/api/ignithon/teams/{teamId}/participants/{email}/qr` | Render participant QR | Leader or same participant |
 | `POST` | `/api/ignithon/scan` | Verify QR and record check-in | Scanner key |
 | `GET` | `/api/ignithon/admin/registrations` | Full JSON registry | Admin key |
@@ -510,19 +500,18 @@ The three named admin codes currently have the same technical permissions. Their
 MONGODB_URI                  required
 MONGODB_DB                   optional; defaults to k1000
 IGNITHON_SESSION_SECRET      required
-IGNITHON_QR_SECRET           recommended; falls back to session secret
 IGNITHON_ADMIN_KEY           legacy admin key
 IGNITHON_ADMIN_KEYS          comma-separated name:key entries
 IGNITHON_SCANNER_KEY         required for scanner writes
 ```
 
-Never commit `.env.local`. The repository ignores all `.env*` files.
+Never commit `.env`. The repository ignores all `.env*` files.
 
 ## QR and attendance
 
-- Participant QRs contain an encrypted registration token and no readable personal data.
-- Team QRs contain readable Team Name and Team ID for scanner display plus an encrypted authentication token.
-- The backend trusts only the decrypted token and live MongoDB record, never the readable QR metadata.
+- Participant QRs contain `ROLL_NO + random-five-character-QR-code + TEAM_ID` as one readable text value.
+- There is no team QR.
+- The backend treats the QR as identity only and validates it against the live team roster and participant record.
 - First scan records `checked_in_at` and `checked_in_by`.
 - Repeated scans are idempotent and return the original check-in timestamp.
 - Scanner requests are API-key protected and rate limited.
@@ -541,7 +530,7 @@ Admin codes stay in page memory only. They are not placed in the URL or local st
 - `src/lib/ignithon-db.ts` — collection and index setup
 - `src/lib/ignithon-types.ts` — persisted data contracts
 - `src/lib/ignithon-auth.ts` — signed session cookies
-- `src/lib/ignithon-qr.ts` — encrypted QR payloads
+- `src/lib/ignithon-qr.ts` — personal QR text formatting and parsing
 - `src/lib/ignithon-api-key.ts` — admin/scanner key comparison
 - `src/lib/ignithon-rate-limit.ts` — local request throttling
 
@@ -560,7 +549,7 @@ After deployment:
 1. Confirm `/api/ignithon/health` returns `200`.
 2. Create or use a test team and verify roll-number login.
 3. Verify leader and member edit permissions separately.
-4. Generate participant and team QRs.
+4. Generate the signed-in participant's branded personal QR and verify its decoded `ROLL_NO + QR_SEPARATOR + TEAM_ID` text.
 5. Scan against a non-production test record before event-day usage.
 6. Open the admin registry and download the CSV.
 7. Confirm secrets are present in the deployment environment and absent from Git history.

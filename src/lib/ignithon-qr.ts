@@ -1,79 +1,38 @@
-import { createCipheriv, createDecipheriv, createHash, randomBytes } from "node:crypto";
+import { randomBytes } from "node:crypto";
 
-const QR_VERSION = "1";
-export const IGNITHON_QR_PREFIX = "K1000:IGNITHON2:";
+const QR_SEPARATOR_LENGTH = 5;
+const QR_SEPARATOR_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
-export type IgnithonParticipantQrPayload = {
-  event: "ignithon-2.0";
-  kind: "participant";
+export type IgnithonParticipantQrIdentity = {
+  rollNo: number;
+  separator: string;
   teamId: number;
-  email: string;
 };
 
-export type IgnithonTeamQrPayload = {
-  event: "ignithon-2.0";
-  kind: "team";
-  teamId: number;
-  teamName: string;
-};
-
-export type IgnithonQrPayload = IgnithonParticipantQrPayload | IgnithonTeamQrPayload;
-
-function encryptionKey() {
-  const secret = process.env.IGNITHON_QR_SECRET ?? process.env.IGNITHON_SESSION_SECRET;
-  if (!secret) throw new Error("IGNITHON_QR_SECRET is not configured");
-  return createHash("sha256").update(secret).digest();
+export function createIgnithonQrSeparator() {
+  const bytes = randomBytes(QR_SEPARATOR_LENGTH);
+  return Array.from(bytes, (byte) => QR_SEPARATOR_ALPHABET[byte % QR_SEPARATOR_ALPHABET.length]).join("");
 }
 
-export function createIgnithonQrToken(payload: IgnithonQrPayload) {
-  const iv = randomBytes(12);
-  const cipher = createCipheriv("aes-256-gcm", encryptionKey(), iv);
-  const encrypted = Buffer.concat([cipher.update(JSON.stringify(payload), "utf8"), cipher.final()]);
-  const tag = cipher.getAuthTag();
-  return [QR_VERSION, iv.toString("base64url"), encrypted.toString("base64url"), tag.toString("base64url")].join(".");
+export function getIgnithonParticipantQrValue({ rollNo, separator, teamId }: IgnithonParticipantQrIdentity) {
+  return `${rollNo}${separator}${teamId}`;
 }
 
-export function readIgnithonQrToken(token: string): IgnithonQrPayload | null {
-  try {
-    const [version, ivValue, encryptedValue, tagValue] = token.split(".");
-    if (version !== QR_VERSION || !ivValue || !encryptedValue || !tagValue) return null;
-    const decipher = createDecipheriv("aes-256-gcm", encryptionKey(), Buffer.from(ivValue, "base64url"));
-    decipher.setAuthTag(Buffer.from(tagValue, "base64url"));
-    const decrypted = Buffer.concat([decipher.update(Buffer.from(encryptedValue, "base64url")), decipher.final()]);
-    const payload = JSON.parse(decrypted.toString("utf8")) as Partial<IgnithonQrPayload>;
-    if (payload.event !== "ignithon-2.0" || !Number.isInteger(payload.teamId)) return null;
-    if (payload.kind === "participant" && typeof payload.email === "string") return payload as IgnithonParticipantQrPayload;
-    if (payload.kind === "team" && typeof payload.teamName === "string") return payload as IgnithonTeamQrPayload;
-    return null;
-  } catch {
-    return null;
-  }
+export function readIgnithonParticipantQrValue(value: string): IgnithonParticipantQrIdentity | null {
+  const match = value.trim().toUpperCase().match(new RegExp(`^(\\d+)([A-Z0-9]{${QR_SEPARATOR_LENGTH}})(\\d{4})$`));
+  if (!match) return null;
+  const rollNo = Number(match[1]);
+  const teamId = Number(match[3]);
+  if (!Number.isSafeInteger(rollNo) || rollNo <= 0 || teamId < 1000 || teamId > 9999) return null;
+  return { rollNo, separator: match[2], teamId };
 }
 
-export function getIgnithonQrValue(payload: IgnithonQrPayload) {
-  return `${IGNITHON_QR_PREFIX}${createIgnithonQrToken(payload)}`;
-}
-
-export function getIgnithonTeamQrValue(payload: IgnithonTeamQrPayload) {
-  return JSON.stringify({
-    version: 1,
-    event: payload.event,
-    type: payload.kind,
-    teamName: payload.teamName,
-    teamId: payload.teamId,
-    token: createIgnithonQrToken(payload),
-  });
-}
-
-export function extractIgnithonQrToken(value: string) {
-  const trimmed = value.trim();
-  if (trimmed.startsWith("{")) {
-    try {
-      const decoded = JSON.parse(trimmed) as { token?: unknown };
-      if (typeof decoded.token === "string") return decoded.token;
-    } catch {
-      return "";
-    }
-  }
-  return trimmed.startsWith(IGNITHON_QR_PREFIX) ? trimmed.slice(IGNITHON_QR_PREFIX.length) : trimmed;
+export function addIgnithonQrLogo(svg: string, logoDataUri: string) {
+  const viewBox = svg.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/);
+  const canvasSize = viewBox ? Math.min(Number(viewBox[1]), Number(viewBox[2])) : 512;
+  const boxSize = canvasSize * 0.21;
+  const boxOffset = (canvasSize - boxSize) / 2;
+  const logoInset = boxSize * 0.1;
+  const logo = `<g><rect x="${boxOffset}" y="${boxOffset}" width="${boxSize}" height="${boxSize}" rx="${boxSize * 0.15}" fill="#020202" stroke="#00f7ff" stroke-width="${Math.max(canvasSize * 0.006, 0.3)}"/><image href="${logoDataUri}" x="${boxOffset + logoInset}" y="${boxOffset + logoInset}" width="${boxSize - logoInset * 2}" height="${boxSize - logoInset * 2}" preserveAspectRatio="xMidYMid meet"/></g>`;
+  return svg.replace("</svg>", `${logo}</svg>`);
 }

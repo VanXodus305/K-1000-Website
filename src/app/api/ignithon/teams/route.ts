@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { MongoServerError } from "mongodb";
 import { checkRateLimit } from "@/lib/ignithon-rate-limit";
-import { getIgnithonCollections } from "@/lib/ignithon-db";
+import { allocateIgnithonQrSeparator, getIgnithonCollections } from "@/lib/ignithon-db";
 import { hasValidRegistrationIdentity, normalizeEmail, setIgnithonSession } from "@/lib/ignithon-auth";
 import type { ParticipantInput } from "@/lib/ignithon-types";
 
@@ -11,9 +12,9 @@ function badRequest(message: string, status = 400) {
 function validParticipant(value: Partial<ParticipantInput>) {
   return Boolean(
     value.name?.trim() &&
-    value.email && hasValidRegistrationIdentity(value.email, value.roll_no, value.is_kiit_student) &&
+    value.email && hasValidRegistrationIdentity(value.email, value.roll_no) &&
     value.phone?.trim() && value.branch?.trim() &&
-    Number.isInteger(value.year) && Number(value.year) >= 1 && Number(value.year) <= 6,
+    Number.isInteger(value.year) && Number(value.year) >= 1 && Number(value.year) <= 4,
   );
 }
 
@@ -48,8 +49,8 @@ export async function POST(request: NextRequest) {
       const existingParticipant = participantByEmail;
       if (existingParticipant.status === "ACTIVE") {
         const existingTeam = await teams.findOne({ id: existingParticipant.team_id });
-        const existingRole = existingTeam?.members.find((member) => member.email === existingParticipant.email)?.role;
-        if (existingTeam && existingRole === "leader") {
+        const isExistingLeader = existingTeam?.members[0]?.equals(existingParticipant._id);
+        if (existingTeam && isExistingLeader) {
           await setIgnithonSession({ email: leaderEmail, teamId: existingTeam.id, role: "leader" });
           return NextResponse.json({ teamId: existingTeam.id, existing: true });
         }
@@ -58,17 +59,31 @@ export async function POST(request: NextRequest) {
       return badRequest("A previously registered team member cannot create a new team as leader.", 409);
     }
 
-    const teamId = await generateTeamId(teams);
+    const qrSeparator = await allocateIgnithonQrSeparator(participants);
     const participant: ParticipantInput = {
-      name: leader.name!.trim(), email: leaderEmail, is_kiit_student: leader.is_kiit_student!, roll_no: leader.roll_no!,
+      name: leader.name!.trim(), email: leaderEmail, roll_no: leader.roll_no!,
+      qr_separator: qrSeparator,
       hostel: leader.hostel?.trim() || null, phone: leader.phone!.trim(),
       branch: leader.branch!.trim(), year: leader.year!,
     };
-    await teams.insertOne({ id: teamId, name: body.name.trim(), members: [{ email: leaderEmail, role: "leader" }], points: 0 });
+    let teamId: number | null = null;
+    let teamResult: Awaited<ReturnType<typeof teams.insertOne>> | null = null;
+    for (let attempt = 0; attempt < 30; attempt += 1) {
+      const candidateId = await generateTeamId(teams);
+      try {
+        teamResult = await teams.insertOne({ id: candidateId, name: body.name.trim(), members: [], points: 0 });
+        teamId = candidateId;
+        break;
+      } catch (error) {
+        if (!(error instanceof MongoServerError) || error.code !== 11000) throw error;
+      }
+    }
+    if (!teamResult || teamId === null) throw new Error("Unable to allocate a unique team ID");
     try {
-      await participants.insertOne({ ...participant, team_id: teamId, status: "ACTIVE" });
+      const participantResult = await participants.insertOne({ ...participant, team_id: teamId, status: "ACTIVE" });
+      await teams.updateOne({ _id: teamResult.insertedId }, { $set: { members: [participantResult.insertedId] } });
     } catch (error) {
-      await teams.deleteOne({ id: teamId });
+      await Promise.all([teams.deleteOne({ _id: teamResult.insertedId }), participants.deleteOne({ team_id: teamId, email: leaderEmail })]);
       throw error;
     }
 

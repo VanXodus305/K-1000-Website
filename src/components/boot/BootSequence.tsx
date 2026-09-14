@@ -7,13 +7,12 @@ import UnifiedPortal from "../home/UnifiedPortal";
 const conthrax = "font-['Conthrax',_sans-serif]";
 
 export default function BootSequence({ onReady }: { onReady?: () => void }) {
-  const [stage, setStage] = useState<"charging" | "ready">(() =>
-    typeof window !== "undefined" &&
-    window.sessionStorage.getItem("k1000_system_booted")
-      ? "ready"
-      : "charging",
-  );
+  const [stage, setStage] = useState<"charging" | "ready">("charging");
   const [status, setStatus] = useState("CORE_STANDBY");
+
+  useEffect(() => {
+    if (window.sessionStorage.getItem("k1000_system_booted")) queueMicrotask(() => setStage("ready"));
+  }, []);
 
   useEffect(() => {
     if (stage === "charging") {

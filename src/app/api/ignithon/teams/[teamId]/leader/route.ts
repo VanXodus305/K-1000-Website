@@ -15,18 +15,20 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (!isValidEmail(targetEmail) || targetEmail === session.email) return NextResponse.json({ error: "Select another active team member." }, { status: 400 });
 
     const { teams, participants } = await getIgnithonCollections();
-    const [team, target] = await Promise.all([
+    const [team, target, currentLeader] = await Promise.all([
       teams.findOne({ id: teamId }),
       participants.findOne({ team_id: teamId, email: targetEmail, status: "ACTIVE" }),
+      participants.findOne({ team_id: teamId, email: session.email, status: "ACTIVE" }),
     ]);
-    if (!team || !target) return NextResponse.json({ error: "The selected active team member was not found." }, { status: 404 });
-    const currentLeader = team.members.find((member) => member.role === "leader");
-    const targetMember = team.members.find((member) => member.email === targetEmail);
-    if (currentLeader?.email !== session.email || targetMember?.role !== "member") return NextResponse.json({ error: "Leadership has changed or the selected person is not eligible." }, { status: 409 });
+    if (!team || !target || !currentLeader) return NextResponse.json({ error: "The selected active team member was not found." }, { status: 404 });
+    const targetIsMember = team.members.some((memberId) => memberId.equals(target._id));
+    if (!team.members[0]?.equals(currentLeader._id) || !targetIsMember) return NextResponse.json({ error: "Leadership has changed or the selected person is not eligible." }, { status: 409 });
+
+    const nextMembers = [target._id, ...team.members.filter((memberId) => !memberId.equals(target._id))];
 
     const result = await teams.updateOne(
-      { id: teamId, members: { $elemMatch: { email: session.email, role: "leader" } } },
-      [{ $set: { members: { $map: { input: "$members", as: "member", in: { email: "$$member.email", role: { $cond: [{ $eq: ["$$member.email", targetEmail] }, "leader", "member"] } } } } } }],
+      { id: teamId, "members.0": currentLeader._id },
+      { $set: { members: nextMembers } },
     );
     if (!result.modifiedCount) return NextResponse.json({ error: "Leadership changed before this request completed. Refresh and try again." }, { status: 409 });
 

@@ -18,7 +18,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (typeof updates.phone === "string") updates.phone = updates.phone.trim();
     if (typeof updates.branch === "string") updates.branch = updates.branch.trim();
     if (updates.hostel === "string") updates.hostel = updates.hostel.trim() || null;
-    if (updates.year !== undefined && (!Number.isInteger(updates.year) || Number(updates.year) < 1 || Number(updates.year) > 6)) return NextResponse.json({ error: "Invalid academic year." }, { status: 400 });
+    if (updates.year !== undefined && (!Number.isInteger(updates.year) || Number(updates.year) < 1 || Number(updates.year) > 4)) return NextResponse.json({ error: "Invalid academic year." }, { status: 400 });
     const { participants } = await getIgnithonCollections();
     const result = await participants.updateOne({ email, team_id: teamId, status: "ACTIVE" }, { $set: updates });
     if (!result.matchedCount) return NextResponse.json({ error: "Active participant not found." }, { status: 404 });
@@ -39,10 +39,11 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
     const { teams, participants } = await getIgnithonCollections();
     const participant = await participants.findOne({ email, team_id: teamId, status: "ACTIVE" });
     if (!participant) return NextResponse.json({ error: "Active participant not found." }, { status: 404 });
-    if (teams && (await teams.findOne({ id: teamId, "members.email": email, "members.role": "leader" }))) return NextResponse.json({ error: "The team leader cannot be removed from the team." }, { status: 409 });
+    const team = await teams.findOne({ id: teamId });
+    if (team?.members[0]?.equals(participant._id)) return NextResponse.json({ error: "The team leader cannot be removed from the team." }, { status: 409 });
     const removedAt = new Date();
     await participants.updateOne({ _id: participant._id }, { $set: { status: "REMOVED", removed_at: removedAt } });
-    await teams.updateOne({ id: teamId }, { $pull: { members: { email } } });
+    await teams.updateOne({ id: teamId }, { $pull: { members: participant._id } });
     return NextResponse.json({ ok: true, coolingPeriodSeconds: COOLING_PERIOD_MS / 1000 });
   } catch (error) {
     console.error("Ignithon participant removal failed", error);

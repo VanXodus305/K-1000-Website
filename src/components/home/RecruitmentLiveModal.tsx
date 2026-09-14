@@ -7,19 +7,11 @@ import { X } from "lucide-react";
 
 const conthrax = "font-['Conthrax',_sans-serif]";
 const orbitron = "font-['Orbitron',_sans-serif]";
-const RECRUITMENT_NOTICE_KEY = "k1000-ignithon-2-registration-notice-seen-september-2026-v2";
-
 export default function RecruitmentLiveModal() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    try {
-      if (!window.localStorage.getItem(RECRUITMENT_NOTICE_KEY)) {
-        queueMicrotask(() => setIsVisible(true));
-      }
-    } catch {
-      queueMicrotask(() => setIsVisible(true));
-    }
+    queueMicrotask(() => setIsVisible(true));
   }, []);
 
   useEffect(() => {
@@ -33,11 +25,6 @@ export default function RecruitmentLiveModal() {
   }, [isVisible]);
 
   const dismissNotice = () => {
-    try {
-      window.localStorage.setItem(RECRUITMENT_NOTICE_KEY, "true");
-    } catch {
-      // Storage can fail in private mode; closing should still work.
-    }
     setIsVisible(false);
   };
 

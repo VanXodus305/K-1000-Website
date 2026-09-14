@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     const team = await teams.findOne({ id: teamId });
     const participant = await participants.findOne({ roll_no: Number(body.rollNo), team_id: teamId, status: "ACTIVE" });
     if (!team || !participant) return NextResponse.json({ error: "No active team membership matches those details." }, { status: 401 });
-    const role = team.members.find((member) => member.email === participant.email)?.role ?? "member";
+    const role = team.members[0]?.equals(participant._id) ? "leader" : "member";
     await setIgnithonSession({ email: participant.email, teamId, role });
     return NextResponse.json({ teamId, role });
   } catch (error) {

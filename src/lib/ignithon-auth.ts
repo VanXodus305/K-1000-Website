@@ -1,8 +1,9 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
+import { isKiitEmailDomain } from "./ignithon-identity";
 
 const COOKIE_NAME = "ignithon_session";
-const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30;
+const SESSION_TTL_SECONDS = 60 * 60 * 24 * 100;
 
 export type IgnithonSession = {
   email: string;
@@ -59,7 +60,7 @@ export async function clearIgnithonSession() {
 }
 
 export const normalizeEmail = (email: string) => email.trim().toLowerCase();
-export const isKiitEmail = (email: string) => normalizeEmail(email).endsWith("@kiit.ac.in");
+export const isKiitEmail = (email: string) => isKiitEmailDomain(normalizeEmail(email));
 export const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizeEmail(email));
 
 export const getKiitRollNumber = (email: string) => {
@@ -68,7 +69,8 @@ export const getKiitRollNumber = (email: string) => {
   return /^\d+$/.test(localPart) ? Number(localPart) : null;
 };
 
-export const hasValidRegistrationIdentity = (email: string, rollNo: number | undefined, isKiitStudent: boolean | undefined) => {
-  if (typeof isKiitStudent !== "boolean" || !isValidEmail(email) || !Number.isInteger(rollNo) || Number(rollNo) <= 0) return false;
-  return !isKiitStudent || getKiitRollNumber(email) === rollNo;
+export const hasValidRegistrationIdentity = (email: string, rollNo: number | undefined) => {
+  if (!isValidEmail(email) || !Number.isInteger(rollNo) || Number(rollNo) <= 0) return false;
+  const kiitRollNumber = getKiitRollNumber(email);
+  return kiitRollNumber === null || kiitRollNumber === rollNo;
 };

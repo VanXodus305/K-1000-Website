@@ -2,23 +2,45 @@
 
 import { FormEvent, useEffect, useId, useRef, useState } from "react";
 import Image from "next/image";
-import { Check, ChevronDown, ChevronRight, Crown, LogOut, Plus, QrCode, Trash2, X } from "lucide-react";
+import { Check, ChevronDown, ChevronRight, Crown, LogOut, Pencil, Plus, QrCode, Trash2, X } from "lucide-react";
 import SharedHeader from "../../../components/ui/SharedHeader";
 import Footer from "../../../components/footer/Footer";
 import CubeBackground from "../../../components/ui/CubeBackground";
+import { isKiitEmailDomain } from "@/lib/ignithon-identity";
 
 const conthrax = "font-['Conthrax',_sans-serif]";
 const inputClass = "min-h-12 w-full min-w-0 rounded-[16px] border border-white/10 bg-[#020606]/80 px-4 py-3 text-base text-white outline-none transition-all placeholder:text-white/25 focus:border-cyan-400/70 focus:bg-cyan-500/[0.025] sm:text-sm";
 const closeButtonClass = "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/10 bg-black/25 text-white/45 transition-colors hover:border-cyan-300/40 hover:text-cyan-200";
-type Member = { name: string; email: string; is_kiit_student: boolean; roll_no: number; hostel: string | null; phone: string; branch: string; year: number; team_id: number };
-type Portal = { team: { id: number; name: string; points: number; members: { email: string; role: "leader" | "member" }[] }; participants: Member[]; session: { email: string; role: "leader" | "member" } };
-type MemberDraft = { name: string; email: string; is_kiit_student: boolean | null; roll_no: string; hostel: string; phone: string; branch: string; year: string };
-const blankMember: MemberDraft = { name: "", email: "", is_kiit_student: null, roll_no: "", hostel: "", phone: "", branch: "", year: "" };
-const branchOptions = ["Aerospace Engineering", "Biotechnology", "Civil Engineering", "Computer Science & Engineering", "Electrical Engineering", "Electronics & Tele-Communication Engineering", "Information Technology", "Mechanical Engineering", "Other"];
+type Member = { name: string; email: string; roll_no: number; qr_separator: string; hostel: string | null; phone: string; branch: string; year: number; team_id: number };
+type Portal = { team: { id: number; name: string; leader_email: string; member_count: number }; participants: Member[]; session: { email: string; role: "leader" | "member" } };
+type MemberDraft = { name: string; email: string; roll_no: string; hostel: string; phone: string; branch: string; year: string };
+const blankMember: MemberDraft = { name: "", email: "", roll_no: "", hostel: "", phone: "", branch: "", year: "" };
+const branchOptions = [
+  "Aerospace Engineering", "BCA", "Biotech", "Chemical Engineering", "Civil Engineering",
+  "Computer Science & Communication Engineering", "Computer Science & Engineering", "Computer Science & Systems Engineering",
+  "Computer Science and Engineering with specialization Artificial Intelligence",
+  "Computer Science and Engineering with specialization Artificial Intelligence and Machine Learning",
+  "Computer Science and Engineering with specialization Cyber Security",
+  "Computer Science and Engineering with specialization Data Science",
+  "Computer Science and Engineering with specialization Internet of Things",
+  "Computer Science and Engineering with specialization Internet of Things and Cyber Security Including Block Chain Technology",
+  "Construction Technology", "Electrical and Computer Engineering", "Electrical Engineering", "Electronics & Electrical Engineering",
+  "Electronics & Tele-Communication Engineering", "Electronics and Computer Science Engineering", "Electronics and Instrumentation",
+  "Electronics Engineering VLSI Design and Technology", "Information Technology", "Law", "MCA", "Mechanical Engineering",
+  "Mechanical Engineering (Automobile)", "Mechatronics Engineering", "Others",
+];
 const RETURNING_IDENTITY_COOKIE = "ignithon_returning_identity";
+const REMEMBERED_PORTAL_TTL_SECONDS = 60 * 60 * 24 * 100;
+const academicYearOptions = [
+  { value: "1", label: "1st Year" },
+  { value: "2", label: "2nd Year" },
+  { value: "3", label: "3rd Year" },
+  { value: "4", label: "4th Year" },
+];
 
 function rememberReturningIdentity(rollNo: string, teamId: string) {
-  document.cookie = `${RETURNING_IDENTITY_COOKIE}=${encodeURIComponent(JSON.stringify({ rollNo, teamId }))}; Max-Age=${60 * 60 * 24 * 180}; Path=/; SameSite=Lax`;
+  const secure = window.location.protocol === "https:" ? "; Secure" : "";
+  document.cookie = `${RETURNING_IDENTITY_COOKIE}=${encodeURIComponent(JSON.stringify({ rollNo, teamId }))}; Max-Age=${REMEMBERED_PORTAL_TTL_SECONDS}; Path=/; SameSite=Lax${secure}`;
 }
 
 function readReturningIdentity() {
@@ -56,9 +78,19 @@ export default function IgnithonRegistrationPage() {
 
   useEffect(() => {
     const remembered = readReturningIdentity();
-    if (remembered) setAccess(remembered);
+    if (remembered) {
+      setAccess(remembered);
+      void (async () => {
+        try {
+          await readJson(await fetch("/api/ignithon/session", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ rollNo: Number(remembered.rollNo), teamId: Number(remembered.teamId) }) }));
+          await loadPortal(remembered.teamId);
+        } catch {
+          // The remembered identity only restores an active, matching registration.
+        }
+      })();
+    }
     const storedTeamId = window.localStorage.getItem("ignithon-team-id");
-    if (storedTeamId) loadPortal(storedTeamId).catch(() => window.localStorage.removeItem("ignithon-team-id"));
+    if (!remembered && storedTeamId) loadPortal(storedTeamId).catch(() => window.localStorage.removeItem("ignithon-team-id"));
   }, []);
 
   const handleAccess = async (event: FormEvent) => {
@@ -121,7 +153,7 @@ export default function IgnithonRegistrationPage() {
     <div className="relative min-h-screen overflow-x-hidden bg-[#020202] text-white">
       <CubeBackground zIndex={0} disableLinesOnMobile />
       <SharedHeader />
-      <main className="relative z-10 mx-auto w-full max-w-5xl px-4 pb-20 pt-24 sm:px-6 sm:pb-24 sm:pt-28 md:px-10 md:pt-36">
+      <main className={`relative z-10 mx-auto w-full px-4 pb-20 pt-24 sm:px-6 sm:pb-24 sm:pt-28 md:px-10 md:pt-36 ${portal ? "max-w-7xl" : "max-w-5xl"}`}>
         <div className="mx-auto mb-8 w-full max-w-2xl sm:mb-10">
           <p className="mb-3 text-[9px] uppercase tracking-[0.24em] text-cyan-300/60 sm:mb-4 sm:text-[10px] sm:tracking-[0.35em]">
             Ignithon 2.0 · 26th & 27th September 2026
@@ -131,42 +163,38 @@ export default function IgnithonRegistrationPage() {
           </h1>
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/55 sm:mt-5 sm:text-base">
             {portal
-              ? "Manage your Ignithon 2.0 team. Team leaders manage membership; participants can access and update their own details."
+              ? `${portal.participants[0]?.name ?? "Team leader"} leads this team. Team leaders manage membership; participants can update their own details.`
               : entryMode === "register"
                 ? "Register as the team leader to create your team and receive a four-digit Team ID."
                 : "Enter your registered roll number and four-digit Team ID to return to your team portal."}
           </p>
         </div>
 
-        {message && (
-          <div role="alert" className="mx-auto mb-5 w-full max-w-2xl rounded-2xl border border-red-400/30 bg-red-400/[0.06] px-4 py-3 text-sm leading-relaxed text-red-200">
-            {message}
-          </div>
-        )}
+        {message && <NotificationBox message={message} onDismiss={() => setMessage("")} />}
 
         {portal ? (
-          <PortalView portal={portal} member={member} setMember={setMember} addMember={addMember} removeMember={removeMember} transferLeadership={transferLeadership} refreshPortal={() => loadPortal(String(portal.team.id))} logout={logout} loading={loading} />
+          <PortalView portal={portal} member={member} setMember={setMember} addMember={addMember} removeMember={removeMember} transferLeadership={transferLeadership} refreshPortal={() => loadPortal(String(portal.team.id))} logout={logout} loading={loading} notify={setMessage} />
         ) : (
           <section ref={entryCardRef} className="mx-auto w-full max-w-2xl scroll-mt-24 rounded-[24px] border border-white/10 bg-white/[0.025] p-4 shadow-[0_24px_80px_rgba(0,0,0,0.35)] backdrop-blur-xl sm:scroll-mt-28 sm:rounded-[28px] sm:p-8">
             {entryMode === "register" ? (
               <>
                 <h2 className={`${conthrax} text-sm uppercase tracking-wider text-cyan-300 sm:text-base`}>
-                  Register New Leader
+                  Register New Team
                 </h2>
                 <p className="mt-3 text-sm leading-relaxed text-white/45">
                   Create your team first. Your four-digit Team ID will be generated after registration.
                 </p>
                 <form onSubmit={handleCreate} className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                   <input className={`${inputClass} sm:col-span-2`} required value={teamName} onChange={(event) => setTeamName(event.target.value)} placeholder="Team name" aria-label="Team name" />
-                  <MemberFields value={leader} setValue={setLeader} leader />
+                  <MemberFields value={leader} setValue={setLeader} nameLabel="Team Leader Name" />
                   <button disabled={loading} className={`${conthrax} flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-cyan-400 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-black transition-colors hover:bg-white disabled:opacity-50 sm:col-span-2 sm:text-[10px] sm:tracking-[0.22em]`}>
                     Create team <ChevronRight size={14} />
                   </button>
                 </form>
                 <div className="mt-6 border-t border-white/10 pt-5 text-center">
-                  <p className="text-xs text-white/40">Already registered as a team leader?</p>
+                  <p className="text-xs text-white/40">Already registered with a team?</p>
                   <button type="button" onClick={() => switchEntryMode("login")} className={`${conthrax} mt-3 min-h-11 w-full rounded-full border border-cyan-400/35 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-cyan-300 transition-colors hover:bg-cyan-400 hover:text-black sm:w-auto`}>
-                    Existing Leader Login
+                    Existing Team Login
                   </button>
                 </div>
               </>
@@ -174,7 +202,7 @@ export default function IgnithonRegistrationPage() {
               <>
                 <p className="text-[9px] uppercase tracking-[0.25em] text-cyan-300/60 sm:text-[10px] sm:tracking-[0.3em]">Already registered</p>
                 <h2 className={`${conthrax} mt-3 text-lg uppercase leading-tight text-white sm:mt-4 sm:text-xl`}>
-                  Log in to your portal
+                  Existing Team Login
                 </h2>
                 <form onSubmit={handleAccess} className="mt-6 space-y-3 sm:mt-7 sm:space-y-4">
                   <input className={inputClass} required inputMode="numeric" value={access.rollNo} onChange={(event) => setAccess({ ...access, rollNo: event.target.value.replace(/\D/g, "") })} placeholder="Registered roll number" aria-label="Registered roll number" />
@@ -186,7 +214,7 @@ export default function IgnithonRegistrationPage() {
                 <div className="mt-6 border-t border-white/10 pt-5 text-center">
                   <p className="text-xs text-white/40">Creating a team for the first time?</p>
                   <button type="button" onClick={() => switchEntryMode("register")} className={`${conthrax} mt-3 min-h-11 w-full rounded-full border border-cyan-400/35 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-cyan-300 transition-colors hover:bg-cyan-400 hover:text-black sm:w-auto`}>
-                    Register New Leader
+                    Register New Team
                   </button>
                 </div>
               </>
@@ -199,57 +227,60 @@ export default function IgnithonRegistrationPage() {
   );
 }
 
-function MemberFields({ value, setValue, leader = false }: { value: MemberDraft; setValue: (value: MemberDraft) => void; leader?: boolean }) {
+function NotificationBox({ message, onDismiss }: { message: string; onDismiss: () => void }) {
+  useEffect(() => {
+    const timeout = window.setTimeout(onDismiss, 7000);
+    return () => window.clearTimeout(timeout);
+  }, [message, onDismiss]);
+
+  return (
+    <div className="pointer-events-none fixed inset-x-0 top-[max(5rem,calc(env(safe-area-inset-top)+4rem))] z-[200] mx-auto w-full max-w-md px-4 sm:top-24 sm:max-w-xl" role="alert" aria-live="assertive">
+      <div className="pointer-events-auto flex items-start gap-3 rounded-[20px] border border-red-300/50 bg-[#25090d]/95 px-4 py-3.5 shadow-[0_18px_50px_rgba(255,50,70,0.25),0_0_28px_rgba(255,60,80,0.14)] backdrop-blur-xl animate-[pulse_0.7s_ease-out_1] sm:px-5">
+        <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-red-300/35 bg-red-400/15 text-sm font-bold text-red-200">!</span>
+        <div className="min-w-0 flex-1">
+          <p className={`${conthrax} text-[10px] uppercase tracking-[0.18em] text-red-200`}>Registration notice</p>
+          <p className="mt-1 text-sm leading-relaxed text-red-100/90">{message}</p>
+        </div>
+        <button type="button" onClick={onDismiss} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-red-100/60 transition-colors hover:bg-white/10 hover:text-white" aria-label="Dismiss notification"><X size={16} /></button>
+      </div>
+    </div>
+  );
+}
+
+function MemberFields({ value, setValue, nameLabel = "Full name" }: { value: MemberDraft; setValue: (value: MemberDraft) => void; nameLabel?: string }) {
   const update = (key: keyof MemberDraft, next: string) => setValue({ ...value, [key]: next });
-  const setStudentType = (isKiitStudent: boolean) => setValue({
-    ...value,
-    is_kiit_student: isKiitStudent,
-    email: "",
-    roll_no: "",
-  });
   const updateEmail = (email: string) => {
     const localPart = email.split("@")[0];
     setValue({
       ...value,
       email,
-      roll_no: value.is_kiit_student && /^\d+$/.test(localPart) ? localPart : value.roll_no,
+      roll_no: isKiitEmailDomain(email) && /^\d+$/.test(localPart) ? localPart : value.roll_no,
     });
   };
 
   return (
     <>
-      <fieldset className="sm:col-span-2">
-        <legend className="mb-2 text-xs text-white/55">Are you a KIIT student?</legend>
-        <div className="grid grid-cols-2 gap-2 rounded-[16px] border border-white/10 bg-[#020606]/80 p-1.5">
-          {[true, false].map((isKiitStudent) => (
-            <label key={String(isKiitStudent)} className={`${conthrax} flex min-h-10 cursor-pointer items-center justify-center rounded-xl border text-[9px] uppercase tracking-[0.16em] transition-colors ${value.is_kiit_student === isKiitStudent ? "border-cyan-400/50 bg-cyan-400/12 text-cyan-200" : "border-transparent text-white/35 hover:text-white/60"}`}>
-              <input className="sr-only" type="radio" name={leader ? "leader-kiit-student" : "member-kiit-student"} required checked={value.is_kiit_student === isKiitStudent} onChange={() => setStudentType(isKiitStudent)} />
-              {isKiitStudent ? "Yes" : "No"}
-            </label>
-          ))}
-        </div>
-      </fieldset>
-      <input className={inputClass} required value={value.name} onChange={(event) => update("name", event.target.value)} placeholder="Full name" aria-label={leader ? "Team leader full name" : "Participant full name"} />
-      <input className={inputClass} required type="email" value={value.email} onChange={(event) => updateEmail(event.target.value)} placeholder={value.is_kiit_student ? "Roll number@kiit.ac.in" : "Email address"} aria-label={value.is_kiit_student ? "KIIT email" : "Email address"} pattern={value.is_kiit_student ? "^[0-9]+@kiit\\.ac\\.in$" : undefined} disabled={value.is_kiit_student === null} />
-      <input className={inputClass} required inputMode="numeric" value={value.roll_no} onChange={(event) => update("roll_no", event.target.value.replace(/\D/g, ""))} placeholder={value.is_kiit_student ? "Roll number (autofilled)" : "College roll / ID number"} aria-label="Roll number" readOnly={value.is_kiit_student === true} disabled={value.is_kiit_student === null} />
+      <input className={inputClass} required value={value.name} onChange={(event) => update("name", event.target.value)} placeholder={nameLabel} aria-label={nameLabel} />
+      <input className={inputClass} required type="email" value={value.email} onChange={(event) => updateEmail(event.target.value)} placeholder="Email address" aria-label="Email address" />
+      <input className={inputClass} required inputMode="numeric" value={value.roll_no} onChange={(event) => update("roll_no", event.target.value.replace(/\D/g, ""))} placeholder="Roll / user ID" aria-label="Roll or user ID" />
       <input className={inputClass} required value={value.phone} onChange={(event) => update("phone", event.target.value)} placeholder="Phone" aria-label="Phone" />
       <InHouseSelect value={value.branch} onChange={(next) => update("branch", next)} placeholder="Branch" ariaLabel="Branch" options={branchOptions.map((branch) => ({ value: branch, label: branch }))} />
-      <InHouseSelect value={value.year} onChange={(next) => update("year", next)} placeholder="Year" ariaLabel="Academic year" options={[1,2,3,4,5,6].map((year) => ({ value: String(year), label: `Year ${year}` }))} />
+      <InHouseSelect value={value.year} onChange={(next) => update("year", next)} placeholder="Year" ariaLabel="Academic year" options={academicYearOptions} />
       <input className={`${inputClass} sm:col-span-2`} value={value.hostel} onChange={(event) => update("hostel", event.target.value)} placeholder="Hostel (leave blank for day boarder)" aria-label="Hostel" />
     </>
   );
 }
 
-function PortalView({ portal, member, setMember, addMember, removeMember, transferLeadership, refreshPortal, logout, loading }: { portal: Portal; member: MemberDraft; setMember: (member: MemberDraft) => void; addMember: (event: FormEvent) => Promise<boolean>; removeMember: (email: string) => void; transferLeadership: (email: string) => Promise<boolean>; refreshPortal: () => Promise<void>; logout: () => void; loading: boolean }) {
+function PortalView({ portal, member, setMember, addMember, removeMember, transferLeadership, refreshPortal, logout, loading, notify }: { portal: Portal; member: MemberDraft; setMember: (member: MemberDraft) => void; addMember: (event: FormEvent) => Promise<boolean>; removeMember: (email: string) => void; transferLeadership: (email: string) => Promise<boolean>; refreshPortal: () => Promise<void>; logout: () => void; loading: boolean; notify: (message: string) => void }) {
   const isLeader = portal.session.role === "leader";
   const [showAddMember, setShowAddMember] = useState(false);
-  const [showTeamQr, setShowTeamQr] = useState(false);
+  const [showPersonalQr, setShowPersonalQr] = useState(false);
   const [editingEmail, setEditingEmail] = useState<string | null>(null);
-  const [qrEmail, setQrEmail] = useState<string | null>(null);
-  const leaderEmail = portal.team.members.find((entry) => entry.role === "leader")?.email;
+  const leaderEmail = portal.team.leader_email;
+  const leader = portal.participants[0];
+  const signedInParticipant = portal.participants.find((participant) => participant.email === portal.session.email);
   const registeredMembers = portal.participants.filter((participant) => participant.email !== leaderEmail);
   const selectedMember = portal.participants.find((participant) => participant.email === editingEmail);
-  const qrMember = portal.participants.find((participant) => participant.email === qrEmail);
 
   const submitMember = async (event: FormEvent) => {
     const added = await addMember(event);
@@ -260,7 +291,6 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
     const transferred = await transferLeadership(email);
     if (!transferred) return;
     setEditingEmail(null);
-    setQrEmail(null);
     setShowAddMember(false);
   };
 
@@ -268,19 +298,16 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
     <div className="space-y-5 sm:space-y-6">
       <section className="rounded-[24px] border border-white/10 bg-white/[0.025] p-4 shadow-[0_24px_80px_rgba(0,0,0,0.3)] backdrop-blur-xl sm:rounded-[28px] sm:p-6 md:p-8">
         <div className="flex flex-col gap-5 border-b border-white/10 pb-6 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex min-w-0 items-end gap-5 sm:gap-8">
+          <div className="min-w-0">
             <div>
               <p className="text-[9px] uppercase tracking-[0.28em] text-cyan-300/55">Team ID</p>
               <p className={`${conthrax} mt-2 text-3xl text-cyan-300 sm:text-4xl`}>{portal.team.id}</p>
             </div>
-            <div className="border-l border-white/10 pl-5 sm:pl-8">
-              <p className="text-[9px] uppercase tracking-[0.28em] text-white/35">Score</p>
-              <p className={`${conthrax} mt-2 text-base text-white sm:text-lg`}>{portal.team.points} <span className="text-[9px] text-white/35">PTS</span></p>
-            </div>
+            <p className="mt-3 text-xs text-white/40">Team Leader · <span className="text-white/70">{leader?.name ?? "Not available"}</span></p>
           </div>
           <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
-            <button type="button" aria-pressed={showTeamQr} onClick={() => setShowTeamQr((current) => !current)} className={`${conthrax} flex min-h-11 w-full items-center justify-center gap-2 rounded-full border px-5 py-3 text-[9px] uppercase tracking-[0.18em] transition-colors sm:w-auto ${showTeamQr ? "border-cyan-300 bg-cyan-400 text-black shadow-[0_0_24px_rgba(0,247,255,0.18)]" : "border-cyan-400/30 text-cyan-300 hover:bg-cyan-400 hover:text-black"}`}>
-              <QrCode size={14} /> Team QR
+            <button type="button" aria-pressed={showPersonalQr} onClick={() => setShowPersonalQr((current) => !current)} className={`${conthrax} flex min-h-11 w-full items-center justify-center gap-2 rounded-full border px-5 py-3 text-[9px] uppercase tracking-[0.18em] transition-colors sm:w-auto ${showPersonalQr ? "border-cyan-300 bg-cyan-400 text-black shadow-[0_0_24px_rgba(0,247,255,0.18)]" : "border-cyan-400/30 text-cyan-300 hover:bg-cyan-400 hover:text-black"}`}>
+              <QrCode size={14} /> My QR
             </button>
             <button type="button" onClick={logout} className={`${conthrax} flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-white/10 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-white/45 transition-colors hover:border-cyan-400/40 hover:text-cyan-300 sm:w-auto`}>
               <LogOut size={14} /> Log out
@@ -288,28 +315,17 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
           </div>
         </div>
 
-        <div role="status" className="mt-5 flex items-start gap-3 rounded-[16px] border border-cyan-400/15 bg-cyan-400/[0.035] px-4 py-3 text-xs leading-relaxed text-white/55">
-          <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300 shadow-[0_0_10px_rgba(0,247,255,0.8)]" />
-          <p>{isLeader ? "Team registration is active. Select a member card to update details, or present the Team QR for team verification." : "Your registration is active. Select your own card to update your details, or present your participant QR at verification."}</p>
-        </div>
-
-        {showTeamQr && (
+        {showPersonalQr && signedInParticipant && (
           <div className="mt-5 rounded-[22px] border border-cyan-300/45 bg-[#031011] p-4 shadow-[inset_0_0_32px_rgba(0,247,255,0.04)] sm:p-6">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-[9px] uppercase tracking-[0.28em] text-cyan-300/55">Selected credential</p>
-                <h2 className={`${conthrax} mt-2 break-words text-sm uppercase tracking-wider text-white sm:text-base`}>{portal.team.name}</h2>
+                <p className="text-[9px] uppercase tracking-[0.28em] text-cyan-300/55">Personal credential</p>
+                <h2 className={`${conthrax} mt-2 break-words text-sm uppercase tracking-wider text-white sm:text-base`}>{signedInParticipant.name}</h2>
               </div>
-              <span className={`${conthrax} rounded-full border border-cyan-400/25 bg-cyan-400/10 px-3 py-1.5 text-[8px] uppercase tracking-[0.14em] text-cyan-200`}>Team QR active</span>
             </div>
-            <div className="mt-5 flex flex-col items-center gap-5 sm:flex-row sm:items-center">
-              <div className="overflow-hidden rounded-[20px] border border-white/15 bg-white p-3 shadow-[0_0_30px_rgba(0,247,255,0.12)]">
-                <Image unoptimized src={`/api/ignithon/teams/${portal.team.id}/qr`} width={260} height={260} alt={`Team QR code for ${portal.team.name}`} className="h-auto w-[220px] sm:w-[260px]" />
-              </div>
-              <div className="min-w-0 text-center sm:text-left">
-                <p className="text-[10px] uppercase tracking-[0.22em] text-white/35">Authenticated team</p>
-                <p className={`${conthrax} mt-3 break-words text-xl uppercase text-white`}>{portal.team.name}</p>
-                <p className={`${conthrax} mt-3 text-3xl text-cyan-300`}>#{portal.team.id}</p>
+            <div className="mt-5 flex justify-center">
+              <div className="shrink-0 overflow-hidden rounded-[20px] border border-white/15 bg-white p-3 shadow-[0_0_30px_rgba(0,247,255,0.12)]">
+                <BrandedPersonalQr value={`${signedInParticipant.roll_no}${signedInParticipant.qr_separator}${portal.team.id}`} name={signedInParticipant.name} />
               </div>
             </div>
           </div>
@@ -323,7 +339,7 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
           <p className={`${conthrax} shrink-0 text-[10px] text-white/35`}>{portal.participants.length}/4</p>
         </div>
 
-        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {portal.participants.map((participant) => {
             const isTeamLeader = participant.email === leaderEmail;
             const memberIndex = registeredMembers.findIndex((entry) => entry.email === participant.email) + 1;
@@ -358,15 +374,17 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
                     <p className="mt-2 break-all text-xs leading-relaxed text-white/40">{participant.email}</p>
                     <p className="mt-1 text-xs text-white/30">Roll {participant.roll_no} · Year {participant.year}</p>
                   </div>
-                  {isLeader && !isTeamLeader && (
-                    <button type="button" disabled={loading} onClick={(event) => { event.stopPropagation(); removeMember(participant.email); }} className="absolute bottom-0 right-0 flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-white/30 transition-colors hover:border-red-300/35 hover:bg-red-400/10 hover:text-red-300 disabled:opacity-40" aria-label={`Remove ${participant.name}`}>
-                      <Trash2 size={15} />
-                    </button>
-                  )}
                   {canEditCard && (
-                    <button type="button" onClick={(event) => { event.stopPropagation(); setQrEmail((current) => current === participant.email ? null : participant.email); }} className="absolute bottom-0 left-0 flex min-h-10 items-center gap-1.5 rounded-full border border-cyan-400/20 bg-black/25 px-3 text-[9px] uppercase tracking-[0.12em] text-cyan-300/60 transition-colors hover:border-cyan-300/50 hover:text-cyan-200" aria-label={`Show QR code for ${participant.name}`}>
-                      <QrCode size={14} /> QR
-                    </button>
+                    <div className="absolute bottom-0 right-0 flex items-center gap-2">
+                      <button type="button" onClick={(event) => { event.stopPropagation(); setEditingEmail((current) => current === participant.email ? null : participant.email); }} className="flex h-10 min-w-10 items-center justify-center gap-1.5 rounded-full border border-cyan-400/20 bg-black/25 px-3 text-[9px] uppercase tracking-[0.12em] text-cyan-300/60 transition-colors hover:border-cyan-300/50 hover:text-cyan-200" aria-label={`Edit ${participant.name}`}>
+                        <Pencil size={14} /> <span className="hidden sm:inline">Edit</span>
+                      </button>
+                      {isLeader && !isTeamLeader && (
+                        <button type="button" disabled={loading} onClick={(event) => { event.stopPropagation(); removeMember(participant.email); }} className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-black/25 text-white/30 transition-colors hover:border-red-300/35 hover:bg-red-400/10 hover:text-red-300 disabled:opacity-40" aria-label={`Remove ${participant.name}`}>
+                          <Trash2 size={15} />
+                        </button>
+                      )}
+                    </div>
                   )}
                 </div>
               </article>
@@ -384,28 +402,6 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
           )}
         </div>
       </section>
-
-      {qrMember && (
-        <section className="rounded-[24px] border border-cyan-400/25 bg-cyan-400/[0.035] p-4 backdrop-blur-xl sm:rounded-[28px] sm:p-6 md:p-8">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-[9px] uppercase tracking-[0.28em] text-cyan-300/55">Attendance identity</p>
-              <h2 className={`${conthrax} mt-2 break-words text-sm uppercase tracking-wider text-cyan-200 sm:text-base`}>{qrMember.name}&apos;s QR</h2>
-            </div>
-            <button type="button" onClick={() => setQrEmail(null)} className={closeButtonClass} aria-label="Close participant QR"><X size={15} /></button>
-          </div>
-          <div className="mt-5 flex flex-col items-center gap-5 sm:flex-row sm:items-start">
-            <div className="overflow-hidden rounded-[20px] border border-white/15 bg-white p-3 shadow-[0_0_30px_rgba(0,247,255,0.1)]">
-              <Image unoptimized src={`/api/ignithon/teams/${portal.team.id}/participants/${encodeURIComponent(qrMember.email)}/qr`} width={240} height={240} alt={`Attendance QR code for ${qrMember.name}`} className="h-auto w-[220px] sm:w-[240px]" />
-            </div>
-            <div className="min-w-0 text-center sm:pt-2 sm:text-left">
-              <span className={`${conthrax} inline-flex rounded-full border border-cyan-400/25 bg-cyan-400/10 px-3 py-1.5 text-[8px] uppercase tracking-[0.14em] text-cyan-200`}>Ready for verification</span>
-              <p className="mt-4 break-all text-xs text-white/40">{qrMember.email}</p>
-              <p className="mt-2 text-xs text-white/30">Team #{portal.team.id}</p>
-            </div>
-          </div>
-        </section>
-      )}
 
       {isLeader && showAddMember && registeredMembers.length < 3 && (
         <form onSubmit={submitMember} className="rounded-[24px] border border-cyan-400/25 bg-cyan-400/[0.035] p-4 backdrop-blur-xl sm:rounded-[28px] sm:p-6 md:p-8">
@@ -430,7 +426,7 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
 
       {selectedMember && (
         <section className="rounded-[24px] border border-white/10 bg-white/[0.025] p-4 backdrop-blur-xl sm:rounded-[28px] sm:p-6 md:p-8">
-          <EditMyDetails member={selectedMember} onSaved={refreshPortal} onClose={() => setEditingEmail(null)} />
+          <EditMyDetails member={selectedMember} onSaved={refreshPortal} onClose={() => setEditingEmail(null)} notify={notify} />
           {isLeader && selectedMember.email !== leaderEmail && (
             <div className="mt-7 border-t border-white/10 pt-6">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -451,25 +447,75 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
   );
 }
 
-function EditMyDetails({ member, onSaved, onClose }: { member: Member; onSaved: () => Promise<void>; onClose: () => void }) {
+function BrandedPersonalQr({ value, name }: { value: string; name: string }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const container = containerRef.current;
+    setReady(false);
+
+    void import("qr-code-styling").then(async ({ default: QRCodeStyling }) => {
+      if (cancelled || !container) return;
+      const qrCode = new QRCodeStyling({
+        width: 320,
+        height: 320,
+        type: "svg",
+        data: value,
+        image: "/k1000-small.png",
+        margin: 12,
+        qrOptions: { errorCorrectionLevel: "H" },
+        dotsOptions: { color: "#020202", type: "square" },
+        cornersSquareOptions: { color: "#020202", type: "extra-rounded" },
+        cornersDotOptions: { color: "#020202", type: "dot" },
+        backgroundOptions: { color: "#ffffff" },
+        imageOptions: { hideBackgroundDots: true, imageSize: 0.26, margin: 5 },
+      });
+      await qrCode.getRawData("svg");
+      if (cancelled) return;
+      container.replaceChildren();
+      qrCode.append(container);
+      setReady(true);
+    });
+
+    return () => {
+      cancelled = true;
+      container?.replaceChildren();
+    };
+  }, [value]);
+
+  return (
+    <div role="img" aria-label={`Personal QR code for ${name}`} className="relative h-[220px] w-[220px] min-h-[220px] min-w-[220px] shrink-0 sm:h-[260px] sm:w-[260px] sm:min-h-[260px] sm:min-w-[260px]">
+      <div ref={containerRef} className={`flex h-full w-full items-center justify-center overflow-hidden rounded-[16px] bg-white [&_svg]:block [&_svg]:h-full [&_svg]:w-full ${ready ? "" : "animate-pulse"}`} />
+      {ready && (
+        <div aria-hidden="true" className="pointer-events-none absolute left-1/2 top-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-xl border-2 border-white/90 bg-[#020202] p-1 shadow-[0_0_0_4px_white] sm:h-[72px] sm:w-[72px]">
+          <Image src="/k1000-small.png" alt="" width={72} height={72} className="h-full w-full object-contain" />
+        </div>
+      )}
+      {!ready && <span className={`${conthrax} pointer-events-none absolute inset-0 flex items-center justify-center text-center text-[9px] uppercase tracking-[0.18em] text-black/45`}>Generating secure QR</span>}
+    </div>
+  );
+}
+
+function EditMyDetails({ member, onSaved, onClose, notify }: { member: Member; onSaved: () => Promise<void>; onClose: () => void; notify: (message: string) => void }) {
   const [draft, setDraft] = useState({ name: member.name, hostel: member.hostel ?? "", phone: member.phone, branch: member.branch, year: String(member.year) });
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
   const save = async (event: FormEvent) => {
     event.preventDefault();
-    setSaving(true); setSaved(false); setError("");
+    setSaving(true); setSaved(false);
     try {
       await readJson(await fetch(`/api/ignithon/teams/${member.team_id}/participants/${encodeURIComponent(member.email)}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...draft, year: Number(draft.year), hostel: draft.hostel || null }) }));
       await onSaved();
       setSaved(true);
     } catch (saveError) {
-      setError(saveError instanceof Error ? saveError.message : "Unable to save your details.");
+      notify(saveError instanceof Error ? saveError.message : "Unable to save your details.");
     } finally {
       setSaving(false);
     }
   };
-  return <form onSubmit={save}><div className="flex items-start justify-between gap-4"><div><p className="text-[9px] uppercase tracking-[0.28em] text-cyan-300/55">Selected player</p><h3 className={`${conthrax} mt-2 break-words text-sm uppercase tracking-wider text-cyan-300`}>Edit {member.name}</h3></div><button type="button" onClick={onClose} className={closeButtonClass} aria-label="Close member details"><X size={15} /></button></div>{error && <p role="alert" className="mt-4 rounded-xl border border-red-400/25 bg-red-400/[0.06] px-3 py-2 text-xs text-red-200">{error}</p>}<div className="mt-5 grid gap-3 sm:grid-cols-2"><input className={inputClass} value={draft.name} onChange={(e) => { setSaved(false); setDraft({ ...draft, name: e.target.value }); }} required placeholder="Full name" aria-label="Edit full name" /><input className={inputClass} value={draft.phone} onChange={(e) => { setSaved(false); setDraft({ ...draft, phone: e.target.value }); }} required placeholder="Phone" aria-label="Edit phone" /><InHouseSelect value={draft.branch} onChange={(branch) => { setSaved(false); setDraft({ ...draft, branch }); }} placeholder="Branch" ariaLabel="Edit branch" options={branchOptions.map((branch) => ({ value: branch, label: branch }))} /><InHouseSelect value={draft.year} onChange={(year) => { setSaved(false); setDraft({ ...draft, year }); }} placeholder="Year" ariaLabel="Edit academic year" options={[1,2,3,4,5,6].map((year) => ({ value: String(year), label: `Year ${year}` }))} /><input className={`${inputClass} sm:col-span-2`} value={draft.hostel} onChange={(e) => { setSaved(false); setDraft({ ...draft, hostel: e.target.value }); }} placeholder="Hostel (leave blank for day boarder)" aria-label="Edit hostel" /></div><div className="mt-4 flex flex-col-reverse gap-3 sm:flex-row sm:items-center"><button disabled={saving} className={`${conthrax} min-h-12 w-full rounded-full border border-cyan-400/50 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-cyan-300 transition-colors hover:bg-cyan-400 hover:text-black disabled:opacity-50 sm:w-auto sm:text-[10px] sm:tracking-[0.2em]`}>{saving ? "Saving..." : "Save details"}</button>{saved && <span role="status" className="text-center text-xs text-cyan-300 sm:text-left">Changes saved successfully.</span>}</div></form>;
+  return <form onSubmit={save}><div className="flex items-start justify-between gap-4"><div><p className="text-[9px] uppercase tracking-[0.28em] text-cyan-300/55">Selected player</p><h3 className={`${conthrax} mt-2 break-words text-sm uppercase tracking-wider text-cyan-300`}>Edit {member.name}</h3></div><button type="button" onClick={onClose} className={closeButtonClass} aria-label="Close member details"><X size={15} /></button></div><div className="mt-5 grid gap-3 sm:grid-cols-2"><input className={inputClass} value={draft.name} onChange={(e) => { setSaved(false); setDraft({ ...draft, name: e.target.value }); }} required placeholder="Full name" aria-label="Edit full name" /><input className={inputClass} value={draft.phone} onChange={(e) => { setSaved(false); setDraft({ ...draft, phone: e.target.value }); }} required placeholder="Phone" aria-label="Edit phone" /><InHouseSelect value={draft.branch} onChange={(branch) => { setSaved(false); setDraft({ ...draft, branch }); }} placeholder="Branch" ariaLabel="Edit branch" options={branchOptions.map((branch) => ({ value: branch, label: branch }))} /><InHouseSelect value={draft.year} onChange={(year) => { setSaved(false); setDraft({ ...draft, year }); }} placeholder="Year" ariaLabel="Edit academic year" options={academicYearOptions} /><input className={`${inputClass} sm:col-span-2`} value={draft.hostel} onChange={(e) => { setSaved(false); setDraft({ ...draft, hostel: e.target.value }); }} placeholder="Hostel (leave blank for day boarder)" aria-label="Edit hostel" /></div><div className="mt-4 flex flex-col-reverse gap-3 sm:flex-row sm:items-center"><button disabled={saving} className={`${conthrax} min-h-12 w-full rounded-full border border-cyan-400/50 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-cyan-300 transition-colors hover:bg-cyan-400 hover:text-black disabled:opacity-50 sm:w-auto sm:text-[10px] sm:tracking-[0.2em]`}>{saving ? "Saving..." : "Save details"}</button>{saved && <span role="status" className="text-center text-xs text-cyan-300 sm:text-left">Changes saved successfully.</span>}</div></form>;
 }
 
 function InHouseSelect({ value, onChange, placeholder, ariaLabel, options }: { value: string; onChange: (value: string) => void; placeholder: string; ariaLabel: string; options: { value: string; label: string }[] }) {

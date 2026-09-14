@@ -21,16 +21,14 @@ export async function GET(request: NextRequest) {
     const teamsById = new Map(teamRecords.map((team) => [team.id, team]));
     const rows = participantRecords.map((participant) => {
       const team = teamsById.get(participant.team_id);
-      const role = team?.members.find((member) => member.email === participant.email)?.role ?? "member";
+      const role = team?.members[0]?.equals(participant._id) ? "leader" : "member";
       return {
         team_id: participant.team_id,
         team_name: team?.name ?? "",
-        team_points: team?.points ?? 0,
         role,
         status: participant.status,
         name: participant.name,
         email: participant.email,
-        is_kiit_student: participant.is_kiit_student,
         roll_no: participant.roll_no,
         phone: participant.phone,
         branch: participant.branch,
@@ -44,7 +42,7 @@ export async function GET(request: NextRequest) {
 
     const format = request.nextUrl.searchParams.get("format");
     if (format === "csv") {
-      const headers = Object.keys(rows[0] ?? { team_id: "", team_name: "", team_points: "", role: "", status: "", name: "", email: "", is_kiit_student: "", roll_no: "", phone: "", branch: "", year: "", hostel: "", checked_in_at: "", checked_in_by: "", removed_at: "" });
+      const headers = Object.keys(rows[0] ?? { team_id: "", team_name: "", role: "", status: "", name: "", email: "", roll_no: "", phone: "", branch: "", year: "", hostel: "", checked_in_at: "", checked_in_by: "", removed_at: "" });
       const csv = [headers.map(csvCell).join(","), ...rows.map((row) => headers.map((header) => csvCell(row[header as keyof typeof row])).join(","))].join("\n");
       return new NextResponse(csv, { headers: { "Content-Type": "text/csv; charset=utf-8", "Content-Disposition": `attachment; filename="ignithon-registrations-${new Date().toISOString().slice(0, 10)}.csv"`, "Cache-Control": "private, no-store" } });
     }
@@ -52,7 +50,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       generatedAt: new Date().toISOString(),
       summary: { teams: teamRecords.length, registrations: rows.length, active: rows.filter((row) => row.status === "ACTIVE").length, checkedIn: rows.filter((row) => row.checked_in_at).length },
-      teams: teamRecords.map((team) => ({ id: team.id, name: team.name, points: team.points, memberCount: team.members.length })),
+      teams: teamRecords.map((team) => ({ id: team.id, name: team.name, memberCount: team.members.length })),
       registrations: rows,
     }, { headers: { "Cache-Control": "private, no-store" } });
   } catch (error) {
