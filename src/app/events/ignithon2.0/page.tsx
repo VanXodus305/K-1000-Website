@@ -447,7 +447,7 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
 
       {selectedMember && (
         <section className="rounded-[24px] border border-white/10 bg-white/[0.025] p-4 backdrop-blur-xl sm:rounded-[28px] sm:p-6 md:p-8">
-          <EditMyDetails member={selectedMember} onSaved={refreshPortal} onClose={() => setEditingEmail(null)} notify={notify} />
+          <EditMyDetails key={selectedMember.id} member={selectedMember} onSaved={refreshPortal} onClose={() => setEditingEmail(null)} notify={notify} />
           {isLeader && selectedMember.email !== leaderEmail && (
             <div className="mt-7 border-t border-white/10 pt-6">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -515,9 +515,12 @@ function BrandedPersonalQr({ value, name }: { value: string; name: string }) {
 }
 
 function EditMyDetails({ member, onSaved, onClose, notify }: { member: Member; onSaved: () => Promise<void>; onClose: () => void; notify: (message: string) => void }) {
-  const [draft, setDraft] = useState({ name: member.name, hostel: member.hostel ?? "", phone: member.phone, branch: member.branch, year: String(member.year) });
+  const [draft, setDraft] = useState(() => ({ name: member.name, hostel: member.hostel ?? "", phone: member.phone, branch: member.branch, year: String(member.year) }));
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
+  useEffect(() => {
+    setDraft({ name: member.name, hostel: member.hostel ?? "", phone: member.phone, branch: member.branch, year: String(member.year) });
+  }, [member.id, member.name, member.hostel, member.phone, member.branch, member.year]);
   const save = async (event: FormEvent) => {
     event.preventDefault();
     setSaving(true); setSaved(false);

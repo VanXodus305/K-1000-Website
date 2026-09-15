@@ -9,7 +9,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const { teamId: rawTeamId, email: rawEmail } = await params;
   const teamId = Number(rawTeamId);
   const email = normalizeEmail(decodeURIComponent(rawEmail));
-  if (!session || session.teamId !== teamId || (session.role !== "leader" && session.email !== email)) return NextResponse.json({ error: "You are not allowed to edit these details." }, { status: 403 });
+  if (!session || session.teamId !== teamId) return NextResponse.json({ error: "You are not allowed to edit these details." }, { status: 403 });
   try {
     const body = await request.json() as Record<string, unknown>;
     const allowed = ["name", "phone", "branch", "year", "hostel"];
@@ -20,8 +20,11 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (updates.hostel === "string") updates.hostel = updates.hostel.trim() || null;
     if (updates.year !== undefined && (!Number.isInteger(updates.year) || Number(updates.year) < 1 || Number(updates.year) > 5)) return NextResponse.json({ error: "Invalid academic year." }, { status: 400 });
     const { teams, participants } = await getIgnithonCollections();
-    const team = await teams.findOne({ id: teamId }, { projection: { _id: 1 } });
+    const team = await teams.findOne({ id: teamId }, { projection: { _id: 1, members: 1 } });
     if (!team) return NextResponse.json({ error: "Team not found." }, { status: 404 });
+    const actingParticipant = await participants.findOne({ email: session.email, team_id: team._id, status: "ACTIVE" }, { projection: { _id: 1 } });
+    const isCurrentLeader = Boolean(actingParticipant && team.members[0]?.equals(actingParticipant._id));
+    if (!isCurrentLeader && session.email !== email) return NextResponse.json({ error: "You are not allowed to edit these details." }, { status: 403 });
     const result = await participants.updateOne({ email, team_id: team._id, status: "ACTIVE" }, { $set: { ...updates, updatedAt: new Date() } });
     if (!result.matchedCount) return NextResponse.json({ error: "Active participant not found." }, { status: 404 });
     return NextResponse.json({ ok: true });
