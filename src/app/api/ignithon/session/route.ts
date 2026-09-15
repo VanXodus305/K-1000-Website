@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { checkRateLimit } from "@/lib/ignithon-rate-limit";
 import { getIgnithonCollections } from "@/lib/ignithon-db";
+import { findTeamAndParticipants, serializeParticipant } from "@/lib/ignithon-db";
 import { setIgnithonSession } from "@/lib/ignithon-auth";
 
 export async function POST(request: NextRequest) {
@@ -20,7 +21,16 @@ export async function POST(request: NextRequest) {
     if (!team || !participant) return NextResponse.json({ error: "No active team membership matches those details." }, { status: 401 });
     const role = team.members[0]?.equals(participant._id) ? "leader" : "member";
     await setIgnithonSession({ email: participant.email, teamId, role });
-    return NextResponse.json({ teamId, role });
+    const { members } = await findTeamAndParticipants(teams, participants, teamId);
+    return NextResponse.json({
+      teamId,
+      role,
+      portal: {
+        team: { id: team.id, name: team.name, room: team.room ?? null, points: team.points, leader_email: members[0]?.email ?? "", member_count: members.length },
+        participants: members.map(serializeParticipant),
+        session: { email: participant.email, role },
+      },
+    }, { headers: { "Cache-Control": "private, no-store" } });
   } catch (error) {
     console.error("Ignithon access failed", error);
     return NextResponse.json({ error: "Unable to access the team portal right now." }, { status: 500 });

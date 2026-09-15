@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getIgnithonSession, normalizeEmail } from "@/lib/ignithon-auth";
 import { getIgnithonCollections } from "@/lib/ignithon-db";
+import { getMongoClient } from "@/lib/mongodb";
 
 const COOLING_PERIOD_MS = 5 * 60 * 1000;
 
@@ -22,9 +23,10 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     const { teams, participants } = await getIgnithonCollections();
     const team = await teams.findOne({ id: teamId }, { projection: { _id: 1, members: 1 } });
     if (!team) return NextResponse.json({ error: "Team not found." }, { status: 404 });
-    const actingParticipant = await participants.findOne({ email: session.email, team_id: team._id, status: "ACTIVE" }, { projection: { _id: 1 } });
+    const actingEmail = normalizeEmail(session.email);
+    const actingParticipant = await participants.findOne({ email: actingEmail, team_id: team._id, status: "ACTIVE" }, { projection: { _id: 1 } });
     const isCurrentLeader = Boolean(actingParticipant && team.members[0]?.equals(actingParticipant._id));
-    if (!isCurrentLeader && session.email !== email) return NextResponse.json({ error: "You are not allowed to edit these details." }, { status: 403 });
+    if (!isCurrentLeader && actingEmail !== email) return NextResponse.json({ error: "You are not allowed to edit these details." }, { status: 403 });
     const result = await participants.updateOne({ email, team_id: team._id, status: "ACTIVE" }, { $set: { ...updates, updatedAt: new Date() } });
     if (!result.matchedCount) return NextResponse.json({ error: "Active participant not found." }, { status: 404 });
     return NextResponse.json({ ok: true });
@@ -41,15 +43,26 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
   const email = normalizeEmail(decodeURIComponent(rawEmail));
   if (!session || session.teamId !== teamId || session.role !== "leader") return NextResponse.json({ error: "Only the team leader can remove participants." }, { status: 403 });
   try {
+    const client = await getMongoClient();
     const { teams, participants } = await getIgnithonCollections();
-    const team = await teams.findOne({ id: teamId });
-    const participant = team ? await participants.findOne({ email, team_id: team._id, status: "ACTIVE" }) : null;
-    if (!participant) return NextResponse.json({ error: "Active participant not found." }, { status: 404 });
-    if (team?.members[0]?.equals(participant._id)) return NextResponse.json({ error: "The team leader cannot be removed from the team." }, { status: 409 });
-    const removedAt = new Date();
-    await participants.updateOne({ _id: participant._id }, { $set: { status: "REMOVED", removed_at: removedAt, updatedAt: removedAt } });
-    await teams.updateOne({ id: teamId }, { $pull: { members: participant._id }, $set: { updatedAt: new Date() } });
-    return NextResponse.json({ ok: true, coolingPeriodSeconds: COOLING_PERIOD_MS / 1000 });
+    const transactionSession = client.startSession();
+    try {
+      await transactionSession.withTransaction(async () => {
+        const team = await teams.findOne({ id: teamId }, { session: transactionSession });
+        const actingParticipant = team ? await participants.findOne({ email: normalizeEmail(session.email), team_id: team._id, status: "ACTIVE" }, { projection: { _id: 1 }, session: transactionSession }) : null;
+        if (!team || !actingParticipant || !team.members[0]?.equals(actingParticipant._id)) throw new Error("Only the current team leader can remove participants.");
+        const participant = await participants.findOne({ email, team_id: team._id, status: "ACTIVE" }, { session: transactionSession });
+        if (!participant) throw new Error("Active participant not found.");
+        if (team.members[0]?.equals(participant._id)) throw new Error("The team leader cannot be removed from the team.");
+        const removedAt = new Date();
+        const participantUpdate = await participants.updateOne({ _id: participant._id, team_id: team._id, status: "ACTIVE" }, { $set: { status: "REMOVED", removed_at: removedAt, updatedAt: removedAt } }, { session: transactionSession });
+        const rosterUpdate = await teams.updateOne({ _id: team._id, members: participant._id }, { $pull: { members: participant._id }, $set: { updatedAt: new Date() } }, { session: transactionSession });
+        if (!participantUpdate.modifiedCount || !rosterUpdate.modifiedCount) throw new Error("The team roster changed before this request completed. Please refresh and try again.");
+      }, { readConcern: { level: "snapshot" }, writeConcern: { w: "majority" } });
+      return NextResponse.json({ ok: true, coolingPeriodSeconds: COOLING_PERIOD_MS / 1000 });
+    } finally {
+      await transactionSession.endSession();
+    }
   } catch (error) {
     console.error("Ignithon participant removal failed", error);
     return NextResponse.json({ error: "Unable to remove participant right now." }, { status: 500 });

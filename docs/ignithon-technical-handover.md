@@ -117,7 +117,7 @@ Any future write path that changes membership **MUST** update both collections. 
 7. Reactivate the existing participant document when present; otherwise insert a new document.
 8. Push the active participant document's ObjectId into the ordered team member array.
 
-This operation currently uses two writes without a MongoDB transaction. A future LLM should prefer a transaction when the deployment topology supports transactions, or implement an explicit compensating rollback. Never add retry logic that can push duplicate member references.
+This operation uses a MongoDB transaction with majority write concern. The participant identity check, participant activation/insertion, and ordered team-roster reference commit together. Unique email and roll-number indexes reject concurrent claims of the same person.
 
 #### Remove a member
 
@@ -127,7 +127,7 @@ This operation currently uses two writes without a MongoDB transaction. A future
 4. Pull that participant ObjectId from the team's member array.
 5. Keep the participant document so uniqueness, history, and cooling-period enforcement remain possible.
 
-This also uses two writes without a transaction. If one write fails, inspect and repair the cross-collection invariant before retrying.
+This uses a MongoDB transaction with majority write concern. The participant removal and ordered roster pull commit together, preserving the five-minute cooling-period invariant.
 
 #### Edit participant details
 
@@ -371,7 +371,7 @@ GET /api/ignithon/teams/1234/participants/member%40example.com/qr
 Cookie: ignithon_session=...
 ```
 
-Success is an SVG response with `Content-Type: image/svg+xml` and `Cache-Control: private, no-store`. Authorization rules are described above.
+Success is an SVG response with `Content-Type: image/svg+xml` and `Cache-Control: private, no-store`. Authorization rules are described above. The portal embeds the transparent K-1000 logo at 35% size with rounded clipping, no opaque center tile, and high error correction. Returning login includes the authorized portal payload in the session response to avoid a second sequential portal request; Ignithon index creation is cached per server process after first initialization.
 
 ### Scanner check-in
 
@@ -474,6 +474,7 @@ Important: roll number plus a four-digit Team ID is a convenience-level identity
 | `GET` | `/api/ignithon/health` | MongoDB health check | Public |
 | `POST` | `/api/ignithon/teams` | Create leader and team | Rate limited |
 | `GET` | `/api/ignithon/teams/{teamId}` | Load team portal | Team session |
+| `PATCH` | `/api/ignithon/teams/{teamId}` | Change team name | Current leader |
 | `PATCH` | `/api/ignithon/teams/{teamId}/leader` | Transfer leadership to an active member | Leader session |
 | `POST` | `/api/ignithon/teams/{teamId}/participants` | Add member | Leader session |
 | `PATCH` | `/api/ignithon/teams/{teamId}/participants/{email}` | Edit participant | Leader or same participant |
@@ -512,7 +513,7 @@ Never commit `.env`. The repository ignores all `.env*` files.
 
 ## QR and attendance
 
-- Participant QRs contain `PARTICIPANT_OBJECT_ID|TEAM_ID` as one readable text value. The QR uses the transparent K-1000 mark from `public/k1000-qr-logo.png` at a 27% embedded image size, with no separate center placeholder.
+- Participant QRs contain `PARTICIPANT_OBJECT_ID|TEAM_ID` as one readable text value. The QR uses the transparent K-1000 mark from `public/k1000-qr-logo.png` at a 35% embedded image size with rounded clipping, with no separate center placeholder.
 - There is no team QR.
 - The backend treats the QR as identity only and validates it against the live team roster and participant record.
 - First scan changes `attendance` to `true` and updates `updatedAt`.
@@ -558,7 +559,7 @@ After deployment:
 1. Confirm `/api/ignithon/health` returns `200`.
 2. Create or use a test team and verify roll-number login.
 3. Verify leader and member edit permissions separately.
-4. Generate the signed-in participant's branded personal QR and verify its decoded `ROLL_NO + QR_SEPARATOR + TEAM_ID` text.
+4. Generate the signed-in participant's branded personal QR and verify its decoded `PARTICIPANT_OBJECT_ID|TEAM_ID` text.
 5. Scan against a non-production test record before event-day usage.
 6. Open the admin registry and download the CSV.
 7. Confirm secrets are present in the deployment environment and absent from Git history.

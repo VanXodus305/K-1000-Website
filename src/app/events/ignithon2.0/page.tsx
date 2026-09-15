@@ -83,8 +83,8 @@ export default function IgnithonRegistrationPage() {
       setAccess(remembered);
       void (async () => {
         try {
-          await readJson(await fetch("/api/ignithon/session", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ rollNo: remembered.rollNo, teamId: Number(remembered.teamId) }) }));
-          await loadPortal(remembered.teamId);
+          const data = await readJson(await fetch("/api/ignithon/session", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ rollNo: remembered.rollNo, teamId: Number(remembered.teamId) }) }));
+          if (data.portal) { setPortal(data.portal); window.localStorage.setItem("ignithon-team-id", remembered.teamId); }
         } catch {
           // The remembered identity only restores an active, matching registration.
         }
@@ -96,7 +96,7 @@ export default function IgnithonRegistrationPage() {
 
   const handleAccess = async (event: FormEvent) => {
     event.preventDefault(); setLoading(true); setMessage("");
-    try { await readJson(await fetch("/api/ignithon/session", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ rollNo: access.rollNo, teamId: Number(access.teamId) }) })); rememberReturningIdentity(access.rollNo, access.teamId); await loadPortal(access.teamId); }
+    try { const data = await readJson(await fetch("/api/ignithon/session", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ rollNo: access.rollNo, teamId: Number(access.teamId) }) })); rememberReturningIdentity(access.rollNo, access.teamId); setPortal(data.portal); window.localStorage.setItem("ignithon-team-id", access.teamId); }
     catch (error) { setMessage(error instanceof Error ? error.message : "Unable to access the portal."); }
     finally { setLoading(false); }
   };
@@ -297,11 +297,29 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
   const [showAddMember, setShowAddMember] = useState(false);
   const [showPersonalQr, setShowPersonalQr] = useState(false);
   const [editingEmail, setEditingEmail] = useState<string | null>(null);
+  const [teamNameDraft, setTeamNameDraft] = useState(portal.team.name);
+  const [savingTeamName, setSavingTeamName] = useState(false);
   const leaderEmail = portal.team.leader_email;
   const leader = portal.participants[0];
   const signedInParticipant = portal.participants.find((participant) => participant.email === portal.session.email);
   const registeredMembers = portal.participants.filter((participant) => participant.email !== leaderEmail);
   const selectedMember = portal.participants.find((participant) => participant.email === editingEmail);
+
+  useEffect(() => setTeamNameDraft(portal.team.name), [portal.team.name]);
+
+  const saveTeamName = async (event: FormEvent) => {
+    event.preventDefault();
+    setSavingTeamName(true);
+    try {
+      await readJson(await fetch(`/api/ignithon/teams/${portal.team.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: teamNameDraft }) }));
+      await refreshPortal();
+      notify("Team name updated successfully.");
+    } catch (error) {
+      notify(error instanceof Error ? error.message : "Unable to update the team name.");
+    } finally {
+      setSavingTeamName(false);
+    }
+  };
 
   const submitMember = async (event: FormEvent) => {
     const added = await addMember(event);
@@ -325,6 +343,13 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
               <p className={`${conthrax} mt-2 text-3xl text-cyan-300 sm:text-4xl`}>{portal.team.id}</p>
             </div>
             <p className="mt-3 text-xs text-white/40">Team Leader · <span className="text-white/70">{leader?.name ?? "Not available"}</span></p>
+            {isLeader && (
+              <form onSubmit={saveTeamName} className="mt-4 flex max-w-xl flex-col gap-2 sm:flex-row">
+                <label className="sr-only" htmlFor="team-name-editor">Team name</label>
+                <input id="team-name-editor" className={`${inputClass} min-h-11 sm:max-w-sm`} value={teamNameDraft} onChange={(event) => setTeamNameDraft(event.target.value)} maxLength={80} required aria-label="Team name" />
+                <button type="submit" disabled={savingTeamName || teamNameDraft.trim() === portal.team.name} className={`${conthrax} min-h-11 rounded-full border border-cyan-400/35 px-4 text-[9px] uppercase tracking-[0.14em] text-cyan-300 transition-colors hover:bg-cyan-400 hover:text-black disabled:opacity-35`}>{savingTeamName ? "Saving..." : "Update name"}</button>
+              </form>
+            )}
           </div>
           <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
             <button type="button" aria-pressed={showPersonalQr} onClick={() => setShowPersonalQr((current) => !current)} className={`${conthrax} flex min-h-11 w-full items-center justify-center gap-2 rounded-full border px-5 py-3 text-[9px] uppercase tracking-[0.18em] transition-colors sm:w-auto ${showPersonalQr ? "border-cyan-300 bg-cyan-400 text-black shadow-[0_0_24px_rgba(0,247,255,0.18)]" : "border-cyan-400/30 text-cyan-300 hover:bg-cyan-400 hover:text-black"}`}>
@@ -491,7 +516,24 @@ function BrandedPersonalQr({ value, name }: { value: string; name: string }) {
         cornersSquareOptions: { color: "#020202", type: "extra-rounded" },
         cornersDotOptions: { color: "#020202", type: "dot" },
         backgroundOptions: { color: "#ffffff" },
-        imageOptions: { hideBackgroundDots: true, imageSize: 0.27, margin: 0 },
+        imageOptions: { hideBackgroundDots: true, imageSize: 0.35, margin: 0 },
+      });
+      qrCode.applyExtension((svg) => {
+        const image = svg.querySelector("image");
+        if (!image) return;
+        const x = Number.parseFloat(image.getAttribute("x") ?? "0");
+        const y = Number.parseFloat(image.getAttribute("y") ?? "0");
+        const width = Number.parseFloat(image.getAttribute("width") ?? "0");
+        const height = Number.parseFloat(image.getAttribute("height") ?? "0");
+        if (!width || !height) return;
+        const clipId = "qr-logo-rounded-clip";
+        const defs = svg.querySelector("defs") ?? svg.insertBefore(svg.ownerDocument.createElementNS("http://www.w3.org/2000/svg", "defs"), svg.firstChild);
+        const clipPath = svg.ownerDocument.createElementNS("http://www.w3.org/2000/svg", "clipPath");
+        clipPath.setAttribute("id", clipId);
+        const roundedRect = svg.ownerDocument.createElementNS("http://www.w3.org/2000/svg", "rect");
+        roundedRect.setAttribute("x", String(x)); roundedRect.setAttribute("y", String(y)); roundedRect.setAttribute("width", String(width)); roundedRect.setAttribute("height", String(height));
+        roundedRect.setAttribute("rx", String(Math.min(width, height) * 0.16)); roundedRect.setAttribute("ry", String(Math.min(width, height) * 0.16));
+        clipPath.appendChild(roundedRect); defs.appendChild(clipPath); image.setAttribute("clip-path", `url(#${clipId})`);
       });
       await qrCode.getRawData("svg");
       if (cancelled) return;

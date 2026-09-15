@@ -75,3 +75,5 @@ updatedAt: Date
 ```
 
 No unrelated MongoDB collection is read or modified.
+
+The portal renders the personal QR with the transparent K-1000 logo at 35% size and rounded clipping. The QR payload remains unchanged and must be decoded as `PARTICIPANT_OBJECT_ID|TEAM_ID`.

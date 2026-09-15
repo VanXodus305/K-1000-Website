@@ -20,6 +20,13 @@ export async function getMongoDb(): Promise<Db> {
   return (await clientPromise).db(dbName);
 }
 
+export async function getMongoClient() {
+  if (!uri) throw new Error("MONGODB_URI is not configured");
+  const clientPromise = global.__k1000MongoClientPromise ?? new MongoClient(uri).connect();
+  global.__k1000MongoClientPromise = clientPromise;
+  return clientPromise;
+}
+
 export async function pingMongoDb() {
   const db = await getMongoDb();
   await db.command({ ping: 1 });
