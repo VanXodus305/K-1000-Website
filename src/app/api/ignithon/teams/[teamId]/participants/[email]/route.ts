@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getIgnithonSession, normalizeEmail } from "@/lib/ignithon-auth";
 import { getIgnithonCollections } from "@/lib/ignithon-db";
 import { getMongoClient } from "@/lib/mongodb";
+import { checkStrictRateLimit, rateLimitResponse } from "@/lib/ignithon-rate-limit";
 
 const COOLING_PERIOD_MS = 5 * 60 * 1000;
 
@@ -11,6 +12,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const teamId = Number(rawTeamId);
   const email = normalizeEmail(decodeURIComponent(rawEmail));
   if (!session || session.teamId !== teamId) return NextResponse.json({ error: "You are not allowed to edit these details." }, { status: 403 });
+  if (!checkStrictRateLimit(`participant-edit:${session.email}:${teamId}`)) return rateLimitResponse("Too many participant-edit attempts. Try again in 10 minutes.") as NextResponse;
   try {
     const body = await request.json() as Record<string, unknown>;
     const allowed = ["name", "phone", "branch", "year", "hostel"];

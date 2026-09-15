@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getIgnithonSession, normalizeEmail, setIgnithonSession } from "@/lib/ignithon-auth";
 import { findTeamAndParticipants, getIgnithonCollections, serializeParticipant } from "@/lib/ignithon-db";
+import { checkStrictRateLimit, rateLimitResponse } from "@/lib/ignithon-rate-limit";
 
 export async function GET(_request: Request, { params }: { params: Promise<{ teamId: string }> }) {
   const session = await getIgnithonSession();
@@ -29,6 +30,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ te
   const session = await getIgnithonSession();
   const teamId = Number((await params).teamId);
   if (!session || session.teamId !== teamId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!checkStrictRateLimit(`team-name:${session.email}:${teamId}`)) return rateLimitResponse("Too many team-name update attempts. Try again in 10 minutes.") as NextResponse;
 
   try {
     const body = await request.json() as { name?: unknown };

@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { checkRateLimit } from "@/lib/ignithon-rate-limit";
+import { checkStrictRateLimit, getClientDeviceId, rateLimitResponse } from "@/lib/ignithon-rate-limit";
 import { getIgnithonCollections } from "@/lib/ignithon-db";
 import { findTeamAndParticipants, serializeParticipant } from "@/lib/ignithon-db";
 import { setIgnithonSession } from "@/lib/ignithon-auth";
 
 export async function POST(request: NextRequest) {
-  if (!checkRateLimit(`access:${request.headers.get("x-forwarded-for") ?? "unknown"}`, 20)) {
-    return NextResponse.json({ error: "Too many access attempts. Please try again shortly." }, { status: 429 });
-  }
+  const deviceId = getClientDeviceId(request);
+  if (deviceId && !checkStrictRateLimit(`access:${deviceId}`)) return rateLimitResponse("Too many access attempts from this browser. Try again in 10 minutes.") as NextResponse;
   try {
     const body = await request.json() as { rollNo?: string | number; teamId?: number };
     const rollNo = typeof body.rollNo === "number" ? String(body.rollNo) : body.rollNo?.trim();

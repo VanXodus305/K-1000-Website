@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getIgnithonSession, hasValidRegistrationIdentity, normalizeEmail } from "@/lib/ignithon-auth";
-import { allocateIgnithonQrSeparator, getIgnithonCollections, findTeamAndParticipants } from "@/lib/ignithon-db";
+import { allocateIgnithonQrSeparator, getIgnithonCollections } from "@/lib/ignithon-db";
 import { getMongoClient } from "@/lib/mongodb";
-import { checkRateLimit } from "@/lib/ignithon-rate-limit";
-import type { ObjectId } from "mongodb";
+import { MongoServerError, type ObjectId } from "mongodb";
 import type { ParticipantInput } from "@/lib/ignithon-types";
 
 const MAX_TEAM_SIZE = 4;
@@ -21,7 +20,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   const session = await getIgnithonSession();
   const teamId = Number((await params).teamId);
   if (!session || session.teamId !== teamId || session.role !== "leader") return NextResponse.json({ error: "Only the team leader can add participants." }, { status: 403 });
-  if (!checkRateLimit(`add:${session.email}`, 20)) return NextResponse.json({ error: "Too many requests. Please try again shortly." }, { status: 429 });
   try {
     const input = await request.json() as Partial<ParticipantInput>;
     if (!validParticipant(input)) return NextResponse.json({ error: "Complete all participant details with a valid email and roll number." }, { status: 400 });
@@ -59,6 +57,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       return NextResponse.json({ participant }, { status: 201 });
     } catch (error) {
       if (error instanceof RegistrationError) return NextResponse.json({ error: error.message }, { status: error.status });
+      if (error instanceof MongoServerError && error.code === 11000) return NextResponse.json({ error: "This email address or roll number is already registered." }, { status: 409 });
       throw error;
     } finally {
       await transactionSession.endSession();

@@ -98,7 +98,7 @@ export const EVENTS: K1000Event[] = [
   },
   {
     id: "ignithon-2025",
-    title: "Ignithon",
+    title: "Ignithon 1.0",
     date: "August 2025",
     description: "K-1000's inaugural 12-hour hackathon, Ignithon, challenged participants to build functional solutions from scratch across three difficulty tiers.",
     category: "Hackathon",

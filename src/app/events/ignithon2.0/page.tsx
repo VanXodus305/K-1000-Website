@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useId, useRef, useState } from "react";
-import { Check, ChevronDown, ChevronRight, Crown, LogOut, Pencil, Plus, QrCode, Trash2, X } from "lucide-react";
+import { Check, ChevronDown, ChevronRight, Crown, Download, LoaderCircle, LogOut, Pencil, Plus, QrCode, Trash2, X } from "lucide-react";
 import SharedHeader from "../../../components/ui/SharedHeader";
 import Footer from "../../../components/footer/Footer";
 import CubeBackground from "../../../components/ui/CubeBackground";
@@ -30,6 +30,7 @@ const branchOptions = [
   "Mechanical Engineering (Automobile)", "Mechatronics Engineering", "Others",
 ];
 const RETURNING_IDENTITY_COOKIE = "ignithon_returning_identity";
+const DEVICE_COOKIE = "ignithon_device_id";
 const REMEMBERED_PORTAL_TTL_SECONDS = 60 * 60 * 24 * 120;
 const academicYearOptions = [
   { value: "1", label: "1st Year" },
@@ -42,6 +43,13 @@ const academicYearOptions = [
 function rememberReturningIdentity(rollNo: string, teamId: string) {
   const secure = window.location.protocol === "https:" ? "; Secure" : "";
   document.cookie = `${RETURNING_IDENTITY_COOKIE}=${encodeURIComponent(JSON.stringify({ rollNo, teamId }))}; Max-Age=${REMEMBERED_PORTAL_TTL_SECONDS}; Path=/; SameSite=Lax${secure}`;
+}
+
+function ensureBrowserDeviceIdentity() {
+  if (document.cookie.split("; ").some((entry) => entry.startsWith(`${DEVICE_COOKIE}=`))) return;
+  const id = typeof crypto.randomUUID === "function" ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const secure = window.location.protocol === "https:" ? "; Secure" : "";
+  document.cookie = `${DEVICE_COOKIE}=${id}; Max-Age=${REMEMBERED_PORTAL_TTL_SECONDS}; Path=/; SameSite=Lax${secure}`;
 }
 
 function readReturningIdentity() {
@@ -78,6 +86,7 @@ export default function IgnithonRegistrationPage() {
   };
 
   useEffect(() => {
+    ensureBrowserDeviceIdentity();
     const remembered = readReturningIdentity();
     if (remembered) {
       setAccess(remembered);
@@ -205,7 +214,7 @@ export default function IgnithonRegistrationPage() {
                   <input className={`${inputClass} sm:col-span-2`} required value={teamName} onChange={(event) => setTeamName(event.target.value)} placeholder="Team name" aria-label="Team name" />
                   <MemberFields value={leader} setValue={setLeader} nameLabel="Team Leader Name" />
                   <button disabled={loading} className={`${conthrax} flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-cyan-400 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-black transition-colors hover:bg-white disabled:opacity-50 sm:col-span-2 sm:text-[10px] sm:tracking-[0.22em]`}>
-                    Create team <ChevronRight size={14} />
+                    {loading ? <><LoaderCircle size={14} className="animate-spin" /> Creating team...</> : <>Create team <ChevronRight size={14} /></>}
                   </button>
                 </form>
                 <div className="mt-6 border-t border-white/10 pt-5 text-center">
@@ -224,6 +233,7 @@ export default function IgnithonRegistrationPage() {
                 <form onSubmit={handleAccess} className="mt-6 space-y-3 sm:mt-7 sm:space-y-4">
                   <input className={inputClass} required inputMode="numeric" value={access.rollNo} onChange={(event) => setAccess({ ...access, rollNo: event.target.value.replace(/\D/g, "") })} placeholder="Registered roll number" aria-label="Registered roll number" />
                   <input className={inputClass} required inputMode="numeric" pattern="[0-9]{4}" maxLength={4} value={access.teamId} onChange={(event) => setAccess({ ...access, teamId: event.target.value.replace(/\D/g, "") })} placeholder="Four-digit Team ID" aria-label="Four-digit Team ID" />
+                  <p className="-mt-1 px-1 text-[11px] leading-relaxed text-white/40">Forgot your Team ID? Check your previously logged device or contact support: <a className="text-cyan-300/80 hover:text-cyan-200" href="tel:7304693169">7304693169</a></p>
                   <button disabled={loading} className={`${conthrax} flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-cyan-400 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-black transition-colors hover:bg-white disabled:opacity-50 sm:text-[10px] sm:tracking-[0.22em]`}>
                     Access portal <ChevronRight size={14} />
                   </button>
@@ -495,6 +505,7 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
 
 function BrandedPersonalQr({ value, name }: { value: string; name: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const qrCodeRef = useRef<{ download: (options: { name: string; extension: "png" }) => Promise<void> } | null>(null);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -516,8 +527,9 @@ function BrandedPersonalQr({ value, name }: { value: string; name: string }) {
         cornersSquareOptions: { color: "#020202", type: "extra-rounded" },
         cornersDotOptions: { color: "#020202", type: "dot" },
         backgroundOptions: { color: "#ffffff" },
-        imageOptions: { hideBackgroundDots: true, imageSize: 0.35, margin: 0 },
+        imageOptions: { hideBackgroundDots: false, imageSize: 0.46, margin: 6 },
       });
+      qrCodeRef.current = qrCode;
       qrCode.applyExtension((svg) => {
         const image = svg.querySelector("image");
         if (!image) return;
@@ -526,14 +538,16 @@ function BrandedPersonalQr({ value, name }: { value: string; name: string }) {
         const width = Number.parseFloat(image.getAttribute("width") ?? "0");
         const height = Number.parseFloat(image.getAttribute("height") ?? "0");
         if (!width || !height) return;
-        const clipId = "qr-logo-rounded-clip";
         const defs = svg.querySelector("defs") ?? svg.insertBefore(svg.ownerDocument.createElementNS("http://www.w3.org/2000/svg", "defs"), svg.firstChild);
         const clipPath = svg.ownerDocument.createElementNS("http://www.w3.org/2000/svg", "clipPath");
-        clipPath.setAttribute("id", clipId);
+        clipPath.setAttribute("id", "qr-logo-subtle-rounded-clip");
         const roundedRect = svg.ownerDocument.createElementNS("http://www.w3.org/2000/svg", "rect");
         roundedRect.setAttribute("x", String(x)); roundedRect.setAttribute("y", String(y)); roundedRect.setAttribute("width", String(width)); roundedRect.setAttribute("height", String(height));
-        roundedRect.setAttribute("rx", String(Math.min(width, height) * 0.16)); roundedRect.setAttribute("ry", String(Math.min(width, height) * 0.16));
-        clipPath.appendChild(roundedRect); defs.appendChild(clipPath); image.setAttribute("clip-path", `url(#${clipId})`);
+        roundedRect.setAttribute("rx", String(Math.min(width, height) * 0.12)); roundedRect.setAttribute("ry", String(Math.min(width, height) * 0.12));
+        const logoMask = roundedRect.cloneNode() as SVGRectElement;
+        logoMask.removeAttribute("id"); logoMask.setAttribute("fill", "#ffffff");
+        image.parentNode?.insertBefore(logoMask, image);
+        clipPath.appendChild(roundedRect); defs.appendChild(clipPath); image.setAttribute("clip-path", "url(#qr-logo-subtle-rounded-clip)");
       });
       await qrCode.getRawData("svg");
       if (cancelled) return;
@@ -544,14 +558,20 @@ function BrandedPersonalQr({ value, name }: { value: string; name: string }) {
 
     return () => {
       cancelled = true;
+      qrCodeRef.current = null;
       container?.replaceChildren();
     };
   }, [value]);
 
   return (
-    <div role="img" aria-label={`Personal QR code for ${name}`} className="relative h-[220px] w-[220px] min-h-[220px] min-w-[220px] shrink-0 sm:h-[260px] sm:w-[260px] sm:min-h-[260px] sm:min-w-[260px]">
-      <div ref={containerRef} className={`flex h-full w-full items-center justify-center overflow-hidden rounded-[16px] bg-white [&_svg]:block [&_svg]:h-full [&_svg]:w-full ${ready ? "" : "animate-pulse"}`} />
-      {!ready && <span className={`${conthrax} pointer-events-none absolute inset-0 flex items-center justify-center text-center text-[9px] uppercase tracking-[0.18em] text-black/45`}>Generating secure QR</span>}
+    <div className="flex flex-col items-center gap-4">
+      <div role="img" aria-label={`Personal QR code for ${name}`} className="relative h-[220px] w-[220px] min-h-[220px] min-w-[220px] shrink-0 sm:h-[260px] sm:w-[260px] sm:min-h-[260px] sm:min-w-[260px]">
+        <div ref={containerRef} className={`flex h-full w-full items-center justify-center overflow-hidden rounded-[16px] bg-white [&_svg]:block [&_svg]:h-full [&_svg]:w-full ${ready ? "" : "animate-pulse"}`} />
+        {!ready && <span className={`${conthrax} pointer-events-none absolute inset-0 flex items-center justify-center text-center text-[9px] uppercase tracking-[0.18em] text-black/45`}>Generating secure QR</span>}
+      </div>
+      <button type="button" disabled={!ready} onClick={() => { void qrCodeRef.current?.download({ name: `k1000-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`, extension: "png" }); }} className={`${conthrax} flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-cyan-300/70 bg-cyan-400 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-black transition-colors hover:bg-white hover:text-black active:bg-white active:text-black disabled:cursor-wait disabled:opacity-40 sm:w-auto`}>
+        <Download size={14} /> Download QR
+      </button>
     </div>
   );
 }

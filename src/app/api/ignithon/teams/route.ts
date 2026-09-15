@@ -1,9 +1,11 @@
+import { after } from "next/server";
 import { NextRequest, NextResponse } from "next/server";
 import { MongoServerError } from "mongodb";
-import { checkRateLimit } from "@/lib/ignithon-rate-limit";
+import { checkStrictRateLimit, getClientDeviceId, rateLimitResponse } from "@/lib/ignithon-rate-limit";
 import { allocateIgnithonQrSeparator, getIgnithonCollections } from "@/lib/ignithon-db";
 import { hasValidRegistrationIdentity, normalizeEmail, setIgnithonSession } from "@/lib/ignithon-auth";
 import type { ParticipantInput } from "@/lib/ignithon-types";
+import { syncIgnithonSheetsAfterTeamCreation } from "@/lib/ignithon-sheets";
 
 function badRequest(message: string, status = 400) {
   return NextResponse.json({ error: message }, { status });
@@ -27,9 +29,8 @@ async function generateTeamId(teams: Awaited<ReturnType<typeof getIgnithonCollec
 }
 
 export async function POST(request: NextRequest) {
-  if (!checkRateLimit(`create:${request.headers.get("x-forwarded-for") ?? "unknown"}`, 10)) {
-    return badRequest("Too many registration attempts. Please try again shortly.", 429);
-  }
+  const deviceId = getClientDeviceId(request);
+  if (deviceId && !checkStrictRateLimit(`create:${deviceId}`)) return rateLimitResponse("Too many registration attempts from this browser. Try again in 10 minutes.") as NextResponse;
 
   try {
     const body = await request.json() as { name?: string; leader?: Partial<ParticipantInput> };
@@ -46,17 +47,7 @@ export async function POST(request: NextRequest) {
       if (!participantByEmail || !participantByRoll || !participantByEmail._id.equals(participantByRoll._id)) {
         return badRequest("The submitted email or roll number is already registered to another participant.", 409);
       }
-      const existingParticipant = participantByEmail;
-      if (existingParticipant.status === "ACTIVE") {
-        const existingTeam = await teams.findOne({ _id: existingParticipant.team_id });
-        const isExistingLeader = existingTeam?.members[0]?.equals(existingParticipant._id);
-        if (existingTeam && isExistingLeader) {
-          await setIgnithonSession({ email: leaderEmail, teamId: existingTeam.id, role: "leader" });
-          return NextResponse.json({ teamId: existingTeam.id, existing: true });
-        }
-        return badRequest("You are already registered as a team member and cannot create a new team as leader.", 409);
-      }
-      return badRequest("A previously registered team member cannot create a new team as leader.", 409);
+      return badRequest("This email address or roll number is already registered. Use Existing Team Login with your Team ID.", 409);
     }
 
     const qrSeparator = await allocateIgnithonQrSeparator(participants);
@@ -89,8 +80,10 @@ export async function POST(request: NextRequest) {
     }
 
     await setIgnithonSession({ email: leaderEmail, teamId, role: "leader" });
+    after(() => syncIgnithonSheetsAfterTeamCreation());
     return NextResponse.json({ teamId }, { status: 201 });
   } catch (error) {
+    if (error instanceof MongoServerError && error.code === 11000) return badRequest("This email address or roll number is already registered.", 409);
     console.error("Ignithon team creation failed", error);
     return NextResponse.json({ error: "Unable to create the team right now." }, { status: 500 });
   }

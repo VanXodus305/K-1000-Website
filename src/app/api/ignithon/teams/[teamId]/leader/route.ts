@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getIgnithonSession, isValidEmail, normalizeEmail, setIgnithonSession } from "@/lib/ignithon-auth";
 import { getIgnithonCollections } from "@/lib/ignithon-db";
-import { checkRateLimit } from "@/lib/ignithon-rate-limit";
+import { checkStrictRateLimit, rateLimitResponse } from "@/lib/ignithon-rate-limit";
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ teamId: string }> }) {
   const session = await getIgnithonSession();
   const teamId = Number((await params).teamId);
   if (!session || session.teamId !== teamId || session.role !== "leader") return NextResponse.json({ error: "Only the current team leader can transfer leadership." }, { status: 403 });
-  if (!checkRateLimit(`leader-transfer:${session.email}`, 10)) return NextResponse.json({ error: "Too many leadership transfer attempts. Please try again shortly." }, { status: 429 });
+  if (!checkStrictRateLimit(`leader-transfer:${session.email}:${teamId}`)) return rateLimitResponse("Too many leadership-transfer attempts. Try again in 10 minutes.") as NextResponse;
 
   try {
     const body = await request.json() as { email?: unknown };

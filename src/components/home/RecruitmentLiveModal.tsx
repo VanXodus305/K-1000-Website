@@ -86,15 +86,15 @@ export default function RecruitmentLiveModal() {
               </p>
 
               <div className="mt-6 rounded-[20px] border border-cyan-300/18 bg-cyan-400/[0.045] px-4 py-4 sm:px-5">
-                <p className={`${orbitron} text-[9px] uppercase tracking-[0.28em] text-white/32`}>Registration Dates</p>
+                <p className={`${orbitron} text-[9px] uppercase tracking-[0.28em] text-white/32`}>Event date</p>
                 <p className={`${conthrax} mt-2 text-lg uppercase tracking-[0.08em] text-cyan-200 sm:text-xl`}>
-                  26th & 27th September 2026
+                  26th September 2026
                 </p>
               </div>
 
               <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
                 <Link
-                  href="/events"
+                  href="/events/ignithon2.0"
                   onClick={dismissNotice}
                   className={`${conthrax} inline-flex min-h-12 items-center justify-center rounded-full border border-cyan-300 bg-cyan-300 px-6 py-3 text-[10px] uppercase tracking-[0.22em] text-black transition-all hover:border-white hover:bg-white`}
                 >

@@ -98,7 +98,7 @@ Any future write path that changes membership **MUST** update both collections. 
 1. Rate-limit by requester IP: 10 attempts per 60-second in-memory window.
 2. Validate team name and all leader fields.
 3. Normalize the leader email.
-4. Reject an existing email or roll number. If that active record is already the leader of its team, reopen that team instead of creating a duplicate.
+4. Reject any existing email or roll number. Existing registrations must use the explicit Team ID login flow; team creation must never issue a session for an existing participant.
 5. A person previously registered as a member must never create a new team as its leader, including after removal. The only supported promotion path is an authorized leadership transfer inside that person's current active team.
 6. Generate a random integer from 1000 through 9999; check for collision; retry at most 30 times.
 7. Insert the team first with an empty member array.
@@ -214,7 +214,7 @@ The client-readable `ignithon_returning_identity` cookie stores only roll number
 
 ### Rate-limit limitation
 
-`src/lib/ignithon-rate-limit.ts` stores counters in an in-memory `Map`. This is adequate for local development but is neither shared across server instances nor durable across restarts. Before production scale-out, replace it with a shared TTL-backed limiter such as Redis. Preserve the current route-specific limits unless the event team approves different values.
+`src/lib/ignithon-rate-limit.ts` stores counters in an in-memory `Map`. Authentication and team creation are keyed to the browser's persistent `ignithon_device_id` cookie rather than public IP, while authenticated participant edits, leadership transfer, and team-name mutations are keyed to the authenticated identity. These actions allow 3 attempts per 10 minutes; blocked responses include `Retry-After: 600`. Member addition/removal is intentionally not rate-limited for event operations. Scanner traffic is keyed to its scanner/device identity and allows 600 requests per minute. Team creation schedules the sheet sync with `after()` after the registration response, so the external sync is not part of the user-facing creation path. Before production scale-out, replace the in-memory limiter with a shared TTL-backed limiter such as Redis.
 
 ### Failure and consistency rules
 
@@ -513,7 +513,7 @@ Never commit `.env`. The repository ignores all `.env*` files.
 
 ## QR and attendance
 
-- Participant QRs contain `PARTICIPANT_OBJECT_ID|TEAM_ID` as one readable text value. The QR uses the transparent K-1000 mark from `public/k1000-qr-logo.png` at a 35% embedded image size with rounded clipping, with no separate center placeholder.
+- Participant QRs contain `PARTICIPANT_OBJECT_ID|TEAM_ID` as one readable text value. The QR uses the transparent, padded K-1000 mark from `public/k1000-qr-logo.png` at a 46% embedded image size with even 6px logo spacing and a visible uniform 12% corner radius on the background mask, keeping the full wordmark clear of the rounded edges with no separate center placeholder or colored tile.
 - There is no team QR.
 - The backend treats the QR as identity only and validates it against the live team roster and participant record.
 - First scan changes `attendance` to `true` and updates `updatedAt`.

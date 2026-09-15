@@ -3,18 +3,18 @@ import { ObjectId } from "mongodb";
 import { hasValidApiKey } from "@/lib/ignithon-api-key";
 import { getIgnithonCollections } from "@/lib/ignithon-db";
 import { readIgnithonParticipantQrValue } from "@/lib/ignithon-qr";
-import { checkRateLimit } from "@/lib/ignithon-rate-limit";
+import { checkRateLimit, getClientDeviceId } from "@/lib/ignithon-rate-limit";
 
 export const runtime = "nodejs";
 
 export async function POST(request: NextRequest) {
   const scannerKey = request.headers.get("x-ignithon-scanner-key");
   if (!hasValidApiKey(scannerKey, process.env.IGNITHON_SCANNER_KEY)) return NextResponse.json({ error: "Unauthorized scanner." }, { status: 401 });
-  if (!checkRateLimit(`scan:${request.headers.get("x-forwarded-for") ?? "unknown"}`, 120)) return NextResponse.json({ error: "Too many scan requests." }, { status: 429 });
-
   try {
     const body = await request.json() as { token?: unknown; scannerId?: unknown };
     if (typeof body.token !== "string") return NextResponse.json({ error: "QR identity is required." }, { status: 400 });
+    const scannerId = typeof body.scannerId === "string" && /^[a-zA-Z0-9:_-]{8,128}$/.test(body.scannerId) ? body.scannerId : getClientDeviceId(request);
+    if (scannerId && !checkRateLimit(`scan:${scannerId}`, 600, 60_000)) return NextResponse.json({ error: "Too many scan requests." }, { status: 429, headers: { "Retry-After": "60" } });
     const identity = readIgnithonParticipantQrValue(body.token);
     if (!identity) return NextResponse.json({ error: "Invalid Ignithon participant QR code." }, { status: 400 });
 

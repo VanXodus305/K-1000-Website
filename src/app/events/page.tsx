@@ -14,7 +14,10 @@ const conthrax = "font-['Conthrax',_sans-serif]";
 const orbitron = "font-['Orbitron',_sans-serif]";
 
 const Events = () => {
-  const sortedEvents = useMemo(() => [...EVENTS].reverse(), []);
+  const sortedEvents = useMemo(() => [
+    ...EVENTS.filter((event) => event.status === "UPCOMING"),
+    ...EVENTS.filter((event) => event.status !== "UPCOMING"),
+  ], []);
   const [selectedEvent, setSelectedEvent] = useState<K1000Event>(sortedEvents[0]);
   const navRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll();
@@ -27,9 +30,9 @@ const Events = () => {
         `[data-id="${selectedEvent.id}"]`
       ) as HTMLElement;
       if (activeBtn) {
-        // Mobile: horizontal scroll; Desktop: vertical scroll
-        const isMobile = window.innerWidth < 1024;
-        if (isMobile) {
+        // Phones: horizontal scroll; tablet and desktop: vertical scroll
+        const isPhone = window.innerWidth < 768;
+        if (isPhone) {
           navRef.current.scrollTo({
             left: activeBtn.offsetLeft - navRef.current.clientWidth / 2 + activeBtn.clientWidth / 2,
             behavior: "smooth",
@@ -85,7 +88,7 @@ const Events = () => {
           <div className="lg:col-span-4 lg:sticky lg:top-28 z-30">
             <div
               ref={navRef}
-              className="flex lg:flex-col overflow-x-auto overscroll-x-contain lg:overflow-y-auto lg:max-h-[calc(100vh-8rem)] bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-[24px] lg:rounded-[32px] p-2 pr-5 lg:pr-2 gap-1 custom-scrollbar"
+              className="flex overflow-x-auto overscroll-x-contain bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-[24px] lg:rounded-[32px] p-2 pr-5 lg:pr-2 gap-1 md:max-h-[680px] md:flex-col md:overflow-x-hidden md:overflow-y-auto md:[scrollbar-color:rgba(0,247,255,0.35)_transparent] md:[scrollbar-width:thin]"
             >
               {sortedEvents.map((event) => (
                 <button
@@ -97,7 +100,7 @@ const Events = () => {
                     /* Mobile: fixed width horizontal card */
                     w-[180px] sm:w-[210px]
                     /* Desktop: full width */
-                    lg:w-full
+                    md:w-full
                     text-left px-4 sm:px-6 py-4 sm:py-5 rounded-[18px] lg:rounded-[24px] 
                     transition-all duration-500 group relative overflow-hidden cursor-pointer
                     ${selectedEvent.id === event.id
