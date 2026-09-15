@@ -6,7 +6,7 @@ import { setIgnithonSession } from "@/lib/ignithon-auth";
 
 export async function POST(request: NextRequest) {
   const deviceId = getClientDeviceId(request);
-  if (deviceId && !checkStrictRateLimit(`access:${deviceId}`)) return rateLimitResponse("Too many access attempts from this browser. Try again in 10 minutes.") as NextResponse;
+  if (deviceId && !(await checkStrictRateLimit(`access:${deviceId}`))) return rateLimitResponse("Too many access attempts from this browser. Try again in 10 minutes.") as NextResponse;
   try {
     const body = await request.json() as { rollNo?: string | number; teamId?: number };
     const rollNo = typeof body.rollNo === "number" ? String(body.rollNo) : body.rollNo?.trim();

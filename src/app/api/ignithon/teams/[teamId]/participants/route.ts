@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getIgnithonSession, hasValidRegistrationIdentity, normalizeEmail } from "@/lib/ignithon-auth";
+import { getIgnithonSession, normalizeEmail } from "@/lib/ignithon-auth";
 import { allocateIgnithonQrSeparator, getIgnithonCollections } from "@/lib/ignithon-db";
 import { getMongoClient } from "@/lib/mongodb";
 import { MongoServerError, type ObjectId } from "mongodb";
 import type { ParticipantInput } from "@/lib/ignithon-types";
+import { validateParticipantFields } from "@/lib/ignithon-validation";
 
 const MAX_TEAM_SIZE = 4;
 const COOLING_PERIOD_MS = 5 * 60 * 1000;
@@ -13,7 +14,7 @@ class RegistrationError extends Error {
 }
 
 function validParticipant(value: Partial<ParticipantInput>) {
-  return Boolean(value.name?.trim() && value.email && hasValidRegistrationIdentity(value.email, value.roll_no) && value.phone?.trim() && value.branch?.trim() && Number.isInteger(value.year) && Number(value.year) >= 1 && Number(value.year) <= 5);
+  return !validateParticipantFields(value);
 }
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ teamId: string }> }) {

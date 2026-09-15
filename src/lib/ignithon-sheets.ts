@@ -1,6 +1,6 @@
 const SHEETS_SYNC_URL = "https://ignithon-v2.vercel.app/api/sheets/sync";
 
-export async function syncIgnithonSheetsAfterTeamCreation() {
+export async function syncIgnithonSheetsAfterTeamCreation(teamId?: number) {
   if (process.env.NODE_ENV !== "production") return { skipped: true };
 
   try {
@@ -12,12 +12,13 @@ export async function syncIgnithonSheetsAfterTeamCreation() {
       signal: AbortSignal.timeout(10_000),
     });
     if (!response.ok) {
-      console.error("Ignithon Sheets sync returned a non-success status", response.status);
+      console.error(JSON.stringify({ event: "ignithon_sheets_sync_failed", teamId, reason: "non_success_status", status: response.status }));
       return { synced: false };
     }
+    console.info(JSON.stringify({ event: "ignithon_sheets_sync_completed", teamId }));
     return { synced: true };
   } catch (error) {
-    console.error("Ignithon Sheets sync failed after team creation", error);
+    console.error(JSON.stringify({ event: "ignithon_sheets_sync_failed", teamId, reason: error instanceof Error ? error.message : "unknown_error" }));
     return { synced: false };
   }
 }

@@ -3,21 +3,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { MongoServerError } from "mongodb";
 import { checkStrictRateLimit, getClientDeviceId, rateLimitResponse } from "@/lib/ignithon-rate-limit";
 import { allocateIgnithonQrSeparator, getIgnithonCollections } from "@/lib/ignithon-db";
-import { hasValidRegistrationIdentity, normalizeEmail, setIgnithonSession } from "@/lib/ignithon-auth";
+import { normalizeEmail, setIgnithonSession } from "@/lib/ignithon-auth";
 import type { ParticipantInput } from "@/lib/ignithon-types";
 import { syncIgnithonSheetsAfterTeamCreation } from "@/lib/ignithon-sheets";
+import { validateParticipantFields } from "@/lib/ignithon-validation";
 
 function badRequest(message: string, status = 400) {
   return NextResponse.json({ error: message }, { status });
 }
 
 function validParticipant(value: Partial<ParticipantInput>) {
-  return Boolean(
-    value.name?.trim() &&
-    value.email && hasValidRegistrationIdentity(value.email, value.roll_no) &&
-    value.phone?.trim() && value.branch?.trim() &&
-    Number.isInteger(value.year) && Number(value.year) >= 1 && Number(value.year) <= 5,
-  );
+  return !validateParticipantFields(value);
 }
 
 async function generateTeamId(teams: Awaited<ReturnType<typeof getIgnithonCollections>>["teams"]) {
@@ -30,13 +26,13 @@ async function generateTeamId(teams: Awaited<ReturnType<typeof getIgnithonCollec
 
 export async function POST(request: NextRequest) {
   const deviceId = getClientDeviceId(request);
-  if (deviceId && !checkStrictRateLimit(`create:${deviceId}`)) return rateLimitResponse("Too many registration attempts from this browser. Try again in 10 minutes.") as NextResponse;
+  if (deviceId && !(await checkStrictRateLimit(`create:${deviceId}`))) return rateLimitResponse("Too many registration attempts from this browser. Try again in 10 minutes.") as NextResponse;
 
   try {
     const body = await request.json() as { name?: string; leader?: Partial<ParticipantInput> };
     const leader = body.leader ?? {};
     const leaderEmail = normalizeEmail(leader.email ?? "");
-    if (!body.name?.trim() || !validParticipant(leader)) return badRequest("Complete all team leader details with a valid email and roll number.");
+    if (!body.name?.trim() || body.name.trim().length > 80 || !validParticipant(leader)) return badRequest("Complete all team leader details with valid values. Team and participant names must be 80 characters or fewer.");
 
     const { teams, participants } = await getIgnithonCollections();
     const [participantByEmail, participantByRoll] = await Promise.all([
@@ -80,7 +76,7 @@ export async function POST(request: NextRequest) {
     }
 
     await setIgnithonSession({ email: leaderEmail, teamId, role: "leader" });
-    after(() => syncIgnithonSheetsAfterTeamCreation());
+    after(() => syncIgnithonSheetsAfterTeamCreation(teamId ?? undefined));
     return NextResponse.json({ teamId }, { status: 201 });
   } catch (error) {
     if (error instanceof MongoServerError && error.code === 11000) return badRequest("This email address or roll number is already registered.", 409);

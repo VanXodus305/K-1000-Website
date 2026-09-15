@@ -40,6 +40,17 @@ const academicYearOptions = [
   { value: "5", label: "5th Year" },
 ];
 
+function validateClientParticipant(value: MemberDraft) {
+  if (value.name.trim().length < 2 || value.name.trim().length > 80) return "Name must be between 2 and 80 characters.";
+  if (!value.email.trim() || !isKiitEmailDomain(value.email)) return "Enter an approved KIIT email address.";
+  if (!/^\d+$/.test(value.roll_no) || Number(value.roll_no) <= 0) return "Enter a valid roll number.";
+  if (!/^\+?[0-9\s()-]{10,16}$/.test(value.phone.trim())) return "Enter a valid phone number.";
+  if (!value.branch) return "Select a branch.";
+  if (!value.year) return "Select an academic year.";
+  if (value.hostel.trim().length > 80) return "Hostel must be 80 characters or fewer.";
+  return null;
+}
+
 function rememberReturningIdentity(rollNo: string, teamId: string) {
   const secure = window.location.protocol === "https:" ? "; Secure" : "";
   document.cookie = `${RETURNING_IDENTITY_COOKIE}=${encodeURIComponent(JSON.stringify({ rollNo, teamId }))}; Max-Age=${REMEMBERED_PORTAL_TTL_SECONDS}; Path=/; SameSite=Lax${secure}`;
@@ -74,11 +85,16 @@ export default function IgnithonRegistrationPage() {
   const [entryMode, setEntryMode] = useState<"register" | "login">("register");
   const entryCardRef = useRef<HTMLElement>(null);
   const [message, setMessage] = useState("");
+  const [messageTone, setMessageTone] = useState<"error" | "success">("error");
   const [loading, setLoading] = useState(false);
   const [access, setAccess] = useState({ rollNo: "", teamId: "" });
   const [teamName, setTeamName] = useState("");
   const [leader, setLeader] = useState<MemberDraft>(blankMember);
   const [member, setMember] = useState<MemberDraft>(blankMember);
+  const showMessage = (nextMessage: string, tone: "error" | "success" = "error") => {
+    setMessageTone(tone);
+    setMessage(nextMessage);
+  };
 
   const loadPortal = async (teamId: string) => {
     const data = await readJson(await fetch(`/api/ignithon/teams/${teamId}`));
@@ -111,14 +127,20 @@ export default function IgnithonRegistrationPage() {
   };
 
   const handleCreate = async (event: FormEvent) => {
-    event.preventDefault(); setLoading(true); setMessage("");
+    event.preventDefault();
+    const validationError = validateClientParticipant(leader) || (teamName.trim().length < 2 || teamName.trim().length > 80 ? "Team name must be between 2 and 80 characters." : null);
+    if (validationError) { showMessage(validationError); return; }
+    setLoading(true); setMessage("");
     try { const result = await readJson(await fetch("/api/ignithon/teams", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: teamName, leader: { ...leader, roll_no: leader.roll_no, year: Number(leader.year), hostel: leader.hostel || null } }) })); rememberReturningIdentity(leader.roll_no, String(result.teamId)); await loadPortal(String(result.teamId)); }
     catch (error) { setMessage(error instanceof Error ? error.message : "Unable to create the team."); }
     finally { setLoading(false); }
   };
 
   const addMember = async (event: FormEvent) => {
-    event.preventDefault(); if (!portal) return false; setLoading(true); setMessage("");
+    event.preventDefault(); if (!portal) return false;
+    const validationError = validateClientParticipant(member);
+    if (validationError) { showMessage(validationError); return false; }
+    setLoading(true); setMessage("");
     try { await readJson(await fetch(`/api/ignithon/teams/${portal.team.id}/participants`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...member, roll_no: member.roll_no, year: Number(member.year), hostel: member.hostel || null }) })); await loadPortal(String(portal.team.id)); setMember(blankMember); return true; }
     catch (error) { setMessage(error instanceof Error ? error.message : "Unable to add this participant."); return false; }
     finally { setLoading(false); }
@@ -180,10 +202,10 @@ export default function IgnithonRegistrationPage() {
           </p>
         </div>
 
-        {message && <NotificationBox message={message} onDismiss={() => setMessage("")} />}
+        {message && <NotificationBox message={message} tone={messageTone} onDismiss={() => setMessage("")} />}
 
         {portal ? (
-          <PortalView portal={portal} member={member} setMember={setMember} addMember={addMember} removeMember={removeMember} transferLeadership={transferLeadership} refreshPortal={() => loadPortal(String(portal.team.id))} logout={logout} loading={loading} notify={setMessage} />
+          <PortalView portal={portal} member={member} setMember={setMember} addMember={addMember} removeMember={removeMember} transferLeadership={transferLeadership} refreshPortal={() => loadPortal(String(portal.team.id))} logout={logout} loading={loading} notify={showMessage} />
         ) : (
           <section ref={entryCardRef} className="mx-auto grid w-full max-w-5xl scroll-mt-24 gap-8 rounded-[24px] border border-white/10 bg-white/[0.025] p-4 shadow-[0_24px_80px_rgba(0,0,0,0.35)] backdrop-blur-xl sm:scroll-mt-28 sm:rounded-[28px] sm:p-8 md:grid-cols-[0.76fr_1.24fr] md:gap-10 md:p-10">
             <div className="flex flex-col justify-between border-b border-white/10 pb-6 md:border-b-0 md:border-r md:pb-0 md:pr-10">
@@ -211,7 +233,7 @@ export default function IgnithonRegistrationPage() {
                   Create your team first. Your four-digit Team ID will be generated after registration.
                 </p>
                 <form onSubmit={handleCreate} className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
-                  <input className={`${inputClass} sm:col-span-2`} required value={teamName} onChange={(event) => setTeamName(event.target.value)} placeholder="Team name" aria-label="Team name" />
+                  <input className={`${inputClass} sm:col-span-2`} required minLength={2} maxLength={80} value={teamName} onChange={(event) => setTeamName(event.target.value)} placeholder="Team name" aria-label="Team name" />
                   <MemberFields value={leader} setValue={setLeader} nameLabel="Team Leader Name" />
                   <button disabled={loading} className={`${conthrax} flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-cyan-400 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-black transition-colors hover:bg-white disabled:opacity-50 sm:col-span-2 sm:text-[10px] sm:tracking-[0.22em]`}>
                     {loading ? <><LoaderCircle size={14} className="animate-spin" /> Creating team...</> : <>Create team <ChevronRight size={14} /></>}
@@ -235,7 +257,7 @@ export default function IgnithonRegistrationPage() {
                   <input className={inputClass} required inputMode="numeric" pattern="[0-9]{4}" maxLength={4} value={access.teamId} onChange={(event) => setAccess({ ...access, teamId: event.target.value.replace(/\D/g, "") })} placeholder="Four-digit Team ID" aria-label="Four-digit Team ID" />
                   <p className="-mt-1 px-1 text-[11px] leading-relaxed text-white/40">Forgot your Team ID? Check your previously logged device or contact support: <a className="text-cyan-300/80 hover:text-cyan-200" href="tel:7304693169">7304693169</a></p>
                   <button disabled={loading} className={`${conthrax} flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-cyan-400 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-black transition-colors hover:bg-white disabled:opacity-50 sm:text-[10px] sm:tracking-[0.22em]`}>
-                    Access portal <ChevronRight size={14} />
+                    {loading ? <><LoaderCircle size={14} className="animate-spin" /> Loading portal...</> : <>Access portal <ChevronRight size={14} /></>}
                   </button>
                 </form>
                 <div className="mt-6 border-t border-white/10 pt-5 text-center">
@@ -255,21 +277,22 @@ export default function IgnithonRegistrationPage() {
   );
 }
 
-function NotificationBox({ message, onDismiss }: { message: string; onDismiss: () => void }) {
+function NotificationBox({ message, tone, onDismiss }: { message: string; tone: "error" | "success"; onDismiss: () => void }) {
+  const success = tone === "success";
   useEffect(() => {
-    const timeout = window.setTimeout(onDismiss, 7000);
+    const timeout = window.setTimeout(onDismiss, 10000);
     return () => window.clearTimeout(timeout);
   }, [message, onDismiss]);
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 top-[max(5rem,calc(env(safe-area-inset-top)+4rem))] z-[200] mx-auto w-full max-w-md px-4 sm:top-24 sm:max-w-xl" role="alert" aria-live="assertive">
-      <div className="pointer-events-auto flex items-start gap-3 rounded-[20px] border border-red-300/50 bg-[#25090d]/95 px-4 py-3.5 shadow-[0_18px_50px_rgba(255,50,70,0.25),0_0_28px_rgba(255,60,80,0.14)] backdrop-blur-xl animate-[pulse_0.7s_ease-out_1] sm:px-5">
-        <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-red-300/35 bg-red-400/15 text-sm font-bold text-red-200">!</span>
+    <div className="pointer-events-none fixed inset-x-0 top-[max(6.5rem,calc(env(safe-area-inset-top)+5.5rem))] z-[200] mx-auto max-h-[calc(100vh-8rem)] w-full max-w-md overflow-y-auto px-4 sm:top-28 sm:max-w-xl" role="alert" aria-live="assertive">
+      <div className={`pointer-events-auto flex items-start gap-3 rounded-[20px] border px-4 py-3.5 backdrop-blur-xl animate-[pulse_0.7s_ease-out_1] sm:px-5 ${success ? "border-emerald-300/50 bg-[#062518]/95 shadow-[0_18px_50px_rgba(52,211,153,0.25),0_0_28px_rgba(52,211,153,0.14)]" : "border-red-300/50 bg-[#25090d]/95 shadow-[0_18px_50px_rgba(255,50,70,0.25),0_0_28px_rgba(255,60,80,0.14)]"}`}>
+        <span className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-sm font-bold ${success ? "border-emerald-300/35 bg-emerald-400/15 text-emerald-200" : "border-red-300/35 bg-red-400/15 text-red-200"}`}>{success ? "✓" : "!"}</span>
         <div className="min-w-0 flex-1">
-          <p className={`${conthrax} text-[10px] uppercase tracking-[0.18em] text-red-200`}>Registration notice</p>
-          <p className="mt-1 text-sm leading-relaxed text-red-100/90">{message}</p>
+          <p className={`${conthrax} text-[10px] uppercase tracking-[0.18em] ${success ? "text-emerald-200" : "text-red-200"}`}>{success ? "Update successful" : "Registration notice"}</p>
+          <p className={`mt-1 text-sm leading-relaxed ${success ? "text-emerald-100/90" : "text-red-100/90"}`}>{message}</p>
         </div>
-        <button type="button" onClick={onDismiss} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-red-100/60 transition-colors hover:bg-white/10 hover:text-white" aria-label="Dismiss notification"><X size={16} /></button>
+        <button type="button" onClick={onDismiss} className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-white/10 hover:text-white ${success ? "text-emerald-100/60" : "text-red-100/60"}`} aria-label="Dismiss notification"><X size={16} /></button>
       </div>
     </div>
   );
@@ -277,6 +300,9 @@ function NotificationBox({ message, onDismiss }: { message: string; onDismiss: (
 
 function MemberFields({ value, setValue, nameLabel = "Full name" }: { value: MemberDraft; setValue: (value: MemberDraft) => void; nameLabel?: string }) {
   const update = (key: keyof MemberDraft, next: string) => setValue({ ...value, [key]: next });
+  const nameInvalid = Boolean(value.name && (value.name.trim().length < 2 || value.name.trim().length > 80));
+  const rollInvalid = Boolean(value.roll_no && !/^\d+$/.test(value.roll_no));
+  const phoneInvalid = Boolean(value.phone && !/^\+?[0-9\s()-]{10,16}$/.test(value.phone.trim()));
   const updateEmail = (email: string) => {
     const localPart = email.split("@")[0];
     setValue({
@@ -288,21 +314,21 @@ function MemberFields({ value, setValue, nameLabel = "Full name" }: { value: Mem
 
   return (
     <>
-      <input className={inputClass} required value={value.name} onChange={(event) => update("name", event.target.value)} placeholder={nameLabel} aria-label={nameLabel} />
+      <div className="min-w-0"><input className={`${inputClass} ${nameInvalid ? "border-red-300/60 focus:border-red-300" : ""}`} required minLength={2} maxLength={80} value={value.name} onChange={(event) => update("name", event.target.value)} placeholder={nameLabel} aria-label={nameLabel} aria-invalid={nameInvalid} />{nameInvalid && <p className="mt-1.5 px-1 text-[11px] text-red-200/85">Use 2–80 characters.</p>}</div>
       <div className="min-w-0">
         <input className={`${inputClass} ${value.email && !isKiitEmailDomain(value.email) ? "border-red-300/60 focus:border-red-300" : ""}`} required type="email" value={value.email} onChange={(event) => updateEmail(event.target.value)} placeholder="KIIT email address" aria-label="KIIT email address" aria-invalid={Boolean(value.email && !isKiitEmailDomain(value.email))} />
         {value.email && !isKiitEmailDomain(value.email) && <p className="mt-1.5 px-1 text-[11px] leading-relaxed text-red-200/85">Only an approved KIIT email address is allowed.</p>}
       </div>
-      <input className={inputClass} required inputMode="numeric" value={value.roll_no} onChange={(event) => update("roll_no", event.target.value.replace(/\D/g, ""))} placeholder="Roll / user ID" aria-label="Roll or user ID" />
-      <input className={inputClass} required value={value.phone} onChange={(event) => update("phone", event.target.value)} placeholder="Phone" aria-label="Phone" />
+      <input className={`${inputClass} ${rollInvalid ? "border-red-300/60 focus:border-red-300" : ""}`} required inputMode="numeric" maxLength={20} pattern="[0-9]+" value={value.roll_no} onChange={(event) => update("roll_no", event.target.value.replace(/\D/g, ""))} placeholder="Roll / user ID" aria-label="Roll or user ID" aria-invalid={rollInvalid} />
+      <div className="min-w-0"><input className={`${inputClass} ${phoneInvalid ? "border-red-300/60 focus:border-red-300" : ""}`} required maxLength={16} pattern="\+?[0-9\s()-]{10,16}" type="tel" value={value.phone} onChange={(event) => update("phone", event.target.value)} placeholder="Phone" aria-label="Phone" aria-invalid={phoneInvalid} />{phoneInvalid && <p className="mt-1.5 px-1 text-[11px] text-red-200/85">Enter a valid phone number.</p>}</div>
       <InHouseSelect value={value.branch} onChange={(next) => update("branch", next)} placeholder="Branch" ariaLabel="Branch" options={branchOptions.map((branch) => ({ value: branch, label: branch }))} />
       <InHouseSelect value={value.year} onChange={(next) => update("year", next)} placeholder="Year" ariaLabel="Academic year" options={academicYearOptions} />
-      <input className={`${inputClass} sm:col-span-2`} value={value.hostel} onChange={(event) => update("hostel", event.target.value)} placeholder="Hostel (leave blank for day boarder)" aria-label="Hostel" />
+      <input className={`${inputClass} sm:col-span-2`} maxLength={80} value={value.hostel} onChange={(event) => update("hostel", event.target.value)} placeholder="Hostel (leave blank for day boarder)" aria-label="Hostel" />
     </>
   );
 }
 
-function PortalView({ portal, member, setMember, addMember, removeMember, transferLeadership, refreshPortal, logout, loading, notify }: { portal: Portal; member: MemberDraft; setMember: (member: MemberDraft) => void; addMember: (event: FormEvent) => Promise<boolean>; removeMember: (email: string) => void; transferLeadership: (email: string) => Promise<boolean>; refreshPortal: () => Promise<void>; logout: () => void; loading: boolean; notify: (message: string) => void }) {
+function PortalView({ portal, member, setMember, addMember, removeMember, transferLeadership, refreshPortal, logout, loading, notify }: { portal: Portal; member: MemberDraft; setMember: (member: MemberDraft) => void; addMember: (event: FormEvent) => Promise<boolean>; removeMember: (email: string) => void; transferLeadership: (email: string) => Promise<boolean>; refreshPortal: () => Promise<void>; logout: () => void; loading: boolean; notify: (message: string, tone?: "error" | "success") => void }) {
   const isLeader = portal.session.role === "leader";
   const [showAddMember, setShowAddMember] = useState(false);
   const [showPersonalQr, setShowPersonalQr] = useState(false);
@@ -323,7 +349,7 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
     try {
       await readJson(await fetch(`/api/ignithon/teams/${portal.team.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: teamNameDraft }) }));
       await refreshPortal();
-      notify("Team name updated successfully.");
+      notify("Team name updated successfully.", "success");
     } catch (error) {
       notify(error instanceof Error ? error.message : "Unable to update the team name.");
     } finally {
@@ -576,7 +602,7 @@ function BrandedPersonalQr({ value, name }: { value: string; name: string }) {
   );
 }
 
-function EditMyDetails({ member, onSaved, onClose, notify }: { member: Member; onSaved: () => Promise<void>; onClose: () => void; notify: (message: string) => void }) {
+function EditMyDetails({ member, onSaved, onClose, notify }: { member: Member; onSaved: () => Promise<void>; onClose: () => void; notify: (message: string, tone?: "error" | "success") => void }) {
   const [draft, setDraft] = useState(() => ({ name: member.name, hostel: member.hostel ?? "", phone: member.phone, branch: member.branch, year: String(member.year) }));
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -585,6 +611,8 @@ function EditMyDetails({ member, onSaved, onClose, notify }: { member: Member; o
   }, [member.id, member.name, member.hostel, member.phone, member.branch, member.year]);
   const save = async (event: FormEvent) => {
     event.preventDefault();
+    const validationError = validateClientParticipant({ ...draft, email: member.email, roll_no: member.roll_no });
+    if (validationError) { notify(validationError); return; }
     setSaving(true); setSaved(false);
     try {
       await readJson(await fetch(`/api/ignithon/teams/${member.team_id}/participants/${encodeURIComponent(member.email)}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...draft, year: Number(draft.year), hostel: draft.hostel || null }) }));
@@ -596,7 +624,7 @@ function EditMyDetails({ member, onSaved, onClose, notify }: { member: Member; o
       setSaving(false);
     }
   };
-  return <form onSubmit={save}><div className="flex items-start justify-between gap-4"><div><p className="text-[9px] uppercase tracking-[0.28em] text-cyan-300/55">Selected player</p><h3 className={`${conthrax} mt-2 break-words text-sm uppercase tracking-wider text-cyan-300`}>Edit {member.name}</h3></div><button type="button" onClick={onClose} className={closeButtonClass} aria-label="Close member details"><X size={15} /></button></div><div className="mt-5 grid gap-3 sm:grid-cols-2"><input className={inputClass} value={draft.name} onChange={(e) => { setSaved(false); setDraft({ ...draft, name: e.target.value }); }} required placeholder="Full name" aria-label="Edit full name" /><input className={inputClass} value={draft.phone} onChange={(e) => { setSaved(false); setDraft({ ...draft, phone: e.target.value }); }} required placeholder="Phone" aria-label="Edit phone" /><InHouseSelect value={draft.branch} onChange={(branch) => { setSaved(false); setDraft({ ...draft, branch }); }} placeholder="Branch" ariaLabel="Edit branch" options={branchOptions.map((branch) => ({ value: branch, label: branch }))} /><InHouseSelect value={draft.year} onChange={(year) => { setSaved(false); setDraft({ ...draft, year }); }} placeholder="Year" ariaLabel="Edit academic year" options={academicYearOptions} /><input className={`${inputClass} sm:col-span-2`} value={draft.hostel} onChange={(e) => { setSaved(false); setDraft({ ...draft, hostel: e.target.value }); }} placeholder="Hostel (leave blank for day boarder)" aria-label="Edit hostel" /></div><div className="mt-4 flex flex-col-reverse gap-3 sm:flex-row sm:items-center"><button disabled={saving} className={`${conthrax} min-h-12 w-full rounded-full border border-cyan-400/50 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-cyan-300 transition-colors hover:bg-cyan-400 hover:text-black disabled:opacity-50 sm:w-auto sm:text-[10px] sm:tracking-[0.2em]`}>{saving ? "Saving..." : "Save details"}</button>{saved && <span role="status" className="text-center text-xs text-cyan-300 sm:text-left">Changes saved successfully.</span>}</div></form>;
+  return <form onSubmit={save}><div className="flex items-start justify-between gap-4"><div><p className="text-[9px] uppercase tracking-[0.28em] text-cyan-300/55">Selected player</p><h3 className={`${conthrax} mt-2 break-words text-sm uppercase tracking-wider text-cyan-300`}>Edit {member.name}</h3></div><button type="button" onClick={onClose} className={closeButtonClass} aria-label="Close member details"><X size={15} /></button></div><div className="mt-5 grid gap-3 sm:grid-cols-2"><input className={inputClass} value={draft.name} onChange={(e) => { setSaved(false); setDraft({ ...draft, name: e.target.value }); }} required minLength={2} maxLength={80} placeholder="Full name" aria-label="Edit full name" /><input className={inputClass} value={draft.phone} onChange={(e) => { setSaved(false); setDraft({ ...draft, phone: e.target.value }); }} required maxLength={16} pattern="\+?[0-9\s()-]{10,16}" type="tel" placeholder="Phone" aria-label="Phone" /><InHouseSelect value={draft.branch} onChange={(branch) => { setSaved(false); setDraft({ ...draft, branch }); }} placeholder="Branch" ariaLabel="Edit branch" options={branchOptions.map((branch) => ({ value: branch, label: branch }))} /><InHouseSelect value={draft.year} onChange={(year) => { setSaved(false); setDraft({ ...draft, year }); }} placeholder="Year" ariaLabel="Edit academic year" options={academicYearOptions} /><input className={`${inputClass} sm:col-span-2`} maxLength={80} value={draft.hostel} onChange={(e) => { setSaved(false); setDraft({ ...draft, hostel: e.target.value }); }} placeholder="Hostel (leave blank for day boarder)" aria-label="Edit hostel" /></div><div className="mt-4 flex flex-col-reverse gap-3 sm:flex-row sm:items-center"><button disabled={saving} className={`${conthrax} min-h-12 w-full rounded-full border border-cyan-400/50 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-cyan-300 transition-colors hover:bg-cyan-400 hover:text-black disabled:opacity-50 sm:w-auto sm:text-[10px] sm:tracking-[0.2em]`}>{saving ? "Saving..." : "Save details"}</button>{saved && <span role="status" className="text-center text-xs text-cyan-300 sm:text-left">Changes saved successfully.</span>}</div></form>;
 }
 
 function InHouseSelect({ value, onChange, placeholder, ariaLabel, options }: { value: string; onChange: (value: string) => void; placeholder: string; ariaLabel: string; options: { value: string; label: string }[] }) {

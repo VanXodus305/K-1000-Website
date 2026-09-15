@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json() as { token?: unknown; scannerId?: unknown };
     if (typeof body.token !== "string") return NextResponse.json({ error: "QR identity is required." }, { status: 400 });
     const scannerId = typeof body.scannerId === "string" && /^[a-zA-Z0-9:_-]{8,128}$/.test(body.scannerId) ? body.scannerId : getClientDeviceId(request);
-    if (scannerId && !checkRateLimit(`scan:${scannerId}`, 600, 60_000)) return NextResponse.json({ error: "Too many scan requests." }, { status: 429, headers: { "Retry-After": "60" } });
+    if (scannerId && !(await checkRateLimit(`scan:${scannerId}`, 600, 60_000))) return NextResponse.json({ error: "Too many scan requests." }, { status: 429, headers: { "Retry-After": "60" } });
     const identity = readIgnithonParticipantQrValue(body.token);
     if (!identity) return NextResponse.json({ error: "Invalid Ignithon participant QR code." }, { status: 400 });
 

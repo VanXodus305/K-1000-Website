@@ -12,7 +12,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const teamId = Number(rawTeamId);
   const email = normalizeEmail(decodeURIComponent(rawEmail));
   if (!session || session.teamId !== teamId) return NextResponse.json({ error: "You are not allowed to edit these details." }, { status: 403 });
-  if (!checkStrictRateLimit(`participant-edit:${session.email}:${teamId}`)) return rateLimitResponse("Too many participant-edit attempts. Try again in 10 minutes.") as NextResponse;
+  if (!(await checkStrictRateLimit(`participant-edit:${session.email}:${teamId}`))) return rateLimitResponse("Too many participant-edit attempts. Try again in 10 minutes.") as NextResponse;
   try {
     const body = await request.json() as Record<string, unknown>;
     const allowed = ["name", "phone", "branch", "year", "hostel"];
@@ -21,6 +21,11 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (typeof updates.phone === "string") updates.phone = updates.phone.trim();
     if (typeof updates.branch === "string") updates.branch = updates.branch.trim();
     if (updates.hostel === "string") updates.hostel = updates.hostel.trim() || null;
+    if (!Object.keys(updates).length) return NextResponse.json({ error: "Provide at least one detail to update." }, { status: 400 });
+    if (typeof updates.name === "string" && (updates.name.length < 2 || updates.name.length > 80)) return NextResponse.json({ error: "Name must be between 2 and 80 characters." }, { status: 400 });
+    if (typeof updates.phone === "string" && !/^\+?[0-9\s()-]{10,16}$/.test(updates.phone)) return NextResponse.json({ error: "Enter a valid phone number." }, { status: 400 });
+    if (typeof updates.branch === "string" && (updates.branch.length < 2 || updates.branch.length > 120)) return NextResponse.json({ error: "Select a valid branch." }, { status: 400 });
+    if (typeof updates.hostel === "string" && updates.hostel.length > 80) return NextResponse.json({ error: "Hostel must be 80 characters or fewer." }, { status: 400 });
     if (updates.year !== undefined && (!Number.isInteger(updates.year) || Number(updates.year) < 1 || Number(updates.year) > 5)) return NextResponse.json({ error: "Invalid academic year." }, { status: 400 });
     const { teams, participants } = await getIgnithonCollections();
     const team = await teams.findOne({ id: teamId }, { projection: { _id: 1, members: 1 } });

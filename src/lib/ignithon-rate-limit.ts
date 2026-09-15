@@ -1,25 +1,50 @@
-const attempts = new Map<string, { count: number; resetAt: number }>();
+import { MongoServerError } from "mongodb";
+import { getMongoDb } from "./mongodb";
+
 export const STRICT_RATE_LIMIT = 3;
 export const STRICT_RATE_WINDOW_MS = 10 * 60_000;
 export const DEVICE_COOKIE_NAME = "ignithon_device_id";
 
-export function checkRateLimit(key: string, limit = 30, windowMs = 60_000) {
-  const now = Date.now();
-  const current = attempts.get(key);
-  if (!current || current.resetAt <= now) {
-    if (current) attempts.delete(key);
-    attempts.set(key, { count: 1, resetAt: now + windowMs });
-    return true;
-  }
-  if (current.count >= limit) return false;
-  current.count += 1;
-  return true;
+type RateLimitDocument = { key: string; count: number; resetAt: Date; expiresAt: Date };
+
+let indexPromise: Promise<void> | undefined;
+
+async function getRateLimitCollection() {
+  const collection = (await getMongoDb()).collection<RateLimitDocument>("ignithon-rate-limits");
+  indexPromise ??= Promise.all([
+    collection.createIndex({ key: 1 }, { unique: true, name: "unique_rate_limit_key" }),
+    collection.createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0, name: "rate_limit_expiry" }),
+  ]).then(() => undefined);
+  await indexPromise;
+  return collection;
 }
 
-export function getClientIp(request: Request) {
-  return request.headers.get("x-forwarded-for")?.split(",", 1)[0]?.trim()
-    || request.headers.get("x-real-ip")?.trim()
-    || "unknown";
+export async function checkRateLimit(key: string, limit = 30, windowMs = 60_000) {
+  const collection = await getRateLimitCollection();
+  const now = new Date();
+  const resetAt = new Date(now.getTime() + windowMs);
+
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const updated = await collection.findOneAndUpdate(
+      { key, resetAt: { $gt: now }, count: { $lt: limit } },
+      { $inc: { count: 1 } },
+      { returnDocument: "after" },
+    );
+    if (updated) return true;
+
+    try {
+      const started = await collection.updateOne(
+        { key, $or: [{ resetAt: { $lte: now } }, { resetAt: { $exists: false } }] },
+        { $set: { count: 1, resetAt, expiresAt: resetAt } },
+        { upsert: true },
+      );
+      if (started.modifiedCount || started.upsertedCount) return true;
+    } catch (error) {
+      if (!(error instanceof MongoServerError) || error.code !== 11000) throw error;
+    }
+  }
+
+  return false;
 }
 
 export function getClientDeviceId(request: Request) {
