@@ -31,9 +31,9 @@ export default function BootSequence({ onReady, children, replay = false, proces
 
   useEffect(() => {
     if (!processComplete || !timelineComplete || stage !== "charging") return;
-    const timeout = setTimeout(() => setStage("ready"), 800);
+    const timeout = setTimeout(() => setStage("ready"), overlayOnly ? 0 : 800);
     return () => clearTimeout(timeout);
-  }, [processComplete, timelineComplete, stage]);
+  }, [overlayOnly, processComplete, timelineComplete, stage]);
 
   const completeBoot = () => {
     if (!replay) sessionStorage.setItem("k1000_system_booted", "true");
@@ -52,7 +52,7 @@ export default function BootSequence({ onReady, children, replay = false, proces
               scale: 1.05,
               filter: "blur(20px)"
             }}
-            transition={{ duration: 1.2, ease: "easeInOut" }}
+            transition={{ duration: overlayOnly ? 0.2 : 1.2, ease: "easeInOut" }}
             className={`fixed inset-0 flex flex-col items-center justify-center bg-[#020202] z-[9999] overflow-hidden ${conthrax} select-none`}
           >
             {/* 1. ARCHITECTURAL BACKGROUND */}
@@ -137,7 +137,7 @@ export default function BootSequence({ onReady, children, replay = false, proces
             key="system-interface"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 1.2 }}
+            transition={{ duration: overlayOnly ? 0 : 1.2 }}
             onAnimationComplete={onReady}
           >
             {overlayOnly ? null : children ?? <UnifiedPortal />}

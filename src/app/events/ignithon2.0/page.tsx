@@ -51,9 +51,16 @@ function validateClientParticipant(value: MemberDraft) {
   return null;
 }
 
-function rememberReturningIdentity(rollNo: string, teamId: string) {
-  const secure = window.location.protocol === "https:" ? "; Secure" : "";
-  document.cookie = `${RETURNING_IDENTITY_COOKIE}=${encodeURIComponent(JSON.stringify({ rollNo, teamId }))}; Max-Age=${REMEMBERED_PORTAL_TTL_SECONDS}; Path=/; SameSite=Lax${secure}`;
+function clearLoginCookies() {
+  for (const cookieName of [RETURNING_IDENTITY_COOKIE, DEVICE_COOKIE]) {
+    document.cookie = `${cookieName}=; Max-Age=0; Path=/; SameSite=Lax`;
+  }
+}
+
+function clearBrowserAuthArtifacts() {
+  clearLoginCookies();
+  window.localStorage.removeItem("ignithon-team-id");
+  window.localStorage.removeItem(PORTAL_CACHE_KEY);
 }
 
 function ensureBrowserDeviceIdentity() {
@@ -94,6 +101,8 @@ export default function IgnithonRegistrationPage() {
   const [booting, setBooting] = useState<"login" | "create" | null>(null);
   const [bootProcessComplete, setBootProcessComplete] = useState(false);
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
+  const [hydrated, setHydrated] = useState(false);
+  const initializationRef = useRef(false);
   const showMessage = (nextMessage: string, tone: "error" | "success" = "error") => {
     setMessageTone(tone);
     setMessage(nextMessage);
@@ -115,21 +124,25 @@ export default function IgnithonRegistrationPage() {
   };
 
   useEffect(() => {
-    ensureBrowserDeviceIdentity();
+    if (initializationRef.current) return;
+    initializationRef.current = true;
     const cachedPortal = window.localStorage.getItem(PORTAL_CACHE_KEY);
     if (cachedPortal) {
       try {
         const parsed = JSON.parse(cachedPortal) as Portal;
         if (parsed?.team?.id && parsed?.participants?.length && parsed?.session?.email) {
           setPortal(parsed);
+          clearLoginCookies();
           beginBoot("login");
           void loadPortal(String(parsed.team.id)).then(() => setBootProcessComplete(true)).catch(() => setBootProcessComplete(true));
+          setHydrated(true);
           return;
         }
       } catch {
         window.localStorage.removeItem(PORTAL_CACHE_KEY);
       }
     }
+    ensureBrowserDeviceIdentity();
     const remembered = readReturningIdentity();
     if (remembered) {
       beginBoot("login");
@@ -137,7 +150,7 @@ export default function IgnithonRegistrationPage() {
       void (async () => {
         try {
           const data = await readJson(await fetch("/api/ignithon/session", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ rollNo: remembered.rollNo, teamId: Number(remembered.teamId) }) }));
-          if (data.portal) { setPortal(data.portal); window.localStorage.setItem("ignithon-team-id", remembered.teamId); window.localStorage.setItem(PORTAL_CACHE_KEY, JSON.stringify(data.portal)); setBootProcessComplete(true); }
+          if (data.portal) { setPortal(data.portal); window.localStorage.setItem("ignithon-team-id", remembered.teamId); window.localStorage.setItem(PORTAL_CACHE_KEY, JSON.stringify(data.portal)); clearLoginCookies(); setBootProcessComplete(true); }
         } catch {
           // The remembered identity only restores an active, matching registration.
           setBooting(null);
@@ -147,13 +160,14 @@ export default function IgnithonRegistrationPage() {
     const storedTeamId = window.localStorage.getItem("ignithon-team-id");
     if (!remembered && storedTeamId) {
       beginBoot("login");
-      loadPortal(storedTeamId).then(() => setBootProcessComplete(true)).catch(() => { setBooting(null); window.localStorage.removeItem("ignithon-team-id"); });
+      loadPortal(storedTeamId).then(() => { clearLoginCookies(); setBootProcessComplete(true); }).catch(() => { setBooting(null); window.localStorage.removeItem("ignithon-team-id"); window.localStorage.removeItem(PORTAL_CACHE_KEY); });
     }
+    setHydrated(true);
   }, []);
 
   const handleAccess = async (event: FormEvent) => {
     event.preventDefault(); beginBoot("login"); setLoading(true); setMessage("");
-    try { const data = await readJson(await fetch("/api/ignithon/session", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ rollNo: access.rollNo, teamId: Number(access.teamId) }) })); rememberReturningIdentity(access.rollNo, access.teamId); setPortal(data.portal); window.localStorage.setItem("ignithon-team-id", access.teamId); window.localStorage.setItem(PORTAL_CACHE_KEY, JSON.stringify(data.portal)); setBootProcessComplete(true); }
+    try { const data = await readJson(await fetch("/api/ignithon/session", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ rollNo: access.rollNo, teamId: Number(access.teamId) }) })); setPortal(data.portal); window.localStorage.setItem("ignithon-team-id", access.teamId); window.localStorage.setItem(PORTAL_CACHE_KEY, JSON.stringify(data.portal)); clearLoginCookies(); setAccess({ rollNo: "", teamId: "" }); setTeamName(""); setLeader(blankMember); setMember(blankMember); setBootProcessComplete(true); }
     catch (error) { setBooting(null); setMessage(error instanceof Error ? error.message : "Unable to access the portal."); }
     finally { setLoading(false); }
   };
@@ -163,7 +177,7 @@ export default function IgnithonRegistrationPage() {
     const validationError = validateClientParticipant(leader) || (teamName.trim().length < 2 ? "Team name must contain at least 2 characters." : null);
     if (validationError) { showMessage(validationError); return; }
     beginBoot("create"); setLoading(true); setMessage("");
-    try { const result = await readJson(await fetch("/api/ignithon/teams", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: teamName, leader: { ...leader, roll_no: leader.roll_no, year: Number(leader.year), hostel: leader.hostel || null } }) })); rememberReturningIdentity(leader.roll_no, String(result.teamId)); await loadPortal(String(result.teamId)); setBootProcessComplete(true); }
+    try { const result = await readJson(await fetch("/api/ignithon/teams", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: teamName, leader: { ...leader, roll_no: leader.roll_no, year: Number(leader.year), hostel: leader.hostel || null } }) })); await loadPortal(String(result.teamId)); clearLoginCookies(); setTeamName(""); setLeader(blankMember); setMember(blankMember); setBootProcessComplete(true); }
     catch (error) { setBooting(null); setMessage(error instanceof Error ? error.message : "Unable to create the team."); }
     finally { setLoading(false); }
   };
@@ -205,7 +219,7 @@ export default function IgnithonRegistrationPage() {
     }
   };
 
-  const logout = async () => { await fetch("/api/ignithon/session/logout", { method: "POST" }); setPortal(null); window.localStorage.removeItem("ignithon-team-id"); window.localStorage.removeItem(PORTAL_CACHE_KEY); };
+  const logout = async () => { await fetch("/api/ignithon/session/logout", { method: "POST" }); clearBrowserAuthArtifacts(); setPortal(null); setAccess({ rollNo: "", teamId: "" }); setTeamName(""); setLeader(blankMember); setMember(blankMember); setEntryMode("register"); setMessage(""); };
 
   const switchEntryMode = (mode: "register" | "login") => {
     setEntryMode(mode);
@@ -217,6 +231,7 @@ export default function IgnithonRegistrationPage() {
     <div className="relative min-h-screen overflow-x-hidden bg-[#020202] text-white">
       <CubeBackground zIndex={0} disableLinesOnMobile />
       {booting && <BootSequence replay processComplete={bootProcessComplete} overlayOnly showProcessCompleteStatus={false} onReady={() => setBooting(null)} />}
+      {!hydrated && !booting && <div className="fixed inset-0 z-[9998] bg-[#020202]" aria-label="Preparing portal" />}
       <SharedHeader />
       {message && <NotificationBox message={message} tone={messageTone} onDismiss={() => setMessage("")} />}
       <main className={`relative z-10 mx-auto w-full px-4 pb-20 pt-24 sm:px-6 sm:pb-24 sm:pt-28 md:px-10 md:pt-36 ${portal ? "max-w-7xl" : "max-w-5xl"}`}>

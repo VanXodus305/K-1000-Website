@@ -1,7 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getIgnithonSession, isValidEmail, normalizeEmail, setIgnithonSession } from "@/lib/ignithon-auth";
 import { getIgnithonCollections } from "@/lib/ignithon-db";
+import { getMongoClient } from "@/lib/mongodb";
 import { checkStrictRateLimit, rateLimitResponse } from "@/lib/ignithon-rate-limit";
+
+class LeadershipUpdateError extends Error {
+  constructor(public status: 409 | 500, message: string) {
+    super(message);
+  }
+}
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ teamId: string }> }) {
   const session = await getIgnithonSession();
@@ -27,15 +34,27 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
     const nextMembers = [target._id, ...team.members.filter((memberId) => !memberId.equals(target._id))];
 
-    const result = await teams.updateOne(
-      { id: teamId, "members.0": currentLeader._id },
-      { $set: { members: nextMembers, updatedAt: new Date() } },
-    );
-    if (!result.modifiedCount) return NextResponse.json({ error: "Leadership changed before this request completed. Refresh and try again." }, { status: 409 });
+    const mongoClient = await getMongoClient();
+    const transactionSession = mongoClient.startSession();
+    try {
+      await transactionSession.withTransaction(async () => {
+        const result = await teams.updateOne(
+          { id: teamId, "members.0": currentLeader._id, members: target._id },
+          { $set: { members: nextMembers, updatedAt: new Date() } },
+          { session: transactionSession },
+        );
+        if (!result.modifiedCount) throw new LeadershipUpdateError(409, "Leadership changed before this request completed. Refresh and try again.");
+        const updatedTeam = await teams.findOne({ id: teamId }, { projection: { members: 1 }, session: transactionSession });
+        if (!updatedTeam?.members[0]?.equals(target._id)) throw new LeadershipUpdateError(500, "Leadership was not synchronized to the team roster. Try again.");
+      });
+    } finally {
+      await transactionSession.endSession();
+    }
 
     await setIgnithonSession({ email: session.email, teamId, role: "member" });
     return NextResponse.json({ ok: true, previousLeader: session.email, leader: targetEmail });
   } catch (error) {
+    if (error instanceof LeadershipUpdateError) return NextResponse.json({ error: error.message }, { status: error.status });
     console.error("Ignithon leadership transfer failed", error);
     return NextResponse.json({ error: "Unable to transfer leadership right now." }, { status: 500 });
   }
