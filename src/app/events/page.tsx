@@ -155,14 +155,14 @@ const Events = () => {
               >
                 {/* ── HERO IMAGE ── */}
                 <div className="relative w-full rounded-[24px] sm:rounded-[32px] lg:rounded-[40px] overflow-hidden border border-white/10 shadow-2xl"
-                  style={{ aspectRatio: "16/10" }}
+                  style={{ aspectRatio: "16/9" }}
                 >
                   <Image
                     src={selectedEvent.gallery[0]}
                     alt={selectedEvent.title}
                     fill
                     priority
-                    className="object-cover object-top brightness-[0.5] scale-105"
+                    className="object-cover brightness-[0.5]"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/30 to-transparent" />
 

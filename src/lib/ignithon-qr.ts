@@ -1,17 +1,7 @@
-import { randomBytes } from "node:crypto";
-
-const QR_SEPARATOR_LENGTH = 5;
-const QR_SEPARATOR_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-
 export type IgnithonParticipantQrIdentity = {
   participantId: string;
   teamId: number;
 };
-
-export function createIgnithonQrSeparator() {
-  const bytes = randomBytes(QR_SEPARATOR_LENGTH);
-  return Array.from(bytes, (byte) => QR_SEPARATOR_ALPHABET[byte % QR_SEPARATOR_ALPHABET.length]).join("");
-}
 
 export function getIgnithonParticipantQrValue({ participantId, teamId }: IgnithonParticipantQrIdentity) {
   return `${participantId}|${teamId}`;

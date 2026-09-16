@@ -17,7 +17,6 @@ export type IgnithonParticipant = {
   name: string;
   email: string;
   roll_no: string;
-  qr_separator: string;
   team_id: ObjectId;
   hostel: string | null;
   phone: string;
@@ -25,7 +24,6 @@ export type IgnithonParticipant = {
   year: number;
   status: ParticipantStatus;
   attendance: boolean;
-  is_kiit_student: boolean;
   updatedAt?: Date;
   removed_at?: Date;
 };

@@ -1,11 +1,9 @@
 import { writeFile } from "node:fs/promises";
-import { randomBytes } from "node:crypto";
 import { MongoClient, ObjectId } from "mongodb";
 
 const apply = process.argv.includes("--apply");
 const uri = process.env.MONGODB_URI;
 const dbName = process.env.MONGODB_DB || "k1000";
-const separatorAlphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 if (!uri) throw new Error("MONGODB_URI is not configured");
 
 const client = new MongoClient(uri);
@@ -16,18 +14,6 @@ try {
   const teams = db.collection("ignithon-teams");
   const participants = db.collection("ignithon-participants");
   const teamRecords = await teams.find({}).toArray();
-  const separatorRecords = await participants.find({}, { projection: { _id: 1, qr_separator: 1 } }).toArray();
-  const existingSeparators = new Set(separatorRecords.map((participant) => participant.qr_separator).filter((separator) => typeof separator === "string"));
-  const separatorMigrations = separatorRecords.filter((participant) => typeof participant.qr_separator !== "string" || !/^[A-Z0-9]{5}$/.test(participant.qr_separator)).map((participant) => {
-    let separator = "";
-    do {
-      const bytes = randomBytes(5);
-      separator = Array.from(bytes, (byte) => separatorAlphabet[byte % separatorAlphabet.length]).join("");
-    } while (existingSeparators.has(separator));
-    existingSeparators.add(separator);
-    return { _id: participant._id, separator };
-  });
-
   const participantTeamMigrations = [];
   for (const team of teamRecords) {
     const legacyParticipants = await participants.find({ team_id: team.id }, { projection: { _id: 1 } }).toArray();
@@ -60,14 +46,13 @@ try {
     migrations.push({ team, memberIds: uniqueIds });
   }
 
-  console.log(JSON.stringify({ mode: apply ? "apply" : "dry-run", teams: teamRecords.length, teamsToMigrate: migrations.length, participantTeamReferencesToMigrate: participantTeamMigrations.length, participantQrSeparatorsToAdd: separatorMigrations.length }));
-  if (!apply) process.exitCode = migrations.length || participantTeamMigrations.length || separatorMigrations.length ? 2 : 0;
-  if (apply && (migrations.length || participantTeamMigrations.length || separatorMigrations.length)) {
+  console.log(JSON.stringify({ mode: apply ? "apply" : "dry-run", teams: teamRecords.length, teamsToMigrate: migrations.length, participantTeamReferencesToMigrate: participantTeamMigrations.length }));
+  if (!apply) process.exitCode = migrations.length || participantTeamMigrations.length ? 2 : 0;
+  if (apply && (migrations.length || participantTeamMigrations.length)) {
     const backupPath = `/tmp/ignithon-schema-backup-${Date.now()}.json`;
     await writeFile(backupPath, JSON.stringify({
       teams: migrations.map(({ team }) => ({ _id: team._id.toHexString(), id: team.id, members: team.members })),
       participantsWithLegacyTeamId: participantTeamMigrations.map((participant) => ({ _id: participant._id.toHexString(), teamId: participant.teamId.toHexString() })),
-      participantsWithoutQrSeparator: separatorMigrations.map((participant) => ({ _id: participant._id.toHexString() })),
     }, null, 2), { mode: 0o600 });
 
     if (migrations.length) {
@@ -80,7 +65,6 @@ try {
         updateOne: { filter: { _id: participant._id, team_id: { $type: "number" } }, update: { $set: { team_id: participant.teamId } } },
       })), { ordered: true });
     }
-    if (separatorMigrations.length) await participants.bulkWrite(separatorMigrations.map((participant) => ({ updateOne: { filter: { _id: participant._id }, update: { $set: { qr_separator: participant.separator } } } })), { ordered: true });
     console.log(JSON.stringify({ migrated: true, backupPath }));
   }
 } finally {

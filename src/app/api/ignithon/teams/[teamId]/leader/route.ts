@@ -7,7 +7,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const session = await getIgnithonSession();
   const teamId = Number((await params).teamId);
   if (!session || session.teamId !== teamId || session.role !== "leader") return NextResponse.json({ error: "Only the current team leader can transfer leadership." }, { status: 403 });
-  if (!(await checkStrictRateLimit(`leader-transfer:${session.email}:${teamId}`))) return rateLimitResponse("Too many leadership-transfer attempts. Try again in 10 minutes.") as NextResponse;
+  if (!(await checkStrictRateLimit(`leader-transfer:${session.email}:${teamId}`))) return rateLimitResponse("Too many leadership-transfer attempts. Try again in 1 minute.") as NextResponse;
 
   try {
     const body = await request.json() as { email?: unknown };

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getIgnithonSession, normalizeEmail } from "@/lib/ignithon-auth";
-import { allocateIgnithonQrSeparator, getIgnithonCollections } from "@/lib/ignithon-db";
+import { getIgnithonCollections } from "@/lib/ignithon-db";
 import { getMongoClient } from "@/lib/mongodb";
 import { MongoServerError, type ObjectId } from "mongodb";
 import type { ParticipantInput } from "@/lib/ignithon-types";
@@ -13,17 +13,14 @@ class RegistrationError extends Error {
   constructor(public status: number, message: string) { super(message); }
 }
 
-function validParticipant(value: Partial<ParticipantInput>) {
-  return !validateParticipantFields(value);
-}
-
 export async function POST(request: NextRequest, { params }: { params: Promise<{ teamId: string }> }) {
   const session = await getIgnithonSession();
   const teamId = Number((await params).teamId);
   if (!session || session.teamId !== teamId || session.role !== "leader") return NextResponse.json({ error: "Only the team leader can add participants." }, { status: 403 });
   try {
     const input = await request.json() as Partial<ParticipantInput>;
-    if (!validParticipant(input)) return NextResponse.json({ error: "Complete all participant details with a valid email and roll number." }, { status: 400 });
+    const participantError = validateParticipantFields(input);
+    if (participantError) return NextResponse.json({ error: `Participant ${participantError.charAt(0).toLowerCase()}${participantError.slice(1)}` }, { status: 400 });
     const email = normalizeEmail(input.email!);
     const { teams, participants } = await getIgnithonCollections();
     const client = await getMongoClient();
@@ -46,7 +43,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         const existing = existingByEmail ?? existingByRoll;
         if (existing?.status === "ACTIVE") throw new RegistrationError(409, "This participant is already registered in a team.");
         if (existing?.removed_at && Date.now() - existing.removed_at.getTime() < COOLING_PERIOD_MS) throw new RegistrationError(409, "This participant can join another team after the five-minute cooling period.");
-        participant = { name: input.name!.trim(), email, roll_no: input.roll_no!.trim(), qr_separator: existing?.qr_separator ?? await allocateIgnithonQrSeparator(participants, transactionSession), hostel: input.hostel?.trim() || null, phone: input.phone!.trim(), branch: input.branch!.trim(), year: input.year!, team_id: team._id, status: "ACTIVE", attendance: existing?.attendance ?? false, is_kiit_student: existing?.is_kiit_student ?? false, updatedAt: new Date() };
+        participant = { name: input.name!.trim(), email, roll_no: input.roll_no!.trim(), hostel: input.hostel?.trim() || null, phone: input.phone!.trim(), branch: input.branch!.trim(), year: input.year!, team_id: team._id, status: "ACTIVE", attendance: existing?.attendance ?? false, updatedAt: new Date() };
         const participantId = existing
           ? (await participants.updateOne({ _id: existing._id, status: "REMOVED" }, { $set: participant, $unset: { removed_at: "" } }, { session: transactionSession })).matchedCount ? existing._id : null
           : (await participants.insertOne(participant, { session: transactionSession })).insertedId;
@@ -58,7 +55,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       return NextResponse.json({ participant }, { status: 201 });
     } catch (error) {
       if (error instanceof RegistrationError) return NextResponse.json({ error: error.message }, { status: error.status });
-      if (error instanceof MongoServerError && error.code === 11000) return NextResponse.json({ error: "This email address or roll number is already registered." }, { status: 409 });
+      if (error instanceof MongoServerError && error.code === 11000) return NextResponse.json({ error: "Email address or roll number is already registered to another participant." }, { status: 409 });
       throw error;
     } finally {
       await transactionSession.endSession();

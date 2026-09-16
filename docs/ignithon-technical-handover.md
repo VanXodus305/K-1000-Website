@@ -400,7 +400,7 @@ Missing or invalid keys return `401`. JSON and CSV responses are generated from 
 
 ## Current release
 
-- Event dates: 26th and 27th September 2026
+- Event date: 26th September 2026
 - Public event route: `/events/ignithon2.0`
 - Protected registry: `/events/ignithon2.0/admin`
 - Database: MongoDB, selected through `MONGODB_URI` and optional `MONGODB_DB`
@@ -428,7 +428,6 @@ updatedAt?: Date
 name: String
 email: String, unique
 roll_no: String, unique digit-only value
-qr_separator: String, legacy participant field retained for schema compatibility
 team_id: ObjectId (reference to ignithon-teams._id)
 hostel: String | null
 phone: String
@@ -436,12 +435,13 @@ branch: String
 year: Integer
 status: "ACTIVE" | "REMOVED"
 attendance: Boolean
-is_kiit_student: Boolean
 updatedAt?: Date
 removed_at?: Date
 ```
 
 The application creates unique indexes for Team ID, participant roll number, and participant email. It also creates a team/status lookup index.
+
+The old `qr_separator` and `is_kiit_student` fields are no longer part of the participant schema or API payload. To remove them from existing MongoDB documents and drop the old QR separator index, run `node --env-file=.env scripts/remove-ignithon-legacy-participant-fields.mjs` for a dry run, then add `--apply` only after reviewing the count. The script writes a permission-restricted ID backup under `/tmp` before unsetting the fields.
 
 The September 2026 migration converts legacy `{ email, role }` team-member objects into ordered participant ObjectIds and converts legacy numeric participant `team_id` values to the owning team's MongoDB `_id`. The idempotent verifier is `scripts/migrate-ignithon-member-references.mjs`; run it with `node --env-file=.env ...` for a dry run and add `--apply` only for an authorized migration. Apply mode writes a permission-restricted backup under `/tmp` before changing either owned collection.
 
@@ -523,7 +523,7 @@ Never commit `.env`. The repository ignores all `.env*` files.
 ## Event assets and registration presentation
 
 - The `/events` gallery uses WebP assets under `public/events/` to reduce first-load transfer size.
-- The Ignithon registration entry screen supports 1st through 5th Year and displays the approved KIIT email-domain validation message inline.
+- The Ignithon registration entry screen supports 2nd through 4th Year and displays the approved KIIT email-domain validation message inline.
 - The home registration notice uses the enlarged K-1000 mark and omits the obsolete “K-1000 event access” label.
 
 ## Admin registry

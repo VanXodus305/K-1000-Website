@@ -115,18 +115,18 @@ export const EVENTS: K1000Event[] = [
   {
     id: "ignithon-2-2026",
     title: "Ignithon 2.0",
-    date: "26th & 27th September 2026",
-    description: "K-1000's inaugural 12-hour hackathon, Ignithon, challenged participants to build functional solutions from scratch across three difficulty tiers.",
+    date: "26th September 2026",
+    description: "Ignithon 2.0 is a 12-hour offline sprint focused on rapid prototyping from ideation to deployment. Participants compete across tiered Development and DSA tracks, earning scores through performance across all three challenge rounds while strengthening innovation, problem-solving, software development, teamwork, and practical technical skills.",
     category: "Hackathon",
     link: "/events/ignithon2.0",
     status: "UPCOMING",
     highlights: [
-      "12-Hour Sprint: Rapid prototyping from ideation to deployment.",
-      "Tiered tracks for Beginner, Intermediate, and Advanced developers.",
-      "Over 1000+ registration interests across the campus.",
-      "Felicitation by the Vice Chancellor and Registrar of KIIT."
+      "12-Hour Offline Sprint: Rapid prototyping from ideation to deployment.",
+      "Tiered tracks across both Development and DSA.",
+      "Earn scores based on performance across all three challenge rounds.",
+      "Focus on innovation, problem-solving, software development, teamwork, and practical technical skills."
     ],
-    gallery: ["/events/ignithon.webp"]
+    gallery: ["/events/ignithon2-banner.webp"]
   }
 ];
 

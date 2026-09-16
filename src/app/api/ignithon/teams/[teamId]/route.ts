@@ -30,12 +30,12 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ te
   const session = await getIgnithonSession();
   const teamId = Number((await params).teamId);
   if (!session || session.teamId !== teamId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  if (!(await checkStrictRateLimit(`team-name:${session.email}:${teamId}`))) return rateLimitResponse("Too many team-name update attempts. Try again in 10 minutes.") as NextResponse;
+  if (!(await checkStrictRateLimit(`team-name:${session.email}:${teamId}`))) return rateLimitResponse("Too many team-name update attempts. Try again in 1 minute.") as NextResponse;
 
   try {
     const body = await request.json() as { name?: unknown };
     const name = typeof body.name === "string" ? body.name.trim() : "";
-    if (name.length < 2 || name.length > 80) return NextResponse.json({ error: "Team name must be between 2 and 80 characters." }, { status: 400 });
+    if (name.length < 2) return NextResponse.json({ error: "Team name must contain at least 2 characters." }, { status: 400 });
 
     const { teams, participants } = await getIgnithonCollections();
     const team = await teams.findOne({ id: teamId }, { projection: { _id: 1, members: 1 } });

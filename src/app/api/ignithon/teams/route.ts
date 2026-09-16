@@ -2,7 +2,7 @@ import { after } from "next/server";
 import { NextRequest, NextResponse } from "next/server";
 import { MongoServerError } from "mongodb";
 import { checkStrictRateLimit, getClientDeviceId, rateLimitResponse } from "@/lib/ignithon-rate-limit";
-import { allocateIgnithonQrSeparator, getIgnithonCollections } from "@/lib/ignithon-db";
+import { getIgnithonCollections } from "@/lib/ignithon-db";
 import { normalizeEmail, setIgnithonSession } from "@/lib/ignithon-auth";
 import type { ParticipantInput } from "@/lib/ignithon-types";
 import { syncIgnithonSheetsAfterTeamCreation } from "@/lib/ignithon-sheets";
@@ -10,10 +10,6 @@ import { validateParticipantFields } from "@/lib/ignithon-validation";
 
 function badRequest(message: string, status = 400) {
   return NextResponse.json({ error: message }, { status });
-}
-
-function validParticipant(value: Partial<ParticipantInput>) {
-  return !validateParticipantFields(value);
 }
 
 async function generateTeamId(teams: Awaited<ReturnType<typeof getIgnithonCollections>>["teams"]) {
@@ -26,13 +22,15 @@ async function generateTeamId(teams: Awaited<ReturnType<typeof getIgnithonCollec
 
 export async function POST(request: NextRequest) {
   const deviceId = getClientDeviceId(request);
-  if (deviceId && !(await checkStrictRateLimit(`create:${deviceId}`))) return rateLimitResponse("Too many registration attempts from this browser. Try again in 10 minutes.") as NextResponse;
+  if (deviceId && !(await checkStrictRateLimit(`create:${deviceId}`))) return rateLimitResponse("Too many registration attempts from this browser. Try again in 1 minute.") as NextResponse;
 
   try {
     const body = await request.json() as { name?: string; leader?: Partial<ParticipantInput> };
     const leader = body.leader ?? {};
     const leaderEmail = normalizeEmail(leader.email ?? "");
-    if (!body.name?.trim() || body.name.trim().length > 80 || !validParticipant(leader)) return badRequest("Complete all team leader details with valid values. Team and participant names must be 80 characters or fewer.");
+    const participantError = validateParticipantFields(leader);
+    if (!body.name?.trim() || body.name.trim().length < 2) return badRequest("Team name must contain at least 2 characters.");
+    if (participantError) return badRequest(`Team leader ${participantError.charAt(0).toLowerCase()}${participantError.slice(1)}`);
 
     const { teams, participants } = await getIgnithonCollections();
     const [participantByEmail, participantByRoll] = await Promise.all([
@@ -46,12 +44,10 @@ export async function POST(request: NextRequest) {
       return badRequest("This email address or roll number is already registered. Use Existing Team Login with your Team ID.", 409);
     }
 
-    const qrSeparator = await allocateIgnithonQrSeparator(participants);
     const participant: ParticipantInput = {
       name: leader.name!.trim(), email: leaderEmail, roll_no: leader.roll_no!.trim(),
-      qr_separator: qrSeparator,
       hostel: leader.hostel?.trim() || null, phone: leader.phone!.trim(),
-      branch: leader.branch!.trim(), year: leader.year!, attendance: false, is_kiit_student: false, updatedAt: new Date(),
+      branch: leader.branch!.trim(), year: leader.year!, attendance: false, updatedAt: new Date(),
     };
     let teamId: number | null = null;
     let teamResult: Awaited<ReturnType<typeof teams.insertOne>> | null = null;
