@@ -330,7 +330,7 @@ export default function UnifiedPortal() {
       <CubeBackground />
 
       {/* ─── SYSTEM CANVAS HERO ─── */}
-      <section className="relative isolate w-full h-[100dvh] min-h-[600px] flex flex-col items-center justify-center overflow-hidden border-b border-amber-100/15">
+      <section className="relative isolate w-full h-[100svh] min-h-[600px] md:h-[100dvh] flex flex-col items-center justify-center overflow-hidden border-b border-amber-100/15">
         <div className="absolute inset-0 z-0" aria-hidden="true">
           <picture className="absolute inset-0 block">
             <source media="(max-width: 767px)" srcSet="/events/generated/ignithon2-registration-mobile.webp" />
@@ -385,7 +385,6 @@ export default function UnifiedPortal() {
                               {node.label}
                             </span>
                           </div>
-                          <span className={`${conthrax} text-[7px] uppercase tracking-[0.16em] text-white`}>Static</span>
                         </div>
                       ))}
                     </div>

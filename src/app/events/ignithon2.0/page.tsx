@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useId, useRef, useState } from "react";
 import Image from "next/image";
-import { Check, ChevronDown, ChevronRight, Crown, Download, LogOut, Pencil, Plus, QrCode, Trash2, X } from "lucide-react";
+import { Check, ChevronDown, ChevronRight, Crown, Download, LoaderCircle, LogOut, Pencil, Plus, QrCode, Trash2, X } from "lucide-react";
 import BootSequence from "../../../components/boot/BootSequence";
 import SharedHeader from "../../../components/ui/SharedHeader";
 import Footer from "../../../components/footer/Footer";
@@ -416,6 +416,7 @@ function MemberFields({ value, setValue, nameLabel = "Full name" }: { value: Mem
 function PortalView({ portal, member, setMember, addMember, removeMember, transferLeadership, refreshPortal, logout, loading, notify, requestConfirmation }: { portal: Portal; member: MemberDraft; setMember: (member: MemberDraft) => void; addMember: (event: FormEvent) => Promise<boolean>; removeMember: (email: string) => void; transferLeadership: (email: string) => Promise<boolean>; refreshPortal: () => Promise<void>; logout: () => void; loading: boolean; notify: (message: string, tone?: "error" | "success") => void; requestConfirmation: (confirmation: Confirmation) => void }) {
   const isLeader = portal.session.role === "leader";
   const [showAddMember, setShowAddMember] = useState(false);
+  const [addingMember, setAddingMember] = useState(false);
   const addMemberFormRef = useRef<HTMLFormElement>(null);
   const rosterSectionRef = useRef<HTMLElement>(null);
   const [showPersonalQr, setShowPersonalQr] = useState(false);
@@ -445,10 +446,15 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
   };
 
   const submitMember = async (event: FormEvent) => {
-    const added = await addMember(event);
-    if (added) {
-      setShowAddMember(false);
-      requestAnimationFrame(() => requestAnimationFrame(() => rosterSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })));
+    setAddingMember(true);
+    try {
+      const added = await addMember(event);
+      if (added) {
+        setShowAddMember(false);
+        requestAnimationFrame(() => requestAnimationFrame(() => rosterSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })));
+      }
+    } finally {
+      setAddingMember(false);
     }
   };
 
@@ -582,15 +588,15 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
               <p className="text-[9px] uppercase tracking-[0.28em] text-amber-300/55">New roster slot</p>
               <h2 className={`${conthrax} mt-2 text-sm uppercase tracking-wider text-amber-200 sm:text-base`}>Member {registeredMembers.length + 1} details</h2>
             </div>
-            <button type="button" onClick={() => setShowAddMember(false)} className={closeButtonClass} aria-label="Close new member form"><X size={15} /></button>
+            <button type="button" disabled={addingMember} onClick={() => setShowAddMember(false)} className={closeButtonClass} aria-label="Close new member form"><X size={15} /></button>
           </div>
           <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
             <MemberFields value={member} setValue={setMember} />
           </div>
           <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-            <button type="button" onClick={() => setShowAddMember(false)} className={`${conthrax} min-h-12 w-full rounded-full border border-white/10 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-white transition-colors hover:border-white/25 hover:text-white sm:w-auto`}>Cancel</button>
-            <button disabled={loading} className={`${conthrax} flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-amber-400 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-black transition-colors hover:bg-white disabled:opacity-50 sm:w-auto sm:text-[10px] sm:tracking-[0.22em]`}>
-              <Plus size={14} /> Add Member {registeredMembers.length + 1}
+            <button type="button" disabled={addingMember} onClick={() => setShowAddMember(false)} className={`${conthrax} min-h-12 w-full rounded-full border border-white/10 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-white transition-colors hover:border-white/25 hover:text-white disabled:opacity-50 sm:w-auto`}>Cancel</button>
+            <button disabled={loading || addingMember} aria-busy={addingMember} className={`${conthrax} flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-amber-400 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-black transition-colors hover:bg-white disabled:cursor-wait disabled:opacity-50 sm:w-auto sm:text-[10px] sm:tracking-[0.22em]`}>
+              {addingMember ? <><LoaderCircle size={15} className="animate-spin" /> Adding Member…</> : <><Plus size={14} /> Add Member {registeredMembers.length + 1}</>}
             </button>
           </div>
         </form>
