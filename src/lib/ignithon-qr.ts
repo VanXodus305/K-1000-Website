@@ -24,6 +24,6 @@ export function addIgnithonQrLogo(svg: string, logoDataUri: string) {
   const boxSize = canvasSize * 0.21;
   const boxOffset = (canvasSize - boxSize) / 2;
   const logoInset = boxSize * 0.1;
-  const logo = `<g><rect x="${boxOffset}" y="${boxOffset}" width="${boxSize}" height="${boxSize}" rx="${boxSize * 0.15}" fill="#020202" stroke="#00f7ff" stroke-width="${Math.max(canvasSize * 0.006, 0.3)}"/><image href="${logoDataUri}" x="${boxOffset + logoInset}" y="${boxOffset + logoInset}" width="${boxSize - logoInset * 2}" height="${boxSize - logoInset * 2}" preserveAspectRatio="xMidYMid meet"/></g>`;
+  const logo = `<g><rect x="${boxOffset}" y="${boxOffset}" width="${boxSize}" height="${boxSize}" rx="${boxSize * 0.15}" fill="#020202" stroke="#f5ae37" stroke-width="${Math.max(canvasSize * 0.006, 0.3)}"/><image href="${logoDataUri}" x="${boxOffset + logoInset}" y="${boxOffset + logoInset}" width="${boxSize - logoInset * 2}" height="${boxSize - logoInset * 2}" preserveAspectRatio="xMidYMid meet"/></g>`;
   return svg.replace("</svg>", `${logo}</svg>`);
 }

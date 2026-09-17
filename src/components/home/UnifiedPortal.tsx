@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import gsap from "gsap";
 import Link from "next/link";
+import Image from "next/image";
 
 import SharedHeader from "../ui/SharedHeader";
 import Footer from "../footer/Footer";
@@ -110,13 +111,13 @@ const AnimatedStat = ({
       className="flex flex-col items-center py-4 lg:py-8 bg-white/[0.02] rounded-xl border border-white/5 group"
     >
       <span
-        className={`${conthrax} text-xl lg:text-6xl text-cyan-400 font-black tabular-nums`}
+        className={`${conthrax} text-xl lg:text-6xl text-amber-400 font-black tabular-nums`}
       >
         {displayValue}
         {suffix}
       </span>
       <span
-        className={`text-[6px] lg:text-[11px] uppercase tracking-widest text-white/40 font-black text-center ${conthrax}`}
+        className={`text-[6px] lg:text-[11px] uppercase tracking-widest text-white font-black text-center ${conthrax}`}
       >
         {label}
       </span>
@@ -131,6 +132,9 @@ const CubeBackground = () => {
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+    let animationFrameId = 0;
+    let disposed = false;
+    let removeWindowListeners = () => {};
     const ctxGSAP = gsap.context(() => {
       let particles: Particle[] = [];
       let width = window.innerWidth,
@@ -150,7 +154,7 @@ const CubeBackground = () => {
         vy: (Math.random() - 0.5) * 0.4,
       });
       const init = () => {
-        const count = Math.floor((width * height) / 9000);
+        const count = Math.min(Math.floor((width * height) / 9000), width < 1024 ? 50 : 90);
         particles = Array.from({ length: count }, () => {
           const particle = createParticle();
           return { ...particle, size: particle.baseSize };
@@ -170,9 +174,9 @@ const CubeBackground = () => {
             dist < 150
               ? gsap.utils.interpolate(p.size, p.baseSize * 3, 0.1)
               : gsap.utils.interpolate(p.size, p.baseSize, 0.05);
-          ctx.fillStyle = "rgba(0, 247, 255, 0.8)";
+          ctx.fillStyle = "rgba(245, 174, 55, 0.85)";
           ctx.shadowBlur = 12;
-          ctx.shadowColor = "#00f7ff";
+          ctx.shadowColor = "#f5ae37";
           ctx.fillRect(p.x, p.y, p.size, p.size);
           ctx.shadowBlur = 0;
           for (let j = i + 1; j < particles.length; j++) {
@@ -181,7 +185,7 @@ const CubeBackground = () => {
               dist = Math.sqrt(dx * dx + dy * dy);
             if (dist < 120) {
               ctx.beginPath();
-              ctx.strokeStyle = `rgba(0, 247, 255, ${0.25 * (1 - dist / 120)})`;
+              ctx.strokeStyle = `rgba(245, 174, 55, ${0.3 * (1 - dist / 120)})`;
               ctx.lineWidth = 0.8;
               ctx.moveTo(p.x, p.y);
               ctx.lineTo(particles[j].x, particles[j].y);
@@ -189,7 +193,7 @@ const CubeBackground = () => {
             }
           }
         });
-        requestAnimationFrame(animate);
+        if (!disposed) animationFrameId = requestAnimationFrame(animate);
       };
       const handleMouseMove = (e: MouseEvent) => {
         gsap.to(mouse, {
@@ -201,10 +205,19 @@ const CubeBackground = () => {
       };
       window.addEventListener("resize", resize);
       window.addEventListener("mousemove", handleMouseMove);
+      removeWindowListeners = () => {
+        window.removeEventListener("resize", resize);
+        window.removeEventListener("mousemove", handleMouseMove);
+      };
       resize();
-      animate();
+      animationFrameId = requestAnimationFrame(animate);
     });
-    return () => ctxGSAP.revert();
+    return () => {
+      disposed = true;
+      removeWindowListeners();
+      window.cancelAnimationFrame(animationFrameId);
+      ctxGSAP.revert();
+    };
   }, []);
   return (
     <canvas
@@ -266,6 +279,7 @@ const RIGHT_NODES = [
 export default function UnifiedPortal() {
   const { benefits } = data;
   const [isCoreHovered, setIsCoreHovered] = useState(false);
+  const [isCorePressed, setIsCorePressed] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [scale, setScale] = useState(1);
   const [isMobile, setIsMobile] = useState(false);
@@ -313,18 +327,26 @@ export default function UnifiedPortal() {
   ];
 
   return (
-    <div className="relative w-full bg-[#010103] text-white overflow-x-hidden selection:bg-cyan-500/30">
+    <div className="relative w-full bg-[#010103] text-white overflow-x-hidden selection:bg-amber-500/30">
       <CubeBackground />
 
       {/* ─── SYSTEM CANVAS HERO ─── */}
-      <section className="relative w-full h-[100dvh] min-h-[600px] flex flex-col items-center justify-center overflow-hidden border-b border-white/5">
+      <section className="relative isolate w-full h-[100dvh] min-h-[600px] flex flex-col items-center justify-center overflow-hidden border-b border-amber-100/15">
+        <div className="absolute inset-0 z-0" aria-hidden="true">
+          <picture className="absolute inset-0 block">
+            <source media="(max-width: 767px)" srcSet="/events/generated/ignithon2-registration-mobile.webp" />
+            <Image src="/events/generated/ignithon2-registration-desktop.webp" alt="" fill priority sizes="100vw" className="object-cover object-[50%_42%] opacity-100 md:object-center" />
+          </picture>
+          <div className="absolute inset-0 bg-[#020202]/5" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020202]/8 to-[#020202]/38" />
+        </div>
         <SharedHeader />
 
         <motion.div
           style={{ x: moveX, y: moveY, scale: 1.05 }}
           className="absolute inset-0 z-0 opacity-30 pointer-events-none"
         >
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#00f7ff06_1px,transparent_1px),linear-gradient(to_bottom,#00f7ff06_1px,transparent_1px)] bg-[size:30px_30px] lg:bg-[size:60px_60px]" />
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#f5ae3706_1px,transparent_1px),linear-gradient(to_bottom,#f5ae3706_1px,transparent_1px)] bg-[size:30px_30px] lg:bg-[size:60px_60px]" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#010103_85%)]" />
         </motion.div>
 
@@ -338,10 +360,10 @@ export default function UnifiedPortal() {
                   <div className="flex flex-col items-center w-full h-full justify-between pt-24 pb-20">
                     <div className="flex-none">
                       <div className="relative">
-                        <div className="absolute inset-0 bg-cyan-500/10 blur-2xl rounded-full scale-125 animate-pulse" />
+                        <div className="absolute inset-0 bg-amber-500/10 blur-2xl rounded-full scale-125 animate-pulse" />
                         <img
                           src="/k1000-small.png"
-                          className="w-24 brightness-110 drop-shadow-[0_0_10px_#00f7ff] relative z-10"
+                          className="w-24 brightness-110 drop-shadow-[0_0_10px_#f5ae37] relative z-10"
                           alt="Core"
                         />
                       </div>
@@ -352,10 +374,10 @@ export default function UnifiedPortal() {
                         <div
                           key={node.key}
                           aria-disabled="true"
-                          className="w-full bg-black/40 backdrop-blur-xl border border-cyan-400/30 p-3 flex justify-between items-center shadow-[0_0_10px_rgba(0,247,255,0.05)] rounded-lg"
+                          className="w-full bg-black/40 backdrop-blur-xl border border-amber-400/30 p-3 flex justify-between items-center shadow-[0_0_10px_rgba(245, 174, 55,0.05)] rounded-lg"
                         >
                           <div
-                            className={`flex items-center gap-3 text-cyan-400 ${conthrax}`}
+                            className={`flex items-center gap-3 text-amber-400 ${conthrax}`}
                           >
                             <div className="scale-75">
                               {node.icon}
@@ -364,14 +386,14 @@ export default function UnifiedPortal() {
                               {node.label}
                             </span>
                           </div>
-                          <span className={`${conthrax} text-[7px] uppercase tracking-[0.16em] text-white/20`}>Static</span>
+                          <span className={`${conthrax} text-[7px] uppercase tracking-[0.16em] text-white`}>Static</span>
                         </div>
                       ))}
                     </div>
 
                     <div className="flex-none mt-4">
                       <div
-                        className={`text-[7px] tracking-[0.4em] text-cyan-400/70 font-black uppercase text-center drop-shadow-[0_0_5px_#00f7ff] ${conthrax}`}
+                        className={`text-[7px] tracking-[0.4em] text-amber-400/70 font-black uppercase text-center drop-shadow-[0_0_5px_#f5ae37] ${conthrax}`}
                       >
                         Train • Transform • Transcend
                       </div>
@@ -395,7 +417,7 @@ export default function UnifiedPortal() {
                           y1={450}
                           x2={node.x * 14.4}
                           y2={node.y * 9}
-                          stroke="#00f7ff"
+                          stroke="#f5ae37"
                           strokeWidth="0.9"
                           strokeOpacity="0.8"
                         />
@@ -405,31 +427,35 @@ export default function UnifiedPortal() {
                     <div className="flex flex-col items-center relative z-20">
                       <motion.div
                         onMouseEnter={() => setIsCoreHovered(true)}
-                        onMouseLeave={() => setIsCoreHovered(false)}
-                        className={`relative w-[320px] h-[440px] bg-[#020205] rounded-[40px] border-2 flex flex-col cursor-pointer transition-all duration-700 ${isCoreHovered ? "border-cyan-400 shadow-[0_0_80px_rgba(0,247,255,0.4)]" : "border-white/40 shadow-[0_0_30px_rgba(255,255,255,0.05)]"}`}
+                        onMouseLeave={() => { setIsCoreHovered(false); setIsCorePressed(false); }}
+                        onPointerDown={() => setIsCorePressed(true)}
+                        onPointerUp={() => setIsCorePressed(false)}
+                        onPointerCancel={() => setIsCorePressed(false)}
+                        whileTap={{ scale: 0.985 }}
+                        className={`relative w-[320px] h-[440px] bg-[#020205] rounded-[40px] border-2 flex flex-col cursor-pointer transition-all duration-500 ${isCorePressed ? "border-amber-200 shadow-[0_0_150px_rgba(245,174,55,0.95),0_0_80px_rgba(239,78,61,0.45)]" : isCoreHovered ? "border-amber-400 shadow-[0_0_80px_rgba(245,174,55,0.4)]" : "border-white/40 shadow-[0_0_30px_rgba(255,255,255,0.05)]"}`}
                       >
                         <div className="flex justify-between items-center px-8 py-4 border-b border-white/20">
                           <Activity
                             size={12}
-                            className="text-cyan-400 animate-pulse drop-shadow-[0_0_5px_#00f7ff]"
+                            className="text-amber-400 animate-pulse drop-shadow-[0_0_5px_#f5ae37]"
                           />
                           <span
-                            className={`text-[7px] tracking-[0.6em] text-cyan-300 font-black ${conthrax}`}
+                            className={`text-[7px] tracking-[0.6em] text-amber-300 font-black ${conthrax}`}
                           >
                             VERS.2026
                           </span>
                         </div>
                         <div className="flex-1 flex items-center justify-center relative">
-                          <div className="absolute w-40 h-40 bg-cyan-500/20 blur-[80px] rounded-full" />
+                          <div className="absolute w-40 h-40 bg-amber-500/20 blur-[80px] rounded-full" />
                           <img
                             src="/k1000-small.png"
-                            className={`w-44 z-10 transition-transform duration-500 ${isCoreHovered ? "scale-110 brightness-110" : "brightness-105"} drop-shadow-[0_0_20px_#00f7ff]`}
+                            className={`w-44 z-10 transition-transform duration-500 ${isCoreHovered ? "scale-110 brightness-110" : "brightness-105"} drop-shadow-[0_0_20px_#f5ae37]`}
                             alt="Core"
                           />
                         </div>
                       </motion.div>
                       <div
-                        className={`mt-20 translate-x-10 translate-y-8 text-[18px] tracking-[1.4em] text-cyan-400 font-black uppercase text-center drop-shadow-[0_0_12px_#00f7ff] brightness-110 ${conthrax}`}
+                        className={`mt-20 translate-x-10 translate-y-8 text-[18px] tracking-[1.4em] text-amber-400 font-black uppercase text-center drop-shadow-[0_0_12px_#f5ae37] brightness-110 ${conthrax}`}
                       >
                         Train • Transform • Transcend
                       </div>
@@ -446,7 +472,7 @@ export default function UnifiedPortal() {
                             top: `${node.y}%`,
                             left: `${node.x}%`,
                             // Right nodes (flex-row): diamond is first child = left edge = at anchor. Just center vertically.
-                            // Left nodes (flex-row-reverse): diamond is first child but visually last (rightmost). 
+                            // Left nodes (flex-row-reverse): diamond is first child but visually last (rightmost).
                             //   Shift entire button left by 100% so diamond's right edge lands at anchor.
                             transform: isLeft
                               ? "translate(-100%, -50%)"
@@ -455,19 +481,19 @@ export default function UnifiedPortal() {
                         >
                           {/* diamond — center sits exactly at node.x/node.y = SVG line endpoint */}
                           <div
-                            className="w-4 h-4 rotate-45 border-2 flex-shrink-0 bg-[#010103] border-cyan-400 shadow-[0_0_15px_#00f7ff]"
+                            className="w-4 h-4 rotate-45 border-2 flex-shrink-0 bg-[#010103] border-amber-400 shadow-[0_0_15px_#f5ae37]"
                           />
                           {/* horizontal stub */}
                           <div
-                            className="w-10 h-[2px] flex-shrink-0 bg-cyan-400 shadow-[0_0_15px_#00f7ff]"
+                            className="w-10 h-[2px] flex-shrink-0 bg-amber-400 shadow-[0_0_15px_#f5ae37]"
                           />
                           {/* card */}
                           <div
-                            className="relative px-8 py-4 min-w-[340px] backdrop-blur-2xl border-2 bg-black/90 text-white border-cyan-400 shadow-[0_0_30px_rgba(0,247,255,0.4)]"
+                            className="relative px-8 py-4 min-w-[340px] backdrop-blur-2xl border-2 bg-black/90 text-white border-amber-400 shadow-[0_0_30px_rgba(245, 174, 55,0.4)]"
                           >
                             <div className="flex items-center gap-6">
                               <div
-                                className="p-2 border-2 border-cyan-400 text-cyan-400 brightness-110 drop-shadow-[0_0_5px_#00f7ff]"
+                                className="p-2 border-2 border-amber-400 text-amber-400 brightness-110 drop-shadow-[0_0_5px_#f5ae37]"
                               >
                                 {node.icon}
                               </div>
@@ -480,7 +506,7 @@ export default function UnifiedPortal() {
                           </div>
                           {/* bracket notch on far card edge */}
                           <div
-                            className={`w-2 h-10 border-y-2 flex-shrink-0 border-cyan-400 ${isLeft ? "border-l-2" : "border-r-2"}`}
+                            className={`w-2 h-10 border-y-2 flex-shrink-0 border-amber-400 ${isLeft ? "border-l-2" : "border-r-2"}`}
                           />
                         </motion.div>
                       );
@@ -493,26 +519,26 @@ export default function UnifiedPortal() {
         <div className="absolute bottom-0 left-0 w-full px-5 lg:px-12 py-4 flex items-end justify-between pointer-events-none z-[110]">
           <div className="flex flex-col gap-0.5">
             <div className="flex items-center gap-2">
-              <div className="w-1 h-1 rounded-full bg-cyan-400 animate-pulse" />
+              <div className="w-1 h-1 rounded-full bg-amber-400 animate-pulse" />
               <span
-                className={`text-[8px] tracking-[0.1em] text-cyan-400 font-bold uppercase ${conthrax}`}
+                className={`text-[8px] tracking-[0.1em] text-amber-400 font-bold uppercase ${conthrax}`}
               >
                 SYS: ON
               </span>
             </div>
             <div className="hidden lg:flex items-center gap-3">
-              <CpuIcon size={14} className="text-cyan-400/60" />
-              <span className="text-[9px] tracking-widest text-white/50">
+              <CpuIcon size={14} className="text-amber-400/60" />
+              <span className="text-[9px] tracking-widest text-white">
                 CPU: 12.4%
               </span>
             </div>
           </div>
 
           <div className="flex flex-col items-end gap-0">
-            <span className="text-[6px] lg:text-[9px] tracking-widest text-white/40 uppercase">
+            <span className="text-[6px] lg:text-[9px] tracking-widest text-white uppercase">
               TIMESTAMP
             </span>
-            <span className="text-sm lg:text-3xl font-mono text-cyan-400 brightness-110">
+            <span className="text-sm lg:text-3xl font-mono text-amber-400 brightness-110">
               {currentTime.toLocaleTimeString([], {
                 hour12: false,
                 hour: "2-digit",
@@ -538,7 +564,7 @@ export default function UnifiedPortal() {
               <motion.p
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
-                className={`${conthrax} text-cyan-400 tracking-[0.2em] text-[7px] lg:text-[11px] mb-2 uppercase font-black`}
+                className={`${conthrax} text-amber-400 tracking-[0.2em] text-[7px] lg:text-[11px] mb-2 uppercase font-black`}
               >
                 KIIT Elite&apos;s R&amp;D Program
               </motion.p>
@@ -548,14 +574,14 @@ export default function UnifiedPortal() {
                 className={`${conthrax} text-3xl lg:text-8xl tracking-tight text-white mb-4 uppercase font-black leading-tight`}
               >
                 Join{" "}
-                <span className="text-cyan-400 drop-shadow-[0_0_10px_rgba(0,247,255,0.4)]">
+                <span className="text-amber-400 drop-shadow-[0_0_10px_rgba(245, 174, 55,0.4)]">
                   K-1000
                 </span>
               </motion.h1>
               <motion.p
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
-                className="text-white/70 max-w-md text-[10px] lg:text-xl mb-6 font-normal"
+                className="text-white max-w-md text-[10px] lg:text-xl mb-6 font-normal"
               >
                 Innovation • Research • Engineering <br /> The Official R&D
                 Guild of KIIT University.
@@ -564,13 +590,13 @@ export default function UnifiedPortal() {
               <div className="flex flex-col sm:flex-row gap-3 w-full max-w-[280px] sm:max-w-none justify-center">
                 <Link
                   href="/apply"
-                  className={`px-6 py-3 bg-cyan-400 text-black uppercase text-[9px] tracking-widest rounded-full font-black text-center ${conthrax}`}
+                  className={`px-6 py-3 bg-amber-400 text-black uppercase text-[9px] tracking-widest rounded-full font-black text-center ${conthrax}`}
                 >
                   Apply Now
                 </Link>
                 <Link
                   href="/about"
-                  className={`px-6 py-3 border border-cyan-400/50 text-cyan-400 uppercase text-[9px] tracking-widest rounded-full font-black text-center ${conthrax}`}
+                  className={`px-6 py-3 border border-amber-400/50 text-amber-400 uppercase text-[9px] tracking-widest rounded-full font-black text-center ${conthrax}`}
                 >
                   Learn More
                 </Link>
@@ -603,11 +629,11 @@ export default function UnifiedPortal() {
                 className={`${conthrax} text-5xl md:text-8xl text-white uppercase tracking-tight leading-none font-black`}
               >
                 About{" "}
-                <span className="text-cyan-400 brightness-110 drop-shadow-[0_0_18px_rgba(0,247,255,0.55)]">
+                <span className="text-amber-400 brightness-110 drop-shadow-[0_0_18px_rgba(245, 174, 55,0.55)]">
                   K-1000
                 </span>
               </h2>
-              <div className="mx-auto mt-5 h-px w-28 bg-gradient-to-r from-transparent via-cyan-400/90 to-transparent shadow-[0_0_14px_rgba(0,247,255,0.45)]" />
+              <div className="mx-auto mt-5 h-px w-28 bg-gradient-to-r from-transparent via-amber-400/90 to-transparent shadow-[0_0_14px_rgba(245, 174, 55,0.45)]" />
             </motion.div>
 
             <div className="grid lg:grid-cols-2 gap-16 items-start mb-16">
@@ -631,7 +657,7 @@ export default function UnifiedPortal() {
                 viewport={{ once: true }}
                 className="space-y-8 text-left"
               >
-                <p className="text-xl text-white/70 leading-relaxed font-normal">
+                <p className="text-xl text-white leading-relaxed font-normal">
                   K-1000 is the official Research and Development (R&D)
                   organization program of KIIT, established to foster a culture
                   of innovation, research, and real-world problem-solving. Its
@@ -640,7 +666,7 @@ export default function UnifiedPortal() {
                   enhancing their skills in a competitive and collaborative
                   environment.
                 </p>
-                <p className="text-lg text-white/50 leading-relaxed font-normal">
+                <p className="text-lg text-white leading-relaxed font-normal">
                   The program encourages students to develop impactful projects
                   that address real-world challenges across both technical and
                   non-technical domains, thereby contributing to scientific,
@@ -658,11 +684,11 @@ export default function UnifiedPortal() {
               ].map((text, i) => (
                 <div
                   key={i}
-                  className="flex items-center justify-start gap-4 bg-white/[0.04] p-5 rounded-2xl border-2 border-white/20 hover:border-cyan-400/50 hover:bg-white/[0.06] transition-all duration-300 group"
+                  className="flex items-center justify-start gap-4 bg-white/[0.04] p-5 rounded-2xl border-2 border-white/20 hover:border-amber-400/50 hover:bg-white/[0.06] transition-all duration-300 group"
                 >
-                  <div className="w-2.5 h-2.5 bg-cyan-400 rounded-full shadow-[0_0_12px_#00f7ff] group-hover:scale-110 transition-transform" />
+                  <div className="w-2.5 h-2.5 bg-amber-400 rounded-full shadow-[0_0_12px_#f5ae37] group-hover:scale-110 transition-transform" />
                   <span
-                    className={`text-[10px] text-white uppercase tracking-widest font-black ${conthrax} group-hover:text-cyan-400 transition-colors text-left`}
+                    className={`text-[10px] text-white uppercase tracking-widest font-black ${conthrax} group-hover:text-amber-400 transition-colors text-left`}
                   >
                     {text}
                   </span>
@@ -674,7 +700,7 @@ export default function UnifiedPortal() {
 
         <section className="w-full max-w-7xl mx-auto py-16 px-6">
           <h2
-            className={`${conthrax} text-xl lg:text-5xl text-center tracking-widest text-cyan-400 mb-10 lg:mb-24 uppercase font-black`}
+            className={`${conthrax} text-xl lg:text-5xl text-center tracking-widest text-amber-400 mb-10 lg:mb-24 uppercase font-black`}
           >
             Benefits & Perks
           </h2>
@@ -684,17 +710,17 @@ export default function UnifiedPortal() {
               return (
                 <div
                   key={i}
-                  className="p-6 lg:p-8 rounded-xl bg-white/[0.02] border border-white/10 hover:border-cyan-400/50 transition-all duration-300 group"
+                  className="p-6 lg:p-8 rounded-xl bg-white/[0.02] border border-white/10 hover:border-amber-400/50 transition-all duration-300 group"
                 >
-                  <div className="w-10 h-10 lg:w-12 h-12 rounded-lg bg-cyan-500/10 flex items-center justify-center mb-4 lg:mb-6 border border-cyan-400/20">
-                    <Icon className="w-5 h-5 lg:w-6 h-6 text-cyan-400" />
+                  <div className="w-10 h-10 lg:w-12 h-12 rounded-lg bg-amber-500/10 flex items-center justify-center mb-4 lg:mb-6 border border-amber-400/20">
+                    <Icon className="w-5 h-5 lg:w-6 h-6 text-amber-400" />
                   </div>
                   <h3
                     className={`${conthrax} text-sm lg:text-lg text-white tracking-widest uppercase font-black mb-2`}
                   >
                     {b.title}
                   </h3>
-                  <p className="text-xs lg:text-md text-white/60 leading-relaxed">
+                  <p className="text-xs lg:text-md text-white leading-relaxed">
                     {b.description}
                   </p>
                 </div>

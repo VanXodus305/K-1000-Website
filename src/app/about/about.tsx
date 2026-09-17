@@ -70,22 +70,22 @@ export default function AboutPage() {
   ], []);
 
   return (
-    <div className="flex flex-col items-center w-full bg-black text-white selection:bg-cyan-500/30 overflow-x-hidden relative">
+    <div className="flex flex-col items-center w-full bg-black text-white selection:bg-amber-500/30 overflow-x-hidden relative">
       <SharedHeader />
       <CubeBackground disableLinesOnMobile />
-      <div className="fixed inset-0 bg-[radial-gradient(circle_at_50%_50%,#0ea5e90a_0%,transparent_70%)] pointer-events-none z-[2]" />
+      <div className="fixed inset-0 bg-[radial-gradient(circle_at_50%_50%,#f5ae370a_0%,transparent_70%)] pointer-events-none z-[2]" />
 
       <main className="relative z-10 w-full flex flex-col items-center">
         {/* HERO SECTION */}
         <section className="w-full flex flex-col items-center px-0 md:px-6 pt-24 md:pt-32 lg:pt-40 opacity-0 animate-fade-in [animation-fill-mode:forwards]">
-          <div className="relative w-[92%] md:w-full h-[30vh] md:h-[40vh] md:aspect-[21/7] md:max-h-[500px] md:rounded-[40px] overflow-hidden border border-cyan-500/20 bg-black shadow-2xl">
+          <div className="relative w-[92%] md:w-full h-[30vh] md:h-[40vh] md:aspect-[21/7] md:max-h-[500px] md:rounded-[40px] overflow-hidden border border-amber-500/20 bg-black shadow-2xl">
             <img src="/about/KIIT.jpg" className="absolute inset-0 w-full h-full object-cover brightness-[0.3]" alt="KIIT Campus" />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
             <div className="relative z-10 flex flex-col items-center justify-center text-center p-6 h-full">
               <h1 className={`${conthrax} text-3xl sm:text-5xl md:text-7xl tracking-tighter text-white uppercase font-black`}>
-                ABOUT <span className="text-cyan-400 drop-shadow-[0_0_15px_#00f7ff]">K-1000</span>
+                ABOUT <span className="text-amber-400 drop-shadow-[0_0_15px_#f5ae37]">K-1000</span>
               </h1>
-              <p className={`${conthrax} text-cyan-400/50 mt-4 tracking-[0.2em] md:tracking-[0.5em] text-[10px] md:text-sm uppercase font-bold`}>
+              <p className={`${conthrax} text-amber-400/50 mt-4 tracking-[0.2em] md:tracking-[0.5em] text-[10px] md:text-sm uppercase font-bold`}>
                 {SITE_TAGLINE}
               </p>
             </div>
@@ -96,27 +96,27 @@ export default function AboutPage() {
         <section className="w-full px-4 md:px-20 py-12 md:py-24 flex flex-col items-center border-t border-white/5">
           <div className="w-full max-w-[1400px]">
             <div className="relative overflow-hidden p-6 md:p-16 rounded-[32px] md:rounded-[60px] border border-white/10 bg-[#0a0a0c]/60 backdrop-blur-xl shadow-[0_0_50px_rgba(0,0,0,0.4)]">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2" />
+              <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2" />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-20 items-center relative z-10">
                 <div className="relative group">
-                  <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/20 to-transparent rounded-2xl md:rounded-[40px] blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
+                  <div className="absolute -inset-1 bg-gradient-to-r from-amber-500/20 to-transparent rounded-2xl md:rounded-[40px] blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
                   <img src="/about/Founder.png" className="relative w-full h-auto max-h-[500px] md:max-h-none object-contain brightness-95 rounded-2xl md:rounded-[40px] transition-transform duration-700 group-hover:scale-[1.02]" alt="Founder" />
                 </div>
                 {/* Changed to text-left for all states */}
                 <div className="flex flex-col space-y-5 md:space-y-8 text-left">
                   <div className="space-y-3">
                     <h2 className={`${conthrax} text-2xl md:text-6xl text-white uppercase leading-tight tracking-tighter font-black`}>
-                      OUR <span className="text-cyan-400 drop-shadow-[0_0_15px_rgba(0,247,255,0.3)]">FOUNDER</span>
+                      OUR <span className="text-amber-400 drop-shadow-[0_0_15px_rgba(245, 174, 55,0.3)]">FOUNDER</span>
                     </h2>
-                    <div className="w-16 md:w-24 h-1 bg-cyan-400 shadow-[0_0_15px_#00f7ff]" />
+                    <div className="w-16 md:w-24 h-1 bg-amber-400 shadow-[0_0_15px_#f5ae37]" />
                   </div>
                   <div className="space-y-4 md:space-y-6">
-                    <span className={`${conthrax} text-cyan-400 block text-xs md:text-xl tracking-[0.2em] uppercase font-black`}>
+                    <span className={`${conthrax} text-amber-400 block text-xs md:text-xl tracking-[0.2em] uppercase font-black`}>
                       Prof. Dr. Achyuta Samanta
                     </span>
                     {/* UPDATED: removed text-justify, explicitly added text-left */}
-                    <p className="text-[11px] md:text-lg text-white/60 leading-relaxed font-normal text-left">
-                      Prof. Dr. Achyuta Samanta&apos;s life story reads like a powerful saga of grit, determination, and social responsibility. Born and brought up in poverty in a remote village in Odisha, he was dealt a cruel blow at the tender age of four when he lost his father, after which his life became a struggle for food and education for 15 long years. 
+                    <p className="text-[11px] md:text-lg text-white leading-relaxed font-normal text-left">
+                      Prof. Dr. Achyuta Samanta&apos;s life story reads like a powerful saga of grit, determination, and social responsibility. Born and brought up in poverty in a remote village in Odisha, he was dealt a cruel blow at the tender age of four when he lost his father, after which his life became a struggle for food and education for 15 long years.
                       <br /><br />
                       However, he persevered, and at the age of 22, joined teaching. At 25, he embarked on a journey that would change his own life, and the lives of thousands of people. With just Rs 5000 in his pocket, he started KIIT and KISS in two rented houses.
                     </p>
@@ -131,20 +131,20 @@ export default function AboutPage() {
 
         {/* BOARD MEMBERS SECTION */}
         <section className="w-full max-w-7xl px-6 md:px-10 py-14 md:py-20 flex flex-col items-center">
-          <h2 className={`${conthrax} text-2xl md:text-4xl text-center tracking-[0.2em] md:tracking-[0.3em] text-cyan-400 mb-12 md:mb-16 uppercase font-black`}>
+          <h2 className={`${conthrax} text-2xl md:text-4xl text-center tracking-[0.2em] md:tracking-[0.3em] text-amber-400 mb-12 md:mb-16 uppercase font-black`}>
             Board Members
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12 w-full">
             {board.map((m) => (
               <div key={m.id} onClick={() => setSelectedMember(m)} className="cursor-pointer flex flex-col items-center group">
-                <div className="w-full aspect-[4/5] rounded-[24px] overflow-hidden border border-white/5 bg-[#0a0a0a]/80 backdrop-blur-sm group-hover:border-cyan-500/50 transition-all duration-500 shadow-2xl">
+                <div className="w-full aspect-[4/5] rounded-[24px] overflow-hidden border border-white/5 bg-[#0a0a0a]/80 backdrop-blur-sm group-hover:border-amber-500/50 transition-all duration-500 shadow-2xl">
                   <img src={m.image} className="size-full object-cover object-[center_15%] transition-transform duration-700 group-hover:scale-110" alt={m.name} />
                 </div>
                 {/* Names and positions are typically center-centric in grids, but kept text-left for the content containers */}
-                <h3 className={`${conthrax} text-sm md:text-lg text-white mt-5 text-center tracking-wide group-hover:text-cyan-400 transition-colors uppercase leading-tight font-black`}>
+                <h3 className={`${conthrax} text-sm md:text-lg text-white mt-5 text-center tracking-wide group-hover:text-amber-400 transition-colors uppercase leading-tight font-black`}>
                   {m.name}
                 </h3>
-                <p className={`${conthrax} text-cyan-400 text-[10px] md:text-[13px] uppercase mt-2 tracking-[0.2em] font-bold text-center`}>
+                <p className={`${conthrax} text-amber-400 text-[10px] md:text-[13px] uppercase mt-2 tracking-[0.2em] font-bold text-center`}>
                   {m.position}
                 </p>
               </div>
@@ -156,7 +156,7 @@ export default function AboutPage() {
 
         <section className="hidden w-full max-w-[1480px] px-4 sm:px-6 py-12 md:py-20 border-t border-white/5">
           <h2 className={`${conthrax} text-center text-3xl sm:text-4xl md:text-7xl mb-10 md:mb-16 text-white uppercase tracking-tighter font-black`}>
-            CORE <span className="text-cyan-400">TEAM</span>
+            CORE <span className="text-amber-400">TEAM</span>
           </h2>
           {leadership.hierarchy.map((grp, gi) => (
             <div key={gi} className="w-full flex flex-col items-center mb-12 md:mb-20">
@@ -164,7 +164,7 @@ export default function AboutPage() {
                 <h3 className={`${conthrax} text-xl md:text-3xl text-white uppercase tracking-[0.16em] font-black`}>
                   {grp.title}
                 </h3>
-                <div className="h-px w-24 bg-gradient-to-r from-transparent via-cyan-400/80 to-transparent shadow-[0_0_12px_rgba(0,247,255,0.45)]" />
+                <div className="h-px w-24 bg-gradient-to-r from-transparent via-amber-400/80 to-transparent shadow-[0_0_12px_rgba(245, 174, 55,0.45)]" />
               </div>
               <div className={`${councilContainerMap[grp.level] || "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-8 max-w-[1280px]"} w-full`}>
                 {grp.members.map((m, mi) => (
@@ -189,19 +189,19 @@ export default function AboutPage() {
         {selectedMember && (
           <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelectedMember(null)} className="absolute inset-0 bg-black/80 backdrop-blur-md" />
-            <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} className="relative w-full max-w-4xl bg-[#050505]/90 backdrop-blur-2xl border border-cyan-500/30 rounded-[32px] overflow-hidden flex flex-col md:flex-row shadow-[0_0_50px_rgba(0,247,255,0.15)]">
+            <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.98 }} className="relative w-full max-w-4xl bg-[#050505]/90 backdrop-blur-2xl border border-amber-500/30 rounded-[32px] overflow-hidden flex flex-col md:flex-row shadow-[0_0_50px_rgba(245, 174, 55,0.15)]">
               <div className="w-full md:w-[45%] h-[280px] md:h-auto overflow-hidden">
                 <img src={selectedMember.image} className="size-full object-cover object-[center_15%]" alt={selectedMember.name} />
               </div>
               {/* UPDATED: text-left alignment for modal body */}
               <div className="flex-1 p-8 md:p-12 flex flex-col justify-center text-left">
                 <h3 className={`${conthrax} text-xl md:text-3xl text-white uppercase font-black`}>{selectedMember.name}</h3>
-                <p className={`${conthrax} text-cyan-400 text-sm mt-3 tracking-widest uppercase font-bold`}>{selectedMember.position}</p>
-                <div className="h-px w-16 bg-cyan-500 my-6 shadow-[0_0_10px_#00f7ff]" />
-                <p className="text-white/60 text-sm md:text-base leading-relaxed font-light text-left">
+                <p className={`${conthrax} text-amber-400 text-sm mt-3 tracking-widest uppercase font-bold`}>{selectedMember.position}</p>
+                <div className="h-px w-16 bg-amber-500 my-6 shadow-[0_0_10px_#f5ae37]" />
+                <p className="text-white text-sm md:text-base leading-relaxed font-light text-left">
                   {selectedMember.description}
                 </p>
-                <button onClick={() => setSelectedMember(null)} className={`${conthrax} mt-8 text-[10px] text-cyan-400/50 uppercase tracking-widest hover:text-white transition-colors font-black text-left`}>
+                <button onClick={() => setSelectedMember(null)} className={`${conthrax} mt-8 text-[10px] text-amber-400/50 uppercase tracking-widest hover:text-white transition-colors font-black text-left`}>
                   Close Profile
                 </button>
               </div>

@@ -15,9 +15,9 @@ export default function Hero() {
     <section className="w-full flex justify-center py-16 px-4">
       <div
         className="
-          relative w-full max-w-[900px] 
+          relative w-full max-w-[900px]
           rounded-[32px] overflow-hidden
-          shadow-[0_0_60px_rgba(0,255,255,0.25)]
+          shadow-[0_0_60px_rgba(245, 174, 55,0.25)]
         "
       >
         {/* 🖼️ Background Image */}
@@ -27,7 +27,7 @@ export default function Hero() {
           className="
             w-full h-[520px] object-cover
             rounded-[32px]
-            border border-cyan-300/20
+            border border-amber-300/20
           "
         />
 
@@ -45,21 +45,21 @@ export default function Hero() {
           "
         >
           {/* Tag */}
-          <p className="text-cyan-300 font-[Orbitron] tracking-[0.35em] text-[10px] mb-4">
+          <p className="text-amber-300 font-[Orbitron] tracking-[0.35em] text-[10px] mb-4">
             WELCOME TO KIIT&apos;S ELITE ENGINEERING PROGRAM
           </p>
 
           {/* Title */}
           <h1 className="text-5xl font-[Orbitron] tracking-[0.22em] text-white">
             JOIN{" "}
-            <span className="text-cyan-300 drop-shadow-[0_0_18px_rgba(0,255,255,0.45)]">
+            <span className="text-amber-300 drop-shadow-[0_0_18px_rgba(245, 174, 55,0.45)]">
               K-1000
             </span>
           </h1>
 
           {/* Subtitle */}
-          <p className="text-white/85 mt-4 text-[14px] leading-relaxed max-w-[600px]">
-            Innovation • Research • Real-world Engineering • Collaboration — 
+          <p className="text-white mt-4 text-[14px] leading-relaxed max-w-[600px]">
+            Innovation • Research • Real-world Engineering • Collaboration —
             Guided by KIIT’s advanced learning & development ecosystem.
           </p>
 
@@ -67,13 +67,13 @@ export default function Hero() {
           <div className="flex justify-center gap-4 mt-8">
             <Link
               href="/Sections/apply"
-              className="px-8 py-3 text-sm font-bold rounded-lg bg-cyan-400 text-black shadow-[0_0_15px_rgba(0,255,255,0.3)]"
+              className="px-8 py-3 text-sm font-bold rounded-lg bg-amber-400 text-black shadow-[0_0_15px_rgba(245, 174, 55,0.3)]"
             >
               Apply Now
             </Link>
             <Link
               href="/Sections/about"
-              className="px-8 py-3 text-sm rounded-lg border text-cyan-300 border-cyan-300/50 hover:bg-white/10 transition font-semibold"
+              className="px-8 py-3 text-sm rounded-lg border text-amber-300 border-amber-300/50 hover:bg-white/10 transition font-semibold"
             >
               Learn More
             </Link>
@@ -92,10 +92,10 @@ export default function Hero() {
                 transition={{ delay: index * 0.12 }}
                 className="flex flex-col items-center"
               >
-                <h3 className="text-2xl font-bold text-cyan-300">
+                <h3 className="text-2xl font-bold text-amber-300">
                   {number}
                 </h3>
-                <p className="text-[9px] text-white/60 tracking-[0.2em] uppercase">
+                <p className="text-[9px] text-white tracking-[0.2em] uppercase">
                   {label}
                 </p>
               </motion.div>
@@ -103,7 +103,7 @@ export default function Hero() {
           </div>
 
           {/* Motto */}
-          <p className="text-white/50 mt-6 text-[9px] font-[Orbitron] tracking-[0.3em]">
+          <p className="text-white mt-6 text-[9px] font-[Orbitron] tracking-[0.3em]">
             TRAIN • TRANSFORM • TRANSCEND
           </p>
         </motion.div>

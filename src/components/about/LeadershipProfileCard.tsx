@@ -22,11 +22,11 @@ export default function LeadershipProfileCard({
 
   return (
     <div
-      className={`group relative overflow-hidden border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.015))] shadow-[0_0_40px_rgba(0,0,0,0.28)] transition-all duration-500 hover:border-cyan-400/50 hover:shadow-[0_0_40px_rgba(0,247,255,0.08)] ${
+      className={`group relative overflow-hidden border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.015))] shadow-[0_0_40px_rgba(0,0,0,0.28)] transition-all duration-500 hover:border-amber-400/50 hover:shadow-[0_0_40px_rgba(245, 174, 55,0.08)] ${
         isExecutive ? "rounded-[28px] md:rounded-[34px]" : "rounded-[24px] md:rounded-[30px]"
       }`}
     >
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/70 to-transparent opacity-80" />
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-300/70 to-transparent opacity-80" />
 
       <div
         className={`relative overflow-hidden ${
@@ -56,17 +56,17 @@ export default function LeadershipProfileCard({
         >
           <div className="absolute inset-0 bg-black/58" />
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,12,16,0.22),rgba(8,12,16,0.78))]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,247,255,0.08),transparent_74%)] opacity-95" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(245, 174, 55,0.08),transparent_74%)] opacity-95" />
 
           <div className="relative z-10 flex w-full max-w-[16rem] flex-col items-center justify-center">
-            <h4 className={`${conthrax} text-[14px] text-white uppercase leading-tight font-black tracking-[0.06em] transition-colors group-hover:text-cyan-300 sm:text-[15px] md:text-[18px]`}>
+            <h4 className={`${conthrax} text-[14px] text-white uppercase leading-tight font-black tracking-[0.06em] transition-colors group-hover:text-amber-300 sm:text-[15px] md:text-[18px]`}>
               {name}
             </h4>
-            <p className={`${conthrax} mt-1.5 text-cyan-400 text-[8px] tracking-[0.14em] uppercase font-black sm:text-[8px] sm:tracking-[0.15em] md:text-[10px]`}>
+            <p className={`${conthrax} mt-1.5 text-amber-400 text-[8px] tracking-[0.14em] uppercase font-black sm:text-[8px] sm:tracking-[0.15em] md:text-[10px]`}>
               {position}
             </p>
             {branch ? (
-              <p className={`${conthrax} mt-2.5 max-w-[16rem] text-white/42 text-[8px] uppercase tracking-[0.14em] font-bold md:text-[8px] md:tracking-[0.15em]`}>
+              <p className={`${conthrax} mt-2.5 max-w-[16rem] text-white text-[8px] uppercase tracking-[0.14em] font-bold md:text-[8px] md:tracking-[0.15em]`}>
                 {branch}
               </p>
             ) : null}

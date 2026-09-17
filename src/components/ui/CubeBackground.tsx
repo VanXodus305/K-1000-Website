@@ -110,10 +110,10 @@ export default function CubeBackground({
 
         particle.size += (targetSize - particle.size) * (distance < mouseRadius ? 0.1 : 0.05);
 
-        ctx.fillStyle = "rgba(0, 247, 255, 0.8)";
+        ctx.fillStyle = "rgba(245, 174, 55, 0.8)";
         if (enableGlow) {
           ctx.shadowBlur = 12;
-          ctx.shadowColor = "#00f7ff";
+          ctx.shadowColor = "#f5ae37";
         }
         ctx.fillRect(particle.x, particle.y, particle.size, particle.size);
         if (enableGlow) {
@@ -130,7 +130,7 @@ export default function CubeBackground({
 
           if (lineDistanceCurrent < lineDistance) {
             ctx.beginPath();
-            ctx.strokeStyle = `rgba(0, 247, 255, ${0.25 * (1 - lineDistanceCurrent / lineDistance)})`;
+            ctx.strokeStyle = `rgba(245, 174, 55, ${0.25 * (1 - lineDistanceCurrent / lineDistance)})`;
             ctx.lineWidth = 0.8;
             ctx.moveTo(particle.x, particle.y);
             ctx.lineTo(neighbor.x, neighbor.y);

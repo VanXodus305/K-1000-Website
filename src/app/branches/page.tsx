@@ -69,14 +69,14 @@ export default function BranchesPage() {
       <CubeBackground zIndex={0} disableLinesOnMobile />
       <div className="relative z-10">
         <SharedHeader />
-        
+
         <main className="max-w-[1600px] mx-auto pt-32 pb-20 px-4 md:px-10">
           <section className="w-full mb-12 md:mb-20">
             <div className="relative w-full h-64 md:h-[350px] rounded-[40px] overflow-hidden border border-white/10 bg-black">
               <img src={activeDomain.image} className="absolute inset-0 w-full h-full object-cover opacity-40" alt={activeDomain.title} />
               <div className="absolute inset-0 bg-gradient-to-t from-[#020202] via-transparent to-transparent" />
               <div className="relative z-10 flex flex-col justify-end p-6 md:p-12 h-full">
-                <span className="text-cyan-400 text-[10px] tracking-[0.3em] uppercase mb-2 font-bold">{activeDomain.tag}</span>
+                <span className="text-amber-400 text-[10px] tracking-[0.3em] uppercase mb-2 font-bold">{activeDomain.tag}</span>
                 <h1 className={`${conthrax} text-2xl sm:text-4xl md:text-6xl tracking-tighter uppercase font-black leading-tight`}>
                   {activeDomain.title}
                 </h1>
@@ -85,7 +85,7 @@ export default function BranchesPage() {
           </section>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:items-start">
-            
+
             <div className="lg:col-span-4 z-30">
               <div
                 ref={navRef}
@@ -99,16 +99,16 @@ export default function BranchesPage() {
                     data-key={b.key}
                     onClick={() => setActiveTab(b.key)}
                     className={`flex-shrink-0 last:mr-1 lg:w-full w-[220px] text-left px-6 py-5 rounded-[24px] transition-all duration-500 group relative overflow-hidden cursor-pointer ${
-                      activeTab === b.key ? "bg-cyan-500/10 border border-cyan-500/40" : "hover:bg-white/5 border border-transparent"
+                      activeTab === b.key ? "bg-amber-500/10 border border-amber-500/40" : "hover:bg-white/5 border border-transparent"
                     }`}
                   >
-                    {activeTab === b.key && <motion.div layoutId="activeGlow" className="absolute inset-0 bg-cyan-500/5 blur-xl" />}
+                    {activeTab === b.key && <motion.div layoutId="activeGlow" className="absolute inset-0 bg-amber-500/5 blur-xl" />}
                     <div className="relative z-10 flex items-center justify-between">
                       <div className="flex flex-col gap-1">
-                        <span className={`${orbitron} text-[8px] tracking-widest font-black ${activeTab === b.key ? "text-cyan-400" : "text-white/20"}`}>{b.key.toUpperCase()}</span>
-                        <span className={`${conthrax} text-[11px] md:text-xs text-white uppercase tracking-wider font-black group-hover:text-cyan-300 transition-colors`}>{b.title}</span>
+                        <span className={`${orbitron} text-[8px] tracking-widest font-black ${activeTab === b.key ? "text-amber-400" : "text-white"}`}>{b.key.toUpperCase()}</span>
+                        <span className={`${conthrax} text-[11px] md:text-xs text-white uppercase tracking-wider font-black group-hover:text-amber-300 transition-colors`}>{b.title}</span>
                       </div>
-                      <ChevronRight size={14} className={`hidden lg:block transition-transform duration-300 ${activeTab === b.key ? "text-cyan-400" : "text-white/10"}`} />
+                      <ChevronRight size={14} className={`hidden lg:block transition-transform duration-300 ${activeTab === b.key ? "text-amber-400" : "text-white"}`} />
                     </div>
                   </button>
                 ))}
@@ -125,22 +125,22 @@ export default function BranchesPage() {
                   transition={{ duration: 0.5, ease: "circOut" }}
                   className="min-w-0 rounded-[28px] border border-white/10 bg-white/[0.03] p-5 backdrop-blur-xl sm:p-7 md:rounded-[32px] md:p-10"
                 >
-                  <p className="mb-6 break-words border-l-2 border-cyan-500 pl-4 text-sm leading-relaxed text-white/90 italic sm:text-base md:mb-8 md:text-xl">&quot;{activeDomain.missionStatement}&quot;</p>
-                  <p className="mb-8 break-words text-sm leading-relaxed text-white/60 md:mb-10 md:text-base">{activeDomain.description}</p>
-                  
+                  <p className="mb-6 break-words border-l-2 border-amber-500 pl-4 text-sm leading-relaxed text-white italic sm:text-base md:mb-8 md:text-xl">&quot;{activeDomain.missionStatement}&quot;</p>
+                  <p className="mb-8 break-words text-sm leading-relaxed text-white md:mb-10 md:text-base">{activeDomain.description}</p>
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8 border-y border-white/10 py-8">
                     <div>
-                      <h4 className={`${conthrax} text-[10px] text-white/30 uppercase mb-4`}>Focus Areas</h4>
+                      <h4 className={`${conthrax} text-[10px] text-white uppercase mb-4`}>Focus Areas</h4>
                       {activeDomain.focusAreas.map((area: string) => (
-                        <div key={area} className="mb-3 flex items-start gap-2 break-words text-xs leading-relaxed text-white/70 sm:text-sm">
-                          <Layers size={14} className="mt-0.5 shrink-0 text-cyan-500" /> {area}
+                        <div key={area} className="mb-3 flex items-start gap-2 break-words text-xs leading-relaxed text-white sm:text-sm">
+                          <Layers size={14} className="mt-0.5 shrink-0 text-amber-500" /> {area}
                         </div>
                       ))}
                     </div>
                     <div>
-                      <h4 className={`${conthrax} text-[10px] text-white/30 uppercase mb-4`}>Core Outcomes</h4>
+                      <h4 className={`${conthrax} text-[10px] text-white uppercase mb-4`}>Core Outcomes</h4>
                       {activeDomain.outcomes.map((outcome: string) => (
-                        <div key={outcome} className="mb-3 flex items-start gap-2 break-words text-xs leading-relaxed text-white/70 sm:text-sm">
+                        <div key={outcome} className="mb-3 flex items-start gap-2 break-words text-xs leading-relaxed text-white sm:text-sm">
                           <Target size={14} className="mt-0.5 shrink-0 text-emerald-500" /> {outcome}
                         </div>
                       ))}

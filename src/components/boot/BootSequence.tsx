@@ -1,6 +1,7 @@
 "use client";
 
 import { type ReactNode, useState, useEffect } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import UnifiedPortal from "../home/UnifiedPortal";
 
@@ -47,7 +48,7 @@ export default function BootSequence({ onReady, children, replay = false, proces
           <motion.div
             key="boot-loader"
             initial={{ opacity: 1 }}
-            exit={{ 
+            exit={{
               opacity: 0,
               scale: 1.05,
               filter: "blur(20px)"
@@ -55,29 +56,38 @@ export default function BootSequence({ onReady, children, replay = false, proces
             transition={{ duration: overlayOnly ? 0.2 : 1.2, ease: "easeInOut" }}
             className={`fixed inset-0 flex flex-col items-center justify-center bg-[#020202] z-[9999] overflow-hidden ${conthrax} select-none`}
           >
+            <div className="absolute inset-0 z-0" aria-hidden="true">
+              <picture className="absolute inset-0 block">
+                <source media="(max-width: 767px)" srcSet="/events/generated/ignithon2-registration-mobile.webp" />
+                <Image src="/events/generated/ignithon2-registration-desktop.webp" alt="" fill priority sizes="100vw" className="object-cover object-[50%_42%] opacity-70 md:object-center" />
+              </picture>
+              <div className="absolute inset-0 bg-[#020202]/42" />
+              <div className="absolute inset-0 bg-gradient-to-b from-[#020202]/15 via-[#020202]/30 to-[#020202]/72" />
+            </div>
+
             {/* 1. ARCHITECTURAL BACKGROUND */}
             <div className="absolute inset-0 z-0">
-              <div className="absolute inset-0 bg-[linear-gradient(to_right,#00f7ff05_1px,transparent_1px),linear-gradient(to_bottom,#00f7ff05_1px,transparent_1px)] bg-[size:100px_100px]" />
-              <motion.div 
+              <div className="absolute inset-0 bg-[linear-gradient(to_right,#f5ae3705_1px,transparent_1px),linear-gradient(to_bottom,#f5ae3705_1px,transparent_1px)] bg-[size:100px_100px]" />
+              <motion.div
                 animate={{ opacity: [0.3, 0.5, 0.3] }}
                 transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,247,255,0.03)_0%,transparent_80%)]" 
+                className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(245, 174, 55,0.03)_0%,transparent_80%)]"
               />
             </div>
 
             {/* 2. THE SQUARE PRECISION MODULE */}
             <div className="relative z-10 flex flex-col items-center">
               <div className="relative flex items-center justify-center">
-                <motion.div 
+                <motion.div
                   initial={{ width: 320, height: 320, opacity: 0 }}
                   animate={{ width: 240, height: 240, opacity: 1 }}
                   transition={{ duration: 2, ease: "circOut" }}
-                  className="absolute flex items-center justify-center border border-[#00f7ff]/10"
+                  className="absolute flex items-center justify-center border border-[#f5ae37]/10"
                 >
-                  <div className="absolute -top-[1px] -left-[1px] w-5 h-5 border-t-[2px] border-l-[2px] border-[#00f7ff]/40" />
-                  <div className="absolute -top-[1px] -right-[1px] w-5 h-5 border-t-[2px] border-r-[2px] border-[#00f7ff]/40" />
-                  <div className="absolute -bottom-[1px] -left-[1px] w-5 h-5 border-b-[2px] border-l-[2px] border-[#00f7ff]/40" />
-                  <div className="absolute -bottom-[1px] -right-[1px] w-5 h-5 border-b-[2px] border-r-[2px] border-[#00f7ff]/40" />
+                  <div className="absolute -top-[1px] -left-[1px] w-5 h-5 border-t-[2px] border-l-[2px] border-[#f5ae37]/40" />
+                  <div className="absolute -top-[1px] -right-[1px] w-5 h-5 border-t-[2px] border-r-[2px] border-[#f5ae37]/40" />
+                  <div className="absolute -bottom-[1px] -left-[1px] w-5 h-5 border-b-[2px] border-l-[2px] border-[#f5ae37]/40" />
+                  <div className="absolute -bottom-[1px] -right-[1px] w-5 h-5 border-b-[2px] border-r-[2px] border-[#f5ae37]/40" />
                 </motion.div>
 
                 <motion.img
@@ -86,13 +96,13 @@ export default function BootSequence({ onReady, children, replay = false, proces
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 1.5, delay: 0.5 }}
-                  className="w-40 h-auto brightness-110 drop-shadow-[0_0_20px_rgba(0,247,255,0.2)]"
+                  className="w-40 h-auto brightness-110 drop-shadow-[0_0_20px_rgba(245, 174, 55,0.2)]"
                 />
 
-                <motion.div 
+                <motion.div
                    animate={{ opacity: [0.1, 0.2, 0.1] }}
                    transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                   className="absolute inset-0 bg-[#00f7ff] filter blur-[60px] -z-10"
+                   className="absolute inset-0 bg-[#f5ae37] filter blur-[60px] -z-10"
                 />
               </div>
 
@@ -100,7 +110,7 @@ export default function BootSequence({ onReady, children, replay = false, proces
               <div className="mt-36 flex flex-col items-center">
                 <div className="w-64 h-[2px] bg-white/5 relative">
                   <motion.div
-                    className="absolute left-0 top-0 h-full bg-[#00f7ff] shadow-[0_0_15px_#00f7ff]"
+                    className="absolute left-0 top-0 h-full bg-[#f5ae37] shadow-[0_0_15px_#f5ae37]"
                     initial={{ width: "0%" }}
                     animate={{ width: "100%" }}
                     transition={{ duration: 3.5, ease: [0.4, 0, 0.2, 1] }}
@@ -109,22 +119,22 @@ export default function BootSequence({ onReady, children, replay = false, proces
                 </div>
 
                 <div className="mt-12 flex flex-col items-center gap-4">
-                    <motion.div 
+                    <motion.div
                         key={status}
                         initial={{ opacity: 0, y: 5 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-[11px] text-white/90 font-bold tracking-[0.5em]"
+                        className="text-[11px] text-white font-bold tracking-[0.5em]"
                     >
                         {showProcessCompleteStatus && processComplete && timelineComplete ? "PROCESS COMPLETE" : status}
                     </motion.div>
-                    
+
                     <div className="flex gap-2">
                        {[...Array(4)].map((_, i) => (
-                         <motion.div 
+                         <motion.div
                            key={i}
                            animate={{ opacity: [0.1, 0.5, 0.1] }}
                            transition={{ duration: 3, delay: i * 0.5, repeat: Infinity }}
-                           className="w-3 h-[2px] bg-[#00f7ff]/60" 
+                           className="w-3 h-[2px] bg-[#f5ae37]/60"
                          />
                        ))}
                     </div>
@@ -133,7 +143,7 @@ export default function BootSequence({ onReady, children, replay = false, proces
             </div>
           </motion.div>
         ) : (
-          <motion.div 
+          <motion.div
             key="system-interface"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
