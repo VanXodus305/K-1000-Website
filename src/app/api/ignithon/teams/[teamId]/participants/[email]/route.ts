@@ -3,6 +3,7 @@ import { getIgnithonSession, normalizeEmail } from "@/lib/ignithon-auth";
 import { getIgnithonCollections } from "@/lib/ignithon-db";
 import { getMongoClient } from "@/lib/mongodb";
 import { checkStrictRateLimit, rateLimitResponse } from "@/lib/ignithon-rate-limit";
+import { triggerIgnithonSheetsSync } from "@/lib/ignithon-sheets";
 
 const COOLING_PERIOD_MS = 5 * 60 * 1000;
 
@@ -36,6 +37,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (!isCurrentLeader && actingEmail !== email) return NextResponse.json({ error: "You are not allowed to edit these details." }, { status: 403 });
     const result = await participants.updateOne({ email, team_id: team._id, status: "ACTIVE" }, { $set: { ...updates, updatedAt: new Date() } });
     if (!result.matchedCount) return NextResponse.json({ error: "Active participant not found." }, { status: 404 });
+    triggerIgnithonSheetsSync(teamId, "participant_updated");
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error("Ignithon participant update failed", error);
@@ -48,7 +50,7 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
   const { teamId: rawTeamId, email: rawEmail } = await params;
   const teamId = Number(rawTeamId);
   const email = normalizeEmail(decodeURIComponent(rawEmail));
-  if (!session || session.teamId !== teamId || session.role !== "leader") return NextResponse.json({ error: "Only the team leader can remove participants." }, { status: 403 });
+  if (!session || session.teamId !== teamId) return NextResponse.json({ error: "Only the team leader can remove participants." }, { status: 403 });
   try {
     const client = await getMongoClient();
     const { teams, participants } = await getIgnithonCollections();
@@ -66,6 +68,7 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
         const rosterUpdate = await teams.updateOne({ _id: team._id, members: participant._id }, { $pull: { members: participant._id }, $set: { updatedAt: new Date() } }, { session: transactionSession });
         if (!participantUpdate.modifiedCount || !rosterUpdate.modifiedCount) throw new Error("The team roster changed before this request completed. Please refresh and try again.");
       }, { readConcern: { level: "snapshot" }, writeConcern: { w: "majority" } });
+      triggerIgnithonSheetsSync(teamId, "participant_removed");
       return NextResponse.json({ ok: true, coolingPeriodSeconds: COOLING_PERIOD_MS / 1000 });
     } finally {
       await transactionSession.endSession();

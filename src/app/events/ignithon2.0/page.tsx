@@ -12,11 +12,11 @@ import { isKiitEmailDomain } from "@/lib/ignithon-identity";
 const conthrax = "font-['Conthrax',_sans-serif]";
 const orbitron = "font-['Orbitron',_sans-serif]";
 const inputClass = "min-h-12 w-full min-w-0 rounded-[16px] border border-amber-100/20 bg-[#062a33]/82 px-4 py-3 text-base text-white shadow-[inset_0_1px_0_rgba(255,213,108,0.05)] outline-none transition-all placeholder:text-amber-50/35 focus:border-amber-200/70 focus:bg-[#083b45]/92 focus:ring-2 focus:ring-amber-300/10 sm:text-sm";
-const closeButtonClass = "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/10 bg-black/25 text-white transition-colors hover:border-amber-300/40 hover:text-amber-200";
+const closeButtonClass = "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/10 bg-black/25 text-white transition-colors hover:border-amber-300/40 hover:bg-white/10 hover:text-white active:bg-white/10";
 type Member = { id: string; name: string; email: string; roll_no: string; hostel: string | null; phone: string; branch: string; year: number; team_id: string };
 type Portal = { team: { id: number; name: string; room: string | null; points: number; leader_email: string; member_count: number }; participants: Member[]; session: { email: string; role: "leader" | "member" } };
 type MemberDraft = { name: string; email: string; roll_no: string; hostel: string; phone: string; branch: string; year: string };
-type Confirmation = { title: string; message: string; confirmLabel: string; onConfirm: () => void };
+type Confirmation = { title: string; message: string; confirmLabel: string; onConfirm: () => Promise<void> };
 const blankMember: MemberDraft = { name: "", email: "", roll_no: "", hostel: "", phone: "", branch: "", year: "" };
 const branchOptions = [
   "Aerospace Engineering", "BCA", "Biotech", "Chemical Engineering", "Civil Engineering",
@@ -298,13 +298,13 @@ export default function IgnithonRegistrationPage() {
                 <form onSubmit={handleCreate} className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                   <input className={`${inputClass} sm:col-span-2`} required minLength={2} value={teamName} onChange={(event) => setTeamName(event.target.value)} placeholder="Team name" aria-label="Team name" />
                   <MemberFields value={leader} setValue={setLeader} nameLabel="Team Leader Name" />
-                  <button disabled={loading} className={`${conthrax} flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-amber-400 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-black transition-colors hover:bg-white disabled:opacity-50 sm:col-span-2 sm:text-[10px] sm:tracking-[0.22em]`}>
-                    Create team <ChevronRight size={14} />
+                  <button disabled={loading} aria-busy={loading} className={`${conthrax} flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-amber-400 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-black transition-colors hover:bg-white hover:text-black active:bg-white active:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 disabled:cursor-wait disabled:opacity-50 sm:col-span-2 sm:text-[10px] sm:tracking-[0.22em]`}>
+                    {loading ? <><LoaderCircle size={15} className="animate-spin" /> Creating team…</> : <>Create team <ChevronRight size={14} /></>}
                   </button>
                 </form>
                 <div className="mt-6 border-t border-white/10 pt-5 text-center">
                   <p className="text-xs text-white">Already registered with a team?</p>
-                  <button type="button" onClick={() => switchEntryMode("login")} className={`${conthrax} mt-3 min-h-11 w-full rounded-full border border-amber-400/35 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-amber-300 transition-colors hover:bg-amber-400 hover:text-black sm:w-auto`}>
+                  <button type="button" onClick={() => switchEntryMode("login")} className={`${conthrax} mt-3 min-h-11 w-full rounded-full border border-amber-400/35 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-amber-300 transition-colors hover:bg-white hover:text-black active:bg-white active:text-black sm:w-auto`}>
                     Existing Team Login
                   </button>
                 </div>
@@ -319,13 +319,13 @@ export default function IgnithonRegistrationPage() {
                   <input className={inputClass} required inputMode="numeric" value={access.rollNo} onChange={(event) => setAccess({ ...access, rollNo: event.target.value.replace(/\D/g, "") })} placeholder="Registered roll number" aria-label="Registered roll number" />
                   <input className={inputClass} required inputMode="numeric" pattern="[0-9]{4}" maxLength={4} value={access.teamId} onChange={(event) => setAccess({ ...access, teamId: event.target.value.replace(/\D/g, "") })} placeholder="Four-digit Team ID" aria-label="Four-digit Team ID" />
                   <p className="-mt-1 px-1 text-[11px] leading-relaxed text-white">Forgot your Team ID? Check your previously logged device or contact support: <a className="text-amber-300/80 hover:text-amber-200" href="tel:7304693169">7304693169</a></p>
-                  <button disabled={loading} className={`${conthrax} flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-amber-400 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-black transition-colors hover:bg-white disabled:opacity-50 sm:text-[10px] sm:tracking-[0.22em]`}>
-                    Access portal <ChevronRight size={14} />
+                  <button disabled={loading} aria-busy={loading} className={`${conthrax} flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-amber-400 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-black transition-colors hover:bg-white hover:text-black active:bg-white active:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 disabled:cursor-wait disabled:opacity-50 sm:text-[10px] sm:tracking-[0.22em]`}>
+                    {loading ? <><LoaderCircle size={15} className="animate-spin" /> Opening portal…</> : <>Access portal <ChevronRight size={14} /></>}
                   </button>
                 </form>
                 <div className="mt-6 border-t border-white/10 pt-5 text-center">
                   <p className="text-xs text-white">Creating a team for the first time?</p>
-                  <button type="button" onClick={() => switchEntryMode("register")} className={`${conthrax} mt-3 min-h-11 w-full rounded-full border border-amber-400/35 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-amber-300 transition-colors hover:bg-amber-400 hover:text-black sm:w-auto`}>
+                  <button type="button" onClick={() => switchEntryMode("register")} className={`${conthrax} mt-3 min-h-11 w-full rounded-full border border-amber-400/35 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-amber-300 transition-colors hover:bg-white hover:text-black active:bg-white active:text-black sm:w-auto`}>
                     Register New Team
                   </button>
                 </div>
@@ -363,20 +363,31 @@ function NotificationBox({ message, tone, onDismiss }: { message: string; tone: 
 }
 
 function ConfirmationDialog({ confirmation, onClose }: { confirmation: Confirmation; onClose: () => void }) {
+  const [confirming, setConfirming] = useState(false);
+  const confirm = async () => {
+    setConfirming(true);
+    try {
+      await confirmation.onConfirm();
+      onClose();
+    } finally {
+      setConfirming(false);
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-[220] flex items-center justify-center bg-black/70 px-4 py-6 backdrop-blur-sm" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+    <div className="fixed inset-0 z-[220] flex items-center justify-center bg-black/70 px-4 py-6 backdrop-blur-sm" role="presentation" onMouseDown={(event) => { if (!confirming && event.target === event.currentTarget) onClose(); }}>
       <div role="dialog" aria-modal="true" aria-labelledby="confirmation-title" className="w-full max-w-md rounded-[24px] border border-amber-300/25 bg-[#050b0c]/[.98] p-5 shadow-[0_24px_90px_rgba(0,0,0,0.65),0_0_30px_rgba(245, 174, 55,0.08)] sm:p-7">
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className={`${orbitron} text-[9px] uppercase tracking-[0.24em] text-amber-300/65`}>Confirmation required</p>
             <h2 id="confirmation-title" className={`${conthrax} mt-2 text-base uppercase tracking-wider text-white`}>{confirmation.title}</h2>
           </div>
-          <button type="button" onClick={onClose} className={closeButtonClass} aria-label="Close confirmation dialog"><X size={16} /></button>
+          <button type="button" disabled={confirming} onClick={onClose} className={closeButtonClass} aria-label="Close confirmation dialog"><X size={16} /></button>
         </div>
         <p className="mt-4 text-sm leading-relaxed text-white">{confirmation.message}</p>
         <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-          <button type="button" onClick={onClose} className={`${conthrax} min-h-11 rounded-full border border-white/10 px-5 py-3 text-[9px] uppercase tracking-[0.16em] text-white transition-colors hover:border-white/25 hover:text-white`}>Cancel</button>
-          <button type="button" onClick={() => { onClose(); confirmation.onConfirm(); }} className={`${conthrax} min-h-11 rounded-full bg-amber-400 px-5 py-3 text-[9px] uppercase tracking-[0.16em] text-black transition-colors hover:bg-white`}>{confirmation.confirmLabel}</button>
+          <button type="button" disabled={confirming} onClick={onClose} className={`${conthrax} min-h-11 rounded-full border border-white/10 px-5 py-3 text-[9px] uppercase tracking-[0.16em] text-white transition-colors hover:border-white/25 hover:bg-white/10 active:bg-white/10 disabled:opacity-50`}>Cancel</button>
+          <button type="button" disabled={confirming} aria-busy={confirming} onClick={confirm} className={`${conthrax} flex min-h-11 items-center justify-center gap-2 rounded-full bg-amber-400 px-5 py-3 text-[9px] uppercase tracking-[0.16em] text-black transition-colors hover:bg-white hover:text-black active:bg-white active:text-black disabled:cursor-wait disabled:opacity-50`}>{confirming ? <><LoaderCircle size={14} className="animate-spin" /> Updating…</> : confirmation.confirmLabel}</button>
         </div>
       </div>
     </div>
@@ -413,16 +424,18 @@ function MemberFields({ value, setValue, nameLabel = "Full name" }: { value: Mem
   );
 }
 
-function PortalView({ portal, member, setMember, addMember, removeMember, transferLeadership, refreshPortal, logout, loading, notify, requestConfirmation }: { portal: Portal; member: MemberDraft; setMember: (member: MemberDraft) => void; addMember: (event: FormEvent) => Promise<boolean>; removeMember: (email: string) => void; transferLeadership: (email: string) => Promise<boolean>; refreshPortal: () => Promise<void>; logout: () => void; loading: boolean; notify: (message: string, tone?: "error" | "success") => void; requestConfirmation: (confirmation: Confirmation) => void }) {
-  const isLeader = portal.session.role === "leader";
+function PortalView({ portal, member, setMember, addMember, removeMember, transferLeadership, refreshPortal, logout, loading, notify, requestConfirmation }: { portal: Portal; member: MemberDraft; setMember: (member: MemberDraft) => void; addMember: (event: FormEvent) => Promise<boolean>; removeMember: (email: string) => Promise<void>; transferLeadership: (email: string) => Promise<boolean>; refreshPortal: () => Promise<void>; logout: () => Promise<void>; loading: boolean; notify: (message: string, tone?: "error" | "success") => void; requestConfirmation: (confirmation: Confirmation) => void }) {
+  const isLeader = portal.team.leader_email === portal.session.email;
   const [showAddMember, setShowAddMember] = useState(false);
   const [addingMember, setAddingMember] = useState(false);
   const addMemberFormRef = useRef<HTMLFormElement>(null);
   const rosterSectionRef = useRef<HTMLElement>(null);
   const [showPersonalQr, setShowPersonalQr] = useState(false);
   const [editingEmail, setEditingEmail] = useState<string | null>(null);
+  const memberDetailsRef = useRef<HTMLElement>(null);
   const [teamNameDraft, setTeamNameDraft] = useState(portal.team.name);
   const [savingTeamName, setSavingTeamName] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
   const leaderEmail = portal.team.leader_email;
   const leader = portal.participants[0];
   const signedInParticipant = portal.participants.find((participant) => participant.email === portal.session.email);
@@ -430,6 +443,20 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
   const selectedMember = portal.participants.find((participant) => participant.email === editingEmail);
 
   useEffect(() => setTeamNameDraft(portal.team.name), [portal.team.name]);
+
+  useEffect(() => {
+    if (!editingEmail || !window.matchMedia("(max-width: 639px)").matches) return;
+    let secondFrame = 0;
+    const firstFrame = window.requestAnimationFrame(() => {
+      secondFrame = window.requestAnimationFrame(() => {
+        memberDetailsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    });
+    return () => {
+      window.cancelAnimationFrame(firstFrame);
+      window.cancelAnimationFrame(secondFrame);
+    };
+  }, [editingEmail]);
 
   const saveTeamName = async (event: FormEvent) => {
     event.preventDefault();
@@ -465,6 +492,15 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
     setShowAddMember(false);
   };
 
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    try {
+      await logout();
+    } finally {
+      setLoggingOut(false);
+    }
+  };
+
   return (
     <div className="space-y-5 sm:space-y-6">
       <section ref={rosterSectionRef} className="scroll-mt-24 rounded-[24px] border border-white/10 bg-white/[0.025] p-4 shadow-[0_24px_80px_rgba(0,0,0,0.3)] backdrop-blur-xl sm:rounded-[28px] sm:p-6 md:p-8">
@@ -479,16 +515,16 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
               <form onSubmit={saveTeamName} className="mt-4 flex max-w-xl flex-col gap-2 sm:flex-row">
                 <label className="sr-only" htmlFor="team-name-editor">Team name</label>
                 <input id="team-name-editor" className={`${inputClass} min-h-11 sm:max-w-sm`} value={teamNameDraft} onChange={(event) => setTeamNameDraft(event.target.value)} required aria-label="Team name" />
-                <button type="submit" disabled={savingTeamName || teamNameDraft.trim() === portal.team.name} className={`${conthrax} min-h-11 rounded-full border border-amber-400/35 px-4 text-[9px] uppercase tracking-[0.14em] text-amber-300 transition-colors hover:bg-amber-400 hover:text-black disabled:opacity-35`}>{savingTeamName ? "Saving..." : "Update name"}</button>
+                <button type="submit" disabled={savingTeamName || teamNameDraft.trim() === portal.team.name} aria-busy={savingTeamName} className={`${conthrax} flex min-h-11 items-center justify-center gap-2 rounded-full bg-amber-400 px-4 text-[9px] uppercase tracking-[0.14em] text-black transition-colors hover:bg-white hover:text-black active:bg-white active:text-black disabled:cursor-wait disabled:opacity-35`}>{savingTeamName ? <><LoaderCircle size={14} className="animate-spin" /> Saving…</> : "Update name"}</button>
               </form>
             )}
           </div>
           <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
-            <button type="button" aria-pressed={showPersonalQr} onClick={() => setShowPersonalQr((current) => !current)} className={`${conthrax} flex min-h-11 w-full items-center justify-center gap-2 rounded-full border px-5 py-3 text-[9px] uppercase tracking-[0.18em] transition-colors sm:w-auto ${showPersonalQr ? "border-amber-300 bg-amber-400 text-black shadow-[0_0_24px_rgba(245, 174, 55,0.18)]" : "border-amber-400/30 text-amber-300 hover:bg-amber-400 hover:text-black"}`}>
+            <button type="button" aria-pressed={showPersonalQr} onClick={() => setShowPersonalQr((current) => !current)} className={`${conthrax} flex min-h-11 w-full items-center justify-center gap-2 rounded-full border px-5 py-3 text-[9px] uppercase tracking-[0.18em] transition-colors sm:w-auto ${showPersonalQr ? "border-amber-300 bg-amber-400 text-black shadow-[0_0_24px_rgba(245, 174, 55,0.18)] hover:bg-white hover:text-black active:bg-white active:text-black" : "border-amber-400/30 text-amber-300 hover:bg-white hover:text-black active:bg-white active:text-black"}`}>
               <QrCode size={14} /> My QR
             </button>
-            <button type="button" onClick={logout} className={`${conthrax} flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-white/10 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-white transition-colors hover:border-amber-400/40 hover:text-amber-300 sm:w-auto`}>
-              <LogOut size={14} /> Log out
+            <button type="button" disabled={loggingOut} aria-busy={loggingOut} onClick={handleLogout} className={`${conthrax} flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-white/10 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-white transition-colors hover:border-white hover:bg-white hover:text-black active:bg-white active:text-black disabled:cursor-wait disabled:opacity-50 sm:w-auto`}>
+              {loggingOut ? <><LoaderCircle size={14} className="animate-spin" /> Logging out…</> : <><LogOut size={14} /> Log out</>}
             </button>
           </div>
         </div>
@@ -554,11 +590,11 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
                   </div>
                   {canEditCard && (
                     <div className="absolute bottom-0 right-0 flex items-center gap-2">
-                      <button type="button" onClick={(event) => { event.stopPropagation(); setEditingEmail((current) => current === participant.email ? null : participant.email); }} className="flex h-10 min-w-10 items-center justify-center gap-1.5 rounded-full border border-amber-400/20 bg-black/25 px-3 text-[9px] uppercase tracking-[0.12em] text-amber-300/60 transition-colors hover:border-amber-300/50 hover:text-amber-200" aria-label={`Edit ${participant.name}`}>
+                      <button type="button" onClick={(event) => { event.stopPropagation(); setEditingEmail((current) => current === participant.email ? null : participant.email); }} className="flex h-10 min-w-10 items-center justify-center gap-1.5 rounded-full border border-amber-400/20 bg-black/25 px-3 text-[9px] uppercase tracking-[0.12em] text-amber-300/60 transition-colors hover:border-white hover:bg-white hover:text-black active:bg-white active:text-black" aria-label={`Edit ${participant.name}`}>
                         <Pencil size={14} /> <span className="hidden sm:inline">Edit</span>
                       </button>
                       {isLeader && !isTeamLeader && (
-                        <button type="button" disabled={loading} onClick={(event) => { event.stopPropagation(); requestConfirmation({ title: "Remove team member?", message: `${participant.name} will be removed from this team and will have a five-minute cooling period before joining another team.`, confirmLabel: "Remove member", onConfirm: () => { void removeMember(participant.email); } }); }} className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-black/25 text-white transition-colors hover:border-red-300/35 hover:bg-red-400/10 hover:text-red-300 disabled:opacity-40" aria-label={`Remove ${participant.name}`}>
+                        <button type="button" disabled={loading} onClick={(event) => { event.stopPropagation(); requestConfirmation({ title: "Remove team member?", message: `${participant.name} will be removed from this team and will have a five-minute cooling period before joining another team.`, confirmLabel: "Remove member", onConfirm: () => removeMember(participant.email) }); }} className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-black/25 text-white transition-colors hover:border-red-300/35 hover:bg-red-400/10 hover:text-red-100 active:bg-red-400/10 active:text-red-100 disabled:opacity-40" aria-label={`Remove ${participant.name}`}>
                           <Trash2 size={15} />
                         </button>
                       )}
@@ -570,7 +606,7 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
           })}
 
           {isLeader && registeredMembers.length < 3 && (
-            <button type="button" onClick={() => { const next = !showAddMember; setShowAddMember(next); if (next) requestAnimationFrame(() => addMemberFormRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })); }} aria-expanded={showAddMember} className={`group flex min-h-[210px] flex-col items-center justify-center rounded-[22px] border border-dashed p-5 text-center transition-all ${showAddMember ? "border-amber-300/65 bg-amber-400/[0.09]" : "border-amber-400/25 bg-amber-400/[0.025] hover:border-amber-300/55 hover:bg-amber-400/[0.07]"}`}>
+            <button type="button" onClick={() => { const next = !showAddMember; setShowAddMember(next); if (next) requestAnimationFrame(() => addMemberFormRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })); }} aria-expanded={showAddMember} className={`group flex min-h-[210px] flex-col items-center justify-center rounded-[22px] border border-dashed p-5 text-center transition-all active:bg-amber-400/[0.1] ${showAddMember ? "border-amber-300/65 bg-amber-400/[0.09]" : "border-amber-400/25 bg-amber-400/[0.025] hover:border-amber-300/55 hover:bg-amber-400/[0.07]"}`}>
               <span className="flex h-14 w-14 items-center justify-center rounded-full border border-amber-400/35 bg-amber-400/10 text-amber-300 transition-transform group-hover:scale-105">
                 <Plus size={24} />
               </span>
@@ -594,8 +630,8 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
             <MemberFields value={member} setValue={setMember} />
           </div>
           <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-            <button type="button" disabled={addingMember} onClick={() => setShowAddMember(false)} className={`${conthrax} min-h-12 w-full rounded-full border border-white/10 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-white transition-colors hover:border-white/25 hover:text-white disabled:opacity-50 sm:w-auto`}>Cancel</button>
-            <button disabled={loading || addingMember} aria-busy={addingMember} className={`${conthrax} flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-amber-400 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-black transition-colors hover:bg-white disabled:cursor-wait disabled:opacity-50 sm:w-auto sm:text-[10px] sm:tracking-[0.22em]`}>
+            <button type="button" disabled={addingMember} onClick={() => setShowAddMember(false)} className={`${conthrax} min-h-12 w-full rounded-full border border-white/10 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-white transition-colors hover:border-white/25 hover:bg-white/10 hover:text-white active:bg-white/10 disabled:opacity-50 sm:w-auto`}>Cancel</button>
+            <button disabled={loading || addingMember} aria-busy={addingMember} className={`${conthrax} flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-amber-400 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-black transition-colors hover:bg-white hover:text-black active:bg-white active:text-black disabled:cursor-wait disabled:opacity-50 sm:w-auto sm:text-[10px] sm:tracking-[0.22em]`}>
               {addingMember ? <><LoaderCircle size={15} className="animate-spin" /> Adding Member…</> : <><Plus size={14} /> Add Member {registeredMembers.length + 1}</>}
             </button>
           </div>
@@ -603,8 +639,8 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
       )}
 
       {selectedMember && (
-        <section className="rounded-[24px] border border-white/10 bg-white/[0.025] p-4 backdrop-blur-xl sm:rounded-[28px] sm:p-6 md:p-8">
-          <EditMyDetails key={selectedMember.id} member={selectedMember} onSaved={refreshPortal} onClose={() => setEditingEmail(null)} notify={notify} />
+        <section ref={memberDetailsRef} className="scroll-mt-6 rounded-[24px] border border-white/10 bg-white/[0.025] p-4 backdrop-blur-xl sm:scroll-mt-8 sm:rounded-[28px] sm:p-6 md:p-8">
+          <EditMyDetails key={selectedMember.id} member={selectedMember} teamId={portal.team.id} onSaved={refreshPortal} onClose={() => setEditingEmail(null)} notify={notify} />
           {isLeader && selectedMember.email !== leaderEmail && (
             <div className="mt-7 border-t border-white/10 pt-6">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -613,7 +649,7 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
                   <h3 className={`${conthrax} mt-2 text-xs uppercase tracking-wider text-white sm:text-sm`}>Transfer leadership</h3>
                   <p className="mt-2 max-w-xl text-xs leading-relaxed text-white">Promote {selectedMember.name} to team leader. Your account will become a regular team member immediately.</p>
                 </div>
-                <button type="button" disabled={loading} onClick={() => requestConfirmation({ title: "Transfer team leadership?", message: `Make ${selectedMember.name} the new team leader? Your account will become a regular team member immediately.`, confirmLabel: "Transfer leadership", onConfirm: () => { void submitLeadershipTransfer(selectedMember.email); } })} className={`${conthrax} flex min-h-12 w-full shrink-0 items-center justify-center gap-2 rounded-full border border-amber-400/45 px-5 py-3 text-[9px] uppercase tracking-[0.16em] text-amber-300 transition-colors hover:bg-amber-400 hover:text-black disabled:opacity-50 sm:w-auto`}>
+                <button type="button" disabled={loading} onClick={() => requestConfirmation({ title: "Transfer team leadership?", message: `Make ${selectedMember.name} the new team leader? Your account will become a regular team member immediately.`, confirmLabel: "Transfer leadership", onConfirm: async () => { await submitLeadershipTransfer(selectedMember.email); } })} className={`${conthrax} flex min-h-12 w-full shrink-0 items-center justify-center gap-2 rounded-full border border-amber-400/45 px-5 py-3 text-[9px] uppercase tracking-[0.16em] text-amber-300 transition-colors hover:bg-white hover:text-black active:bg-white active:text-black disabled:opacity-50 sm:w-auto`}>
                   <Crown size={14} /> Make Team Leader
                 </button>
               </div>
@@ -629,6 +665,7 @@ function BrandedPersonalQr({ value, name }: { value: string; name: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const qrCodeRef = useRef<{ download: (options: { name: string; extension: "png" }) => Promise<void> } | null>(null);
   const [ready, setReady] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -691,14 +728,14 @@ function BrandedPersonalQr({ value, name }: { value: string; name: string }) {
         <div ref={containerRef} className={`flex h-full w-full items-center justify-center overflow-hidden rounded-[16px] bg-white [&_svg]:block [&_svg]:h-full [&_svg]:w-full ${ready ? "" : "animate-pulse"}`} />
         {!ready && <span className={`${conthrax} pointer-events-none absolute inset-0 flex items-center justify-center text-center text-[9px] uppercase tracking-[0.18em] text-black/45`}>Generating secure QR</span>}
       </div>
-      <button type="button" disabled={!ready} onClick={() => { void qrCodeRef.current?.download({ name: `k1000-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`, extension: "png" }); }} className={`${conthrax} flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-amber-300/70 bg-amber-400 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-black transition-colors hover:bg-white hover:text-black active:bg-white active:text-black disabled:cursor-wait disabled:opacity-40 sm:w-auto`}>
-        <Download size={14} /> Download QR
+      <button type="button" disabled={!ready || downloading} aria-busy={downloading} onClick={() => { void (async () => { setDownloading(true); try { await qrCodeRef.current?.download({ name: `k1000-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`, extension: "png" }); } finally { setDownloading(false); } })(); }} className={`${conthrax} flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-amber-300/70 bg-amber-400 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-black transition-colors hover:bg-white hover:text-black active:bg-white active:text-black disabled:cursor-wait disabled:opacity-40 sm:w-auto`}>
+        {downloading ? <><LoaderCircle size={14} className="animate-spin" /> Preparing download…</> : <><Download size={14} /> Download QR</>}
       </button>
     </div>
   );
 }
 
-function EditMyDetails({ member, onSaved, onClose, notify }: { member: Member; onSaved: () => Promise<void>; onClose: () => void; notify: (message: string, tone?: "error" | "success") => void }) {
+function EditMyDetails({ member, teamId, onSaved, onClose, notify }: { member: Member; teamId: number; onSaved: () => Promise<void>; onClose: () => void; notify: (message: string, tone?: "error" | "success") => void }) {
   const [draft, setDraft] = useState(() => ({ name: member.name, hostel: member.hostel ?? "", phone: member.phone, branch: member.branch, year: String(member.year) }));
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -711,7 +748,7 @@ function EditMyDetails({ member, onSaved, onClose, notify }: { member: Member; o
     if (validationError) { notify(validationError); return; }
     setSaving(true); setSaved(false);
     try {
-      await readJson(await fetch(`/api/ignithon/teams/${member.team_id}/participants/${encodeURIComponent(member.email)}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...draft, year: Number(draft.year), hostel: draft.hostel || null }) }));
+      await readJson(await fetch(`/api/ignithon/teams/${teamId}/participants/${encodeURIComponent(member.email)}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...draft, year: Number(draft.year), hostel: draft.hostel || null }) }));
       await onSaved();
       setSaved(true);
     } catch (saveError) {
@@ -720,7 +757,7 @@ function EditMyDetails({ member, onSaved, onClose, notify }: { member: Member; o
       setSaving(false);
     }
   };
-  return <form onSubmit={save}><div className="flex items-start justify-between gap-4"><div><p className="text-[9px] uppercase tracking-[0.28em] text-amber-300/55">Selected player</p><h3 className={`${conthrax} mt-2 break-words text-sm uppercase tracking-wider text-amber-300`}>Edit {member.name}</h3></div><button type="button" onClick={onClose} className={closeButtonClass} aria-label="Close member details"><X size={15} /></button></div><div className="mt-5 grid gap-3 sm:grid-cols-2"><input className={inputClass} value={draft.name} onChange={(e) => { setSaved(false); setDraft({ ...draft, name: e.target.value }); }} required minLength={2} placeholder="Full name" aria-label="Edit full name" /><input className={inputClass} value={draft.phone} onChange={(e) => { setSaved(false); setDraft({ ...draft, phone: e.target.value.replace(/\D/g, "").slice(0, 10) }); }} required maxLength={10} pattern="[0-9]{10}" inputMode="numeric" type="tel" placeholder="Phone number (10 digits)" aria-label="Edit phone number" /><InHouseSelect value={draft.branch} onChange={(branch) => { setSaved(false); setDraft({ ...draft, branch }); }} placeholder="Branch" ariaLabel="Edit branch" options={branchOptions.map((branch) => ({ value: branch, label: branch }))} /><InHouseSelect value={draft.year} onChange={(year) => { setSaved(false); setDraft({ ...draft, year }); }} placeholder="Year" ariaLabel="Edit academic year" options={academicYearOptions} /><input className={`${inputClass} sm:col-span-2`} value={draft.hostel} onChange={(e) => { setSaved(false); setDraft({ ...draft, hostel: e.target.value }); }} placeholder="Hostel (leave blank for day boarder)" aria-label="Edit hostel" /></div><div className="mt-4 flex flex-col-reverse gap-3 sm:flex-row sm:items-center"><button disabled={saving} className={`${conthrax} min-h-12 w-full rounded-full border border-amber-400/50 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-amber-300 transition-colors hover:bg-amber-400 hover:text-black disabled:opacity-50 sm:w-auto sm:text-[10px] sm:tracking-[0.2em]`}>{saving ? "Saving..." : "Save details"}</button>{saved && <span role="status" className="text-center text-xs text-amber-300 sm:text-left">Changes saved successfully.</span>}</div></form>;
+  return <form onSubmit={save}><div className="flex items-start justify-between gap-4"><div><p className="text-[9px] uppercase tracking-[0.28em] text-amber-300/55">Selected player</p><h3 className={`${conthrax} mt-2 break-words text-sm uppercase tracking-wider text-amber-300`}>Edit {member.name}</h3></div><button type="button" disabled={saving} onClick={onClose} className={closeButtonClass} aria-label="Close member details"><X size={15} /></button></div><div className="mt-5 grid gap-3 sm:grid-cols-2"><input className={inputClass} value={draft.name} onChange={(e) => { setSaved(false); setDraft({ ...draft, name: e.target.value }); }} required minLength={2} placeholder="Full name" aria-label="Edit full name" /><input className={inputClass} value={draft.phone} onChange={(e) => { setSaved(false); setDraft({ ...draft, phone: e.target.value.replace(/\D/g, "").slice(0, 10) }); }} required maxLength={10} pattern="[0-9]{10}" inputMode="numeric" type="tel" placeholder="Phone number (10 digits)" aria-label="Edit phone number" /><InHouseSelect value={draft.branch} onChange={(branch) => { setSaved(false); setDraft({ ...draft, branch }); }} placeholder="Branch" ariaLabel="Edit branch" options={branchOptions.map((branch) => ({ value: branch, label: branch }))} /><InHouseSelect value={draft.year} onChange={(year) => { setSaved(false); setDraft({ ...draft, year }); }} placeholder="Year" ariaLabel="Edit academic year" options={academicYearOptions} /><input className={`${inputClass} sm:col-span-2`} value={draft.hostel} onChange={(e) => { setSaved(false); setDraft({ ...draft, hostel: e.target.value }); }} placeholder="Hostel (leave blank for day boarder)" aria-label="Edit hostel" /></div><div className="mt-4 flex flex-col-reverse gap-3 sm:flex-row sm:items-center"><button disabled={saving} aria-busy={saving} className={`${conthrax} flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-amber-400 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-black transition-colors hover:bg-white hover:text-black active:bg-white active:text-black disabled:cursor-wait disabled:opacity-50 sm:w-auto sm:text-[10px] sm:tracking-[0.2em]`}>{saving ? <><LoaderCircle size={15} className="animate-spin" /> Saving details…</> : "Save details"}</button>{saved && <span role="status" className="text-center text-xs text-amber-300 sm:text-left">Changes saved successfully.</span>}</div></form>;
 }
 
 function InHouseSelect({ value, onChange, placeholder, ariaLabel, options }: { value: string; onChange: (value: string) => void; placeholder: string; ariaLabel: string; options: { value: string; label: string }[] }) {
@@ -747,14 +784,14 @@ function InHouseSelect({ value, onChange, placeholder, ariaLabel, options }: { v
 
   return (
     <div ref={rootRef} className={`relative min-w-0 ${open ? "z-40" : "z-0"}`}>
-      <button type="button" role="combobox" aria-label={ariaLabel} aria-controls={menuId} aria-expanded={open} aria-haspopup="listbox" onClick={() => setOpen((current) => !current)} className={`${inputClass} flex items-center justify-between gap-3 text-left ${open ? "border-amber-400/70 bg-amber-500/[0.035]" : ""}`}>
+      <button type="button" role="combobox" aria-label={ariaLabel} aria-controls={menuId} aria-expanded={open} aria-haspopup="listbox" onClick={() => setOpen((current) => !current)} className={`${inputClass} flex items-center justify-between gap-3 text-left hover:border-amber-300/55 hover:bg-amber-400/[0.05] active:bg-amber-400/[0.08] ${open ? "border-amber-400/70 bg-amber-500/[0.035]" : ""}`}>
         <span className={`min-w-0 truncate ${selected ? "text-white" : "text-white"}`}>{selected?.label ?? placeholder}</span>
         <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-white/10 text-amber-300 transition-transform ${open ? "rotate-180 bg-amber-400/10" : ""}`}><ChevronDown size={14} /></span>
       </button>
       {open && (
         <div data-lenis-prevent id={menuId} role="listbox" aria-label={`${ariaLabel} options`} onWheel={(event) => event.stopPropagation()} onTouchMove={(event) => event.stopPropagation()} className="absolute left-0 right-0 top-full z-50 mt-2 max-h-56 touch-pan-y overflow-y-auto overscroll-contain rounded-[16px] border border-amber-400/25 bg-[#030909]/98 p-1.5 shadow-[0_20px_55px_rgba(0,0,0,0.8),0_0_24px_rgba(245, 174, 55,0.08)] backdrop-blur-2xl [scrollbar-color:rgba(245, 174, 55,0.35)_transparent] [scrollbar-width:thin]">
           {options.map((option) => (
-            <button key={option.value} type="button" role="option" aria-selected={option.value === value} onClick={() => { onChange(option.value); setOpen(false); }} className={`flex min-h-11 w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-colors ${option.value === value ? "bg-amber-400/12 text-amber-200" : "text-white hover:bg-white/[0.06] hover:text-white"}`}>
+            <button key={option.value} type="button" role="option" aria-selected={option.value === value} onClick={() => { onChange(option.value); setOpen(false); }} className={`flex min-h-11 w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-colors ${option.value === value ? "bg-amber-400/12 text-amber-200" : "text-white hover:bg-white/[0.06] hover:text-white active:bg-white/[0.1]"}`}>
               <span>{option.label}</span>
               {option.value === value && <Check size={14} className="shrink-0 text-amber-300" />}
             </button>

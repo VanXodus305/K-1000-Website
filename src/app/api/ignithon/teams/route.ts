@@ -1,11 +1,10 @@
-import { after } from "next/server";
 import { NextRequest, NextResponse } from "next/server";
 import { MongoServerError } from "mongodb";
 import { checkStrictRateLimit, getClientDeviceId, rateLimitResponse } from "@/lib/ignithon-rate-limit";
 import { getIgnithonCollections } from "@/lib/ignithon-db";
 import { normalizeEmail, setIgnithonSession } from "@/lib/ignithon-auth";
 import type { ParticipantInput } from "@/lib/ignithon-types";
-import { syncIgnithonSheetsAfterTeamCreation } from "@/lib/ignithon-sheets";
+import { triggerIgnithonSheetsSync } from "@/lib/ignithon-sheets";
 import { validateParticipantFields } from "@/lib/ignithon-validation";
 
 function badRequest(message: string, status = 400) {
@@ -72,7 +71,7 @@ export async function POST(request: NextRequest) {
     }
 
     await setIgnithonSession({ email: leaderEmail, teamId, role: "leader" });
-    after(() => syncIgnithonSheetsAfterTeamCreation(teamId ?? undefined));
+    triggerIgnithonSheetsSync(teamId, "team_created");
     return NextResponse.json({ teamId }, { status: 201 });
   } catch (error) {
     if (error instanceof MongoServerError && error.code === 11000) return badRequest("This email address or roll number is already registered.", 409);
