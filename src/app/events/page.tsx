@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence, useScroll, useSpring } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 import { EVENTS, K1000Event } from "@/data/event";
 import { Calendar, ExternalLink, ShieldCheck, ChevronRight, Zap } from "lucide-react";
 import SharedHeader from "../../components/ui/SharedHeader";
@@ -13,7 +14,10 @@ const conthrax = "font-['Conthrax',_sans-serif]";
 const orbitron = "font-['Orbitron',_sans-serif]";
 
 const Events = () => {
-  const sortedEvents = useMemo(() => [...EVENTS].reverse(), []);
+  const sortedEvents = useMemo(() => [
+    ...EVENTS.filter((event) => event.status === "UPCOMING"),
+    ...EVENTS.filter((event) => event.status !== "UPCOMING"),
+  ], []);
   const [selectedEvent, setSelectedEvent] = useState<K1000Event>(sortedEvents[0]);
   const navRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll();
@@ -26,9 +30,9 @@ const Events = () => {
         `[data-id="${selectedEvent.id}"]`
       ) as HTMLElement;
       if (activeBtn) {
-        // Mobile: horizontal scroll; Desktop: vertical scroll
-        const isMobile = window.innerWidth < 1024;
-        if (isMobile) {
+        // Phones: horizontal scroll; tablet and desktop: vertical scroll
+        const isPhone = window.innerWidth < 768;
+        if (isPhone) {
           navRef.current.scrollTo({
             left: activeBtn.offsetLeft - navRef.current.clientWidth / 2 + activeBtn.clientWidth / 2,
             behavior: "smooth",
@@ -84,7 +88,7 @@ const Events = () => {
           <div className="lg:col-span-4 lg:sticky lg:top-28 z-30">
             <div
               ref={navRef}
-              className="flex lg:flex-col overflow-x-auto overscroll-x-contain lg:overflow-y-auto lg:max-h-[calc(100vh-8rem)] bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-[24px] lg:rounded-[32px] p-2 pr-5 lg:pr-2 gap-1 custom-scrollbar"
+              className="flex overflow-x-auto overscroll-x-contain bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-[24px] lg:rounded-[32px] p-2 pr-5 lg:pr-2 gap-1 md:max-h-[680px] md:flex-col md:overflow-x-hidden md:overflow-y-auto md:[scrollbar-color:rgba(0,247,255,0.35)_transparent] md:[scrollbar-width:thin]"
             >
               {sortedEvents.map((event) => (
                 <button
@@ -96,7 +100,7 @@ const Events = () => {
                     /* Mobile: fixed width horizontal card */
                     w-[180px] sm:w-[210px]
                     /* Desktop: full width */
-                    lg:w-full
+                    md:w-full
                     text-left px-4 sm:px-6 py-4 sm:py-5 rounded-[18px] lg:rounded-[24px] 
                     transition-all duration-500 group relative overflow-hidden cursor-pointer
                     ${selectedEvent.id === event.id
@@ -151,14 +155,14 @@ const Events = () => {
               >
                 {/* ── HERO IMAGE ── */}
                 <div className="relative w-full rounded-[24px] sm:rounded-[32px] lg:rounded-[40px] overflow-hidden border border-white/10 shadow-2xl"
-                  style={{ aspectRatio: "16/10" }}
+                  style={{ aspectRatio: "16/9" }}
                 >
                   <Image
                     src={selectedEvent.gallery[0]}
                     alt={selectedEvent.title}
                     fill
                     priority
-                    className="object-cover object-top brightness-[0.5] scale-105"
+                    className="object-cover brightness-[0.5]"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#020202] via-[#020202]/30 to-transparent" />
 
@@ -180,6 +184,20 @@ const Events = () => {
                       </h2>
                     </div>
 
+                    {selectedEvent.status === "UPCOMING" ? (
+                      <motion.div
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.97 }}
+                      >
+                        <Link
+                          href={selectedEvent.link}
+                          className={`${conthrax} self-start sm:self-auto flex-shrink-0 flex items-center gap-2 sm:gap-3 px-5 sm:px-7 lg:px-8 py-3 sm:py-4 bg-cyan-500 text-black rounded-full font-black text-[9px] sm:text-[10px] uppercase tracking-widest shadow-[0_0_30px_rgba(0,247,255,0.4)] cursor-pointer whitespace-nowrap`}
+                        >
+                          <span>Register Now</span>
+                          <ChevronRight size={12} />
+                        </Link>
+                      </motion.div>
+                    ) : (
                     <motion.a
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.97 }}
@@ -191,6 +209,7 @@ const Events = () => {
                       <span>Launch Report</span>
                       <ExternalLink size={12} />
                     </motion.a>
+                    )}
                   </div>
                 </div>
 

@@ -3,7 +3,6 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import {
   motion,
-  AnimatePresence,
   useMotionValue,
   useSpring,
   useTransform,
@@ -17,7 +16,6 @@ import {
   Zap,
   Activity,
   Cpu as CpuIcon,
-  ChevronRight,
   Rocket,
   FileText,
   BookOpen,
@@ -33,13 +31,9 @@ import Link from "next/link";
 
 import SharedHeader from "../ui/SharedHeader";
 import Footer from "../footer/Footer";
-import { domains, type K1000Domain } from "../../data/domain";
-import DomainHoloPanel from "../ui/DomainHoloPanel";
 import data from "@/data/data.json";
-import { SITE_TAGLINE } from "../../data/site";
 
 const conthrax = "font-['Conthrax',_sans-serif]";
-const DOMAIN_HOLO_PANEL_ENABLED = false;
 
 const iconMap: Record<string, LucideIcon> = {
   Rocket,
@@ -271,8 +265,6 @@ const RIGHT_NODES = [
 
 export default function UnifiedPortal() {
   const { benefits } = data;
-  const [activeDomainKey, setActiveDomainKey] = useState<string | null>(null);
-  const [hoveredNode, setHoveredNode] = useState<string | null>(null);
   const [isCoreHovered, setIsCoreHovered] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [scale, setScale] = useState(1);
@@ -313,20 +305,6 @@ export default function UnifiedPortal() {
   }, [mouseX, mouseY]);
 
   const allNodes = useMemo(() => [...LEFT_NODES, ...RIGHT_NODES], []);
-  const activeDomain = domains.find((d) => d.key === activeDomainKey);
-
-  const handlePanelClose = () => {
-    setActiveDomainKey(null);
-    setHoveredNode(null);
-  };
-
-  const openDomainPanel = (domainKey: string) => {
-    if (!DOMAIN_HOLO_PANEL_ENABLED) return;
-
-    setActiveDomainKey(domainKey);
-    setHoveredNode(null);
-  };
-
   const stats: StatItem[] = [
     { value: 100, suffix: "+", label: "Projects" },
     { value: 50, suffix: "+", label: "Publications" },
@@ -351,13 +329,11 @@ export default function UnifiedPortal() {
         </motion.div>
 
         <div className="relative z-10 w-full h-full flex flex-col items-center justify-center px-4 overflow-hidden">
-          <AnimatePresence>
-            {!activeDomainKey && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="flex items-center justify-center w-full h-full"
-              >
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex items-center justify-center w-full h-full"
+          >
                 {isMobile ? (
                   <div className="flex flex-col items-center w-full h-full justify-between pt-24 pb-20">
                     <div className="flex-none">
@@ -373,27 +349,23 @@ export default function UnifiedPortal() {
 
                     <div className="flex-1 w-full max-w-[340px] flex flex-col justify-center space-y-2 px-2">
                       {allNodes.map((node) => (
-                        <button
+                        <div
                           key={node.key}
-                          onClick={() => openDomainPanel(node.key)}
-                          aria-disabled={!DOMAIN_HOLO_PANEL_ENABLED}
-                          className="w-full cursor-default bg-black/40 backdrop-blur-xl border border-cyan-400/30 p-3 flex justify-between items-center shadow-[0_0_10px_rgba(0,247,255,0.05)] transition-all rounded-lg group"
+                          aria-disabled="true"
+                          className="w-full bg-black/40 backdrop-blur-xl border border-cyan-400/30 p-3 flex justify-between items-center shadow-[0_0_10px_rgba(0,247,255,0.05)] rounded-lg"
                         >
                           <div
                             className={`flex items-center gap-3 text-cyan-400 ${conthrax}`}
                           >
-                            <div className="scale-75 group-active:text-white transition-colors">
+                            <div className="scale-75">
                               {node.icon}
                             </div>
                             <span className="text-[9px] tracking-[0.05em] text-white uppercase font-bold">
                               {node.label}
                             </span>
                           </div>
-                          <ChevronRight
-                            size={14}
-                            className="text-cyan-400/50 group-active:text-cyan-400"
-                          />
-                        </button>
+                          <span className={`${conthrax} text-[7px] uppercase tracking-[0.16em] text-white/20`}>Static</span>
+                        </div>
                       ))}
                     </div>
 
@@ -401,7 +373,7 @@ export default function UnifiedPortal() {
                       <div
                         className={`text-[7px] tracking-[0.4em] text-cyan-400/70 font-black uppercase text-center drop-shadow-[0_0_5px_#00f7ff] ${conthrax}`}
                       >
-                        {SITE_TAGLINE}
+                        Train • Transform • Transcend
                       </div>
                     </div>
                   </div>
@@ -423,9 +395,9 @@ export default function UnifiedPortal() {
                           y1={450}
                           x2={node.x * 14.4}
                           y2={node.y * 9}
-                          stroke={hoveredNode === node.key ? "#ffffff" : "#00f7ff"}
-                          strokeWidth={hoveredNode === node.key ? "1.2" : "0.9"}
-                          strokeOpacity={hoveredNode === node.key ? "1" : "0.8"}
+                          stroke="#00f7ff"
+                          strokeWidth="0.9"
+                          strokeOpacity="0.8"
                         />
                       ))}
                     </svg>
@@ -459,20 +431,17 @@ export default function UnifiedPortal() {
                       <div
                         className={`mt-20 translate-x-10 translate-y-8 text-[18px] tracking-[1.4em] text-cyan-400 font-black uppercase text-center drop-shadow-[0_0_12px_#00f7ff] brightness-110 ${conthrax}`}
                       >
-                        {SITE_TAGLINE}
+                        Train • Transform • Transcend
                       </div>
                     </div>
 
                     {allNodes.map((node) => {
                       const isLeft = LEFT_NODES.includes(node);
                       return (
-                        <motion.button
+                        <motion.div
                           key={node.key}
-                          onMouseEnter={() => setHoveredNode(node.key)}
-                          onMouseLeave={() => setHoveredNode(null)}
-                          onClick={() => openDomainPanel(node.key)}
-                          aria-disabled={!DOMAIN_HOLO_PANEL_ENABLED}
-                          className={`absolute flex items-center cursor-default group z-30 ${isLeft ? "flex-row-reverse" : "flex-row"}`}
+                          aria-disabled="true"
+                          className={`absolute flex items-center z-30 ${isLeft ? "flex-row-reverse" : "flex-row"}`}
                           style={{
                             top: `${node.y}%`,
                             left: `${node.x}%`,
@@ -486,24 +455,24 @@ export default function UnifiedPortal() {
                         >
                           {/* diamond — center sits exactly at node.x/node.y = SVG line endpoint */}
                           <div
-                            className={`w-4 h-4 rotate-45 border-2 flex-shrink-0 ${hoveredNode === node.key ? "bg-white border-white shadow-[0_0_20px_#fff]" : "bg-[#010103] border-cyan-400 shadow-[0_0_15px_#00f7ff]"}`}
+                            className="w-4 h-4 rotate-45 border-2 flex-shrink-0 bg-[#010103] border-cyan-400 shadow-[0_0_15px_#00f7ff]"
                           />
                           {/* horizontal stub */}
                           <div
-                            className={`w-10 h-[2px] flex-shrink-0 ${hoveredNode === node.key ? "bg-white shadow-[0_0_20px_#fff]" : "bg-cyan-400 shadow-[0_0_15px_#00f7ff]"}`}
+                            className="w-10 h-[2px] flex-shrink-0 bg-cyan-400 shadow-[0_0_15px_#00f7ff]"
                           />
                           {/* card */}
                           <div
-                            className={`relative px-8 py-4 min-w-[340px] backdrop-blur-2xl border-2 transition-all duration-300 ${hoveredNode === node.key ? "bg-white text-black border-white shadow-[0_0_40px_#fff]" : "bg-black/90 text-white border-cyan-400 shadow-[0_0_30px_rgba(0,247,255,0.4)]"}`}
+                            className="relative px-8 py-4 min-w-[340px] backdrop-blur-2xl border-2 bg-black/90 text-white border-cyan-400 shadow-[0_0_30px_rgba(0,247,255,0.4)]"
                           >
                             <div className="flex items-center gap-6">
                               <div
-                                className={`p-2 border-2 ${hoveredNode === node.key ? "border-black text-black" : "border-cyan-400 text-cyan-400 brightness-110 drop-shadow-[0_0_5px_#00f7ff]"}`}
+                                className="p-2 border-2 border-cyan-400 text-cyan-400 brightness-110 drop-shadow-[0_0_5px_#00f7ff]"
                               >
                                 {node.icon}
                               </div>
                               <span
-                                className={`text-[12px] font-black tracking-widest uppercase ${conthrax} ${hoveredNode === node.key ? "text-black" : "text-white brightness-110"}`}
+                                className={`text-[12px] font-black tracking-widest uppercase text-white brightness-110 ${conthrax}`}
                               >
                                 {node.label}
                               </span>
@@ -511,16 +480,14 @@ export default function UnifiedPortal() {
                           </div>
                           {/* bracket notch on far card edge */}
                           <div
-                            className={`w-2 h-10 border-y-2 flex-shrink-0 ${isLeft ? "border-l-2" : "border-r-2"} ${hoveredNode === node.key ? "border-white" : "border-cyan-400"}`}
+                            className={`w-2 h-10 border-y-2 flex-shrink-0 border-cyan-400 ${isLeft ? "border-l-2" : "border-r-2"}`}
                           />
-                        </motion.button>
+                        </motion.div>
                       );
                     })}
                   </motion.div>
                 )}
-              </motion.div>
-            )}
-          </AnimatePresence>
+          </motion.div>
         </div>
 
         <div className="absolute bottom-0 left-0 w-full px-5 lg:px-12 py-4 flex items-end justify-between pointer-events-none z-[110]">
@@ -596,7 +563,7 @@ export default function UnifiedPortal() {
 
               <div className="flex flex-col sm:flex-row gap-3 w-full max-w-[280px] sm:max-w-none justify-center">
                 <Link
-                  href="/register"
+                  href="/apply"
                   className={`px-6 py-3 bg-cyan-400 text-black uppercase text-[9px] tracking-widest rounded-full font-black text-center ${conthrax}`}
                 >
                   Apply Now
@@ -739,14 +706,6 @@ export default function UnifiedPortal() {
         <Footer />
       </div>
 
-      <AnimatePresence mode="wait">
-        {DOMAIN_HOLO_PANEL_ENABLED && activeDomain && (
-          <DomainHoloPanel
-            domain={activeDomain as K1000Domain}
-            onClose={handlePanelClose}
-          />
-        )}
-      </AnimatePresence>
     </div>
   );
 }

@@ -1,0 +1,43 @@
+{
+  "info": {
+    "name": "Ignithon Sheets Sync",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Sync Ignithon teams to Sheets",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://ignithon-v2.vercel.app/api/sheets/sync",
+          "protocol": "https",
+          "host": [
+            "ignithon-v2",
+            "vercel",
+            "app"
+          ],
+          "path": [
+            "api",
+            "sheets",
+            "sync"
+          ]
+        }
+      }
+    }
+  ]
+}

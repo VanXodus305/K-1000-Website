@@ -30,7 +30,7 @@ export const EVENTS: K1000Event[] = [
       "₹45,000+ Prize Pool: High-energy competitive environment with strong participation incentives.",
       "6+ Hours of Coding & Innovation: Teams brainstormed, built real prototypes, and explored the spirit of open source."
     ],
-    gallery: ["/events/opensourceforge.png"]
+    gallery: ["/events/opensourceforge.webp"]
   },
   {
     id: "kampus-konversations-ep2",
@@ -46,7 +46,7 @@ export const EVENTS: K1000Event[] = [
       "Interactive Lab Culture: A deep dive into the environment of international research facilities.",
       "Uplink for aspiring researchers and high-performance engineering students."
     ],
-    gallery: ["/events/kkep2.png"]
+    gallery: ["/events/kkep2.webp"]
   },
     {
     id: "dark-route-2025",
@@ -62,7 +62,7 @@ export const EVENTS: K1000Event[] = [
       "Day 2: Intensive Hackathon featuring 5 diverse real-world problem statements.",
       "Cross-Community Impact: Built lasting networks between 15 different student organizations."
     ],
-    gallery: ["/events/darkroute.png"] 
+    gallery: ["/events/darkroute.webp"]
   },
   {
     id: "sharkathon-2025",
@@ -78,7 +78,7 @@ export const EVENTS: K1000Event[] = [
       "Focused on Scalable Tech Startups and real-world solving.",
       "Direct feedback on product-market fit."
     ],
-    gallery: ["/events/sharkathon.png"]
+    gallery: ["/events/sharkathon.webp"]
   },
   {
     id: "kampus-konversations-ep1",
@@ -94,11 +94,11 @@ export const EVENTS: K1000Event[] = [
       "Research opportunities in core engineering domains.",
       "Attended by 120+ high-potential candidates."
     ],
-    gallery: ["/events/kkep1.png"]
+    gallery: ["/events/kkep1.webp"]
   },
   {
     id: "ignithon-2025",
-    title: "Ignithon",
+    title: "Ignithon 1.0",
     date: "August 2025",
     description: "K-1000's inaugural 12-hour hackathon, Ignithon, challenged participants to build functional solutions from scratch across three difficulty tiers.",
     category: "Hackathon",
@@ -110,7 +110,23 @@ export const EVENTS: K1000Event[] = [
       "Over 1000+ registration interests across the campus.",
       "Felicitation by the Vice Chancellor and Registrar of KIIT."
     ],
-    gallery: ["/events/ignithon.png"]
+    gallery: ["/events/ignithon.webp"]
+  },
+  {
+    id: "ignithon-2-2026",
+    title: "Ignithon 2.0",
+    date: "26th September 2026",
+    description: "Ignithon 2.0 is a 12-hour offline sprint focused on rapid prototyping from ideation to deployment. Participants compete across tiered Development and DSA tracks, earning scores through performance across all three challenge rounds while strengthening innovation, problem-solving, software development, teamwork, and practical technical skills.",
+    category: "Hackathon",
+    link: "/events/ignithon2.0",
+    status: "UPCOMING",
+    highlights: [
+      "12-Hour Offline Sprint: Rapid prototyping from ideation to deployment.",
+      "Tiered tracks across both Development and DSA.",
+      "Earn scores based on performance across all three challenge rounds.",
+      "Focus on innovation, problem-solving, software development, teamwork, and practical technical skills."
+    ],
+    gallery: ["/events/ignithon2-banner.webp"]
   }
 ];
 

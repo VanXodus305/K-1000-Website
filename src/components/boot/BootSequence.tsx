@@ -1,26 +1,21 @@
-  "use client";
+"use client";
 
-import { useState, useEffect, useRef } from "react";
+import { type ReactNode, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import UnifiedPortal from "../home/UnifiedPortal";
-import RecruitmentLiveModal from "../home/RecruitmentLiveModal";
 
 const conthrax = "font-['Conthrax',_sans-serif]";
 
-export default function BootSequence() {
+export default function BootSequence({ onReady, children, replay = false, processComplete = true, overlayOnly = false, showProcessCompleteStatus = true }: { onReady?: () => void; children?: ReactNode; replay?: boolean; processComplete?: boolean; overlayOnly?: boolean; showProcessCompleteStatus?: boolean }) {
   const [stage, setStage] = useState<"charging" | "ready">("charging");
-  const readyRef = useRef(false);
   const [status, setStatus] = useState("CORE_STANDBY");
+  const [timelineComplete, setTimelineComplete] = useState(false);
 
   useEffect(() => {
-    if (sessionStorage.getItem("k1000_system_booted")) {
-      readyRef.current = true;
-      requestAnimationFrame(() => setStage("ready"));
-    }
-  }, []);
+    if (!replay && window.sessionStorage.getItem("k1000_system_booted")) queueMicrotask(() => setStage("ready"));
+  }, [replay]);
 
   useEffect(() => {
-    if (readyRef.current) return;
     if (stage === "charging") {
       const statusSequence = [
         { t: 400, msg: "CORE POWER STABLE" },
@@ -34,9 +29,15 @@ export default function BootSequence() {
     }
   }, [stage]);
 
+  useEffect(() => {
+    if (!processComplete || !timelineComplete || stage !== "charging") return;
+    const timeout = setTimeout(() => setStage("ready"), overlayOnly ? 0 : 800);
+    return () => clearTimeout(timeout);
+  }, [overlayOnly, processComplete, timelineComplete, stage]);
+
   const completeBoot = () => {
-    sessionStorage.setItem("k1000_system_booted", "true");
-    setTimeout(() => setStage("ready"), 800);
+    if (!replay) sessionStorage.setItem("k1000_system_booted", "true");
+    setTimelineComplete(true);
   };
 
   return (
@@ -51,7 +52,7 @@ export default function BootSequence() {
               scale: 1.05,
               filter: "blur(20px)"
             }}
-            transition={{ duration: 1.2, ease: "easeInOut" }}
+            transition={{ duration: overlayOnly ? 0.2 : 1.2, ease: "easeInOut" }}
             className={`fixed inset-0 flex flex-col items-center justify-center bg-[#020202] z-[9999] overflow-hidden ${conthrax} select-none`}
           >
             {/* 1. ARCHITECTURAL BACKGROUND */}
@@ -114,7 +115,7 @@ export default function BootSequence() {
                         animate={{ opacity: 1, y: 0 }}
                         className="text-[11px] text-white/90 font-bold tracking-[0.5em]"
                     >
-                        {status}
+                        {showProcessCompleteStatus && processComplete && timelineComplete ? "PROCESS COMPLETE" : status}
                     </motion.div>
                     
                     <div className="flex gap-2">
@@ -136,10 +137,10 @@ export default function BootSequence() {
             key="system-interface"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 1.2 }}
+            transition={{ duration: overlayOnly ? 0 : 1.2 }}
+            onAnimationComplete={onReady}
           >
-            <UnifiedPortal />
-            <RecruitmentLiveModal />
+            {overlayOnly ? null : children ?? <UnifiedPortal />}
           </motion.div>
         )}
       </AnimatePresence>
