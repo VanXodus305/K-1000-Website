@@ -127,4 +127,11 @@ html {
   color: var(--accent-gold) !important;
 }
 
+/* The festival palette above is intentionally global; interactive white states
+   must still switch their text and Lucide icons to black for contrast. */
+button[class*="hover:text-black"]:hover,
+button[class*="active:text-black"]:active {
+  color: #000 !important;
+}
+
 .dna-container, .dna-bar { display: none !important; }

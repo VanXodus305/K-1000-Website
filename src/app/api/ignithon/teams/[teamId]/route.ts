@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getIgnithonSession, normalizeEmail, setIgnithonSession } from "@/lib/ignithon-auth";
 import { findTeamAndParticipants, getIgnithonCollections, serializeParticipant } from "@/lib/ignithon-db";
 import { checkStrictRateLimit, rateLimitResponse } from "@/lib/ignithon-rate-limit";
+import { triggerIgnithonSheetsSync } from "@/lib/ignithon-sheets";
 
 export async function GET(_request: Request, { params }: { params: Promise<{ teamId: string }> }) {
   const session = await getIgnithonSession();
@@ -47,6 +48,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ te
 
     const result = await teams.updateOne({ id: teamId, "members.0": actingParticipant._id }, { $set: { name, updatedAt: new Date() } });
     if (!result.modifiedCount) return NextResponse.json({ error: "Team details changed before this request completed. Refresh and try again." }, { status: 409 });
+    triggerIgnithonSheetsSync(teamId, "team_name_updated");
     return NextResponse.json({ ok: true, name });
   } catch (error) {
     console.error("Ignithon team name update failed", error);

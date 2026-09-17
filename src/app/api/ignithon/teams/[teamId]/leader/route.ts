@@ -3,6 +3,7 @@ import { getIgnithonSession, isValidEmail, normalizeEmail, setIgnithonSession } 
 import { getIgnithonCollections } from "@/lib/ignithon-db";
 import { getMongoClient } from "@/lib/mongodb";
 import { checkStrictRateLimit, rateLimitResponse } from "@/lib/ignithon-rate-limit";
+import { triggerIgnithonSheetsSync } from "@/lib/ignithon-sheets";
 
 class LeadershipUpdateError extends Error {
   constructor(public status: 409 | 500, message: string) {
@@ -13,7 +14,7 @@ class LeadershipUpdateError extends Error {
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ teamId: string }> }) {
   const session = await getIgnithonSession();
   const teamId = Number((await params).teamId);
-  if (!session || session.teamId !== teamId || session.role !== "leader") return NextResponse.json({ error: "Only the current team leader can transfer leadership." }, { status: 403 });
+  if (!session || session.teamId !== teamId) return NextResponse.json({ error: "Only the current team leader can transfer leadership." }, { status: 403 });
   if (!(await checkStrictRateLimit(`leader-transfer:${session.email}:${teamId}`))) return rateLimitResponse("Too many leadership-transfer attempts. Try again in 1 minute.") as NextResponse;
 
   try {
@@ -52,6 +53,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     }
 
     await setIgnithonSession({ email: session.email, teamId, role: "member" });
+    triggerIgnithonSheetsSync(teamId, "leadership_transferred");
     return NextResponse.json({ ok: true, previousLeader: session.email, leader: targetEmail });
   } catch (error) {
     if (error instanceof LeadershipUpdateError) return NextResponse.json({ error: error.message }, { status: error.status });

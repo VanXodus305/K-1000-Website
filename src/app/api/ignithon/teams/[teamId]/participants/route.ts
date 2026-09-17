@@ -5,6 +5,7 @@ import { getMongoClient } from "@/lib/mongodb";
 import { MongoServerError, type ObjectId } from "mongodb";
 import type { ParticipantInput } from "@/lib/ignithon-types";
 import { validateParticipantFields } from "@/lib/ignithon-validation";
+import { triggerIgnithonSheetsSync } from "@/lib/ignithon-sheets";
 
 const MAX_TEAM_SIZE = 4;
 const COOLING_PERIOD_MS = 5 * 60 * 1000;
@@ -16,7 +17,7 @@ class RegistrationError extends Error {
 export async function POST(request: NextRequest, { params }: { params: Promise<{ teamId: string }> }) {
   const session = await getIgnithonSession();
   const teamId = Number((await params).teamId);
-  if (!session || session.teamId !== teamId || session.role !== "leader") return NextResponse.json({ error: "Only the team leader can add participants." }, { status: 403 });
+  if (!session || session.teamId !== teamId) return NextResponse.json({ error: "Only the team leader can add participants." }, { status: 403 });
   try {
     const input = await request.json() as Partial<ParticipantInput>;
     const participantError = validateParticipantFields(input);
@@ -52,6 +53,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         if (!rosterUpdate.modifiedCount) throw new RegistrationError(409, "The team roster changed before this request completed. Please refresh and try again.");
       }, { readConcern: { level: "snapshot" }, writeConcern: { w: "majority" } });
       if (!participant) throw new Error("Participant registration did not complete.");
+      triggerIgnithonSheetsSync(teamId, "participant_added");
       return NextResponse.json({ participant }, { status: 201 });
     } catch (error) {
       if (error instanceof RegistrationError) return NextResponse.json({ error: error.message }, { status: error.status });
