@@ -1,11 +1,37 @@
 "use client";
 
 import { ReactLenis } from "lenis/react";
-import { ReactNode } from "react";
+import type { LenisRef } from "lenis/react";
+import { ReactNode, useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 
 export default function SmoothScroll({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+  const lenisRef = useRef<LenisRef>(null);
+  const previousPathname = useRef<string | null>(null);
+
+  useEffect(() => {
+    // Let the browser preserve its position on the initial page load, but always
+    // begin a new route at the top—even when Lenis owns the scroll position.
+    if (previousPathname.current === null) {
+      previousPathname.current = pathname;
+      return;
+    }
+
+    if (previousPathname.current === pathname) return;
+    previousPathname.current = pathname;
+
+    const frame = window.requestAnimationFrame(() => {
+      lenisRef.current?.lenis?.scrollTo(0, { immediate: true, force: true });
+      window.scrollTo(0, 0);
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [pathname]);
+
   return (
-    <ReactLenis 
+    <ReactLenis
+      ref={lenisRef}
       root 
       options={{ 
         // Higher lerp (0.15) makes it feel more responsive to your actual scroll

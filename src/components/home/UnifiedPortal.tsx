@@ -385,7 +385,6 @@ export default function UnifiedPortal() {
                               {node.label}
                             </span>
                           </div>
-                          <span className={`${conthrax} text-[7px] uppercase tracking-[0.16em] text-white`}>Static</span>
                         </div>
                       ))}
                     </div>
