@@ -279,7 +279,6 @@ const RIGHT_NODES = [
 export default function UnifiedPortal() {
   const { benefits } = data;
   const [isCoreHovered, setIsCoreHovered] = useState(false);
-  const [isCorePressed, setIsCorePressed] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [scale, setScale] = useState(1);
   const [isMobile, setIsMobile] = useState(false);
@@ -427,14 +426,11 @@ export default function UnifiedPortal() {
                     <div className="flex flex-col items-center relative z-20">
                       <motion.div
                         onMouseEnter={() => setIsCoreHovered(true)}
-                        onMouseLeave={() => { setIsCoreHovered(false); setIsCorePressed(false); }}
-                        onPointerDown={() => setIsCorePressed(true)}
-                        onPointerUp={() => setIsCorePressed(false)}
-                        onPointerCancel={() => setIsCorePressed(false)}
-                        whileTap={{ scale: 0.985 }}
-                        className={`relative w-[320px] h-[440px] bg-[#020205] rounded-[40px] border-2 flex flex-col cursor-pointer transition-all duration-500 ${isCorePressed ? "border-amber-200 shadow-[0_0_150px_rgba(245,174,55,0.95),0_0_80px_rgba(239,78,61,0.45)]" : isCoreHovered ? "border-amber-400 shadow-[0_0_80px_rgba(245,174,55,0.4)]" : "border-white/40 shadow-[0_0_30px_rgba(255,255,255,0.05)]"}`}
+                        onMouseLeave={() => setIsCoreHovered(false)}
+                        className={`relative w-[320px] h-[440px] overflow-hidden rounded-[40px] border-2 border-amber-300 bg-[#090602] flex flex-col cursor-pointer shadow-[0_0_92px_rgba(245,174,55,0.72),0_0_36px_rgba(239,78,61,0.25),inset_0_0_64px_rgba(245,174,55,0.2)] transition-colors duration-500 ${isCoreHovered ? "border-amber-100" : ""}`}
                       >
-                        <div className="flex justify-between items-center px-8 py-4 border-b border-white/20">
+                        <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(circle_at_50%_55%,rgba(245,174,55,0.46)_0%,rgba(239,78,61,0.16)_42%,transparent_74%)]" />
+                        <div className="relative z-10 flex justify-between items-center px-8 py-4 border-b border-amber-200/35">
                           <Activity
                             size={12}
                             className="text-amber-400 animate-pulse drop-shadow-[0_0_5px_#f5ae37]"
@@ -445,8 +441,8 @@ export default function UnifiedPortal() {
                             VERS.2026
                           </span>
                         </div>
-                        <div className="flex-1 flex items-center justify-center relative">
-                          <div className="absolute w-40 h-40 bg-amber-500/20 blur-[80px] rounded-full" />
+                        <div className="relative z-10 flex-1 flex items-center justify-center">
+                          <div className="absolute w-52 h-52 bg-amber-400/55 blur-[90px] rounded-full" />
                           <img
                             src="/k1000-small.png"
                             className={`w-44 z-10 transition-transform duration-500 ${isCoreHovered ? "scale-110 brightness-110" : "brightness-105"} drop-shadow-[0_0_20px_#f5ae37]`}
