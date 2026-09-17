@@ -17,12 +17,12 @@ export default function NotFound() {
         disableLinesOnMobile
       />
 
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#00f7ff06_1px,transparent_1px),linear-gradient(to_bottom,#00f7ff06_1px,transparent_1px)] bg-[size:30px_30px] lg:bg-[size:60px_60px]" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#f5ae3706_1px,transparent_1px),linear-gradient(to_bottom,#f5ae3706_1px,transparent_1px)] bg-[size:30px_30px] lg:bg-[size:60px_60px]" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#010103_85%)]" />
 
       <div className="relative z-10 flex min-h-screen items-center justify-center px-6 py-16">
-        <div className="w-full max-w-4xl border border-cyan-400/15 bg-black/20 px-8 py-12 text-center backdrop-blur-md md:px-14 md:py-16">
-          <div className={`text-[10px] uppercase tracking-[0.45em] text-cyan-400/70 ${conthrax}`}>
+        <div className="w-full max-w-4xl border border-amber-400/15 bg-black/20 px-8 py-12 text-center backdrop-blur-md md:px-14 md:py-16">
+          <div className={`text-[10px] uppercase tracking-[0.45em] text-amber-400/70 ${conthrax}`}>
             Route Error
           </div>
 
@@ -34,14 +34,14 @@ export default function NotFound() {
             Signal Lost
           </h1>
 
-          <p className="mx-auto mt-8 max-w-2xl text-sm leading-relaxed text-white/55 md:text-base">
+          <p className="mx-auto mt-8 max-w-2xl text-sm leading-relaxed text-white md:text-base">
             The requested path is outside the K-1000 system registry. Return to
             the primary interface to continue navigation.
           </p>
 
           <Link
             href="/"
-            className={`mt-10 inline-flex items-center justify-center rounded-full border border-cyan-400/40 px-7 py-3 text-[10px] uppercase tracking-[0.3em] text-cyan-300 transition-colors hover:border-cyan-300 hover:text-white ${conthrax}`}
+            className={`mt-10 inline-flex items-center justify-center rounded-full border border-amber-400/40 px-7 py-3 text-[10px] uppercase tracking-[0.3em] text-amber-300 transition-colors hover:border-amber-300 hover:text-white ${conthrax}`}
           >
             Return Home
           </Link>

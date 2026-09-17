@@ -64,10 +64,10 @@ export default function OfficesPage() {
                   background: `radial-gradient(circle at 78% 22%, ${activeOffice.accentColor}55, transparent 34%), linear-gradient(135deg, ${activeOffice.baseColor}55, transparent 62%)`,
                 }}
               />
-              <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,247,255,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,247,255,0.04)_1px,transparent_1px)] bg-[size:42px_42px]" />
+              <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(245, 174, 55,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(245, 174, 55,0.04)_1px,transparent_1px)] bg-[size:42px_42px]" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#020202] via-transparent to-transparent" />
               <div className="relative z-10 flex flex-col justify-end p-6 md:p-12 h-full">
-                <span className="text-cyan-400 text-[10px] tracking-[0.3em] uppercase mb-2 font-bold">{activeOffice.tag}</span>
+                <span className="text-amber-400 text-[10px] tracking-[0.3em] uppercase mb-2 font-bold">{activeOffice.tag}</span>
                 <h1 className={`${conthrax} text-2xl sm:text-4xl md:text-6xl tracking-tighter uppercase font-black leading-tight`}>
                   {activeOffice.title}
                 </h1>
@@ -89,16 +89,16 @@ export default function OfficesPage() {
                     data-key={o.key}
                     onClick={() => setActiveTab(o.key)}
                     className={`flex-shrink-0 last:mr-1 lg:w-full w-[220px] text-left px-6 py-5 rounded-[24px] transition-all duration-500 group relative overflow-hidden cursor-pointer ${
-                      activeTab === o.key ? "bg-cyan-500/10 border border-cyan-500/40" : "hover:bg-white/5 border border-transparent"
+                      activeTab === o.key ? "bg-amber-500/10 border border-amber-500/40" : "hover:bg-white/5 border border-transparent"
                     }`}
                   >
-                    {activeTab === o.key && <motion.div layoutId="activeGlow" className="absolute inset-0 bg-cyan-500/5 blur-xl" />}
+                    {activeTab === o.key && <motion.div layoutId="activeGlow" className="absolute inset-0 bg-amber-500/5 blur-xl" />}
                     <div className="relative z-10 flex items-center justify-between">
                       <div className="flex flex-col gap-1">
-                        <span className={`${orbitron} text-[8px] tracking-widest font-black ${activeTab === o.key ? "text-cyan-400" : "text-white/20"}`}>{o.short}</span>
-                        <span className={`${conthrax} text-[11px] md:text-xs text-white uppercase tracking-wider font-black group-hover:text-cyan-300 transition-colors`}>{o.title}</span>
+                        <span className={`${orbitron} text-[8px] tracking-widest font-black ${activeTab === o.key ? "text-amber-400" : "text-white"}`}>{o.short}</span>
+                        <span className={`${conthrax} text-[11px] md:text-xs text-white uppercase tracking-wider font-black group-hover:text-amber-300 transition-colors`}>{o.title}</span>
                       </div>
-                      <ChevronRight size={14} className={`hidden lg:block transition-transform duration-300 ${activeTab === o.key ? "text-cyan-400" : "text-white/10"}`} />
+                      <ChevronRight size={14} className={`hidden lg:block transition-transform duration-300 ${activeTab === o.key ? "text-amber-400" : "text-white"}`} />
                     </div>
                   </button>
                 ))}
@@ -115,22 +115,22 @@ export default function OfficesPage() {
                   transition={{ duration: 0.5, ease: "circOut" }}
                   className="min-w-0 rounded-[28px] border border-white/10 bg-white/[0.03] p-5 backdrop-blur-xl sm:p-7 md:rounded-[32px] md:p-10"
                 >
-                  <p className="mb-6 break-words border-l-2 border-cyan-500 pl-4 text-sm leading-relaxed text-white/90 italic sm:text-base md:mb-8 md:text-xl">&quot;{activeOffice.overview}&quot;</p>
-                  <p className="mb-8 break-words text-sm leading-relaxed text-white/60 md:mb-10 md:text-base">{activeOffice.description}</p>
+                  <p className="mb-6 break-words border-l-2 border-amber-500 pl-4 text-sm leading-relaxed text-white italic sm:text-base md:mb-8 md:text-xl">&quot;{activeOffice.overview}&quot;</p>
+                  <p className="mb-8 break-words text-sm leading-relaxed text-white md:mb-10 md:text-base">{activeOffice.description}</p>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8 border-y border-white/10 py-8">
                     <div>
-                      <h4 className={`${conthrax} text-[10px] text-white/30 uppercase mb-4`}>Focus Areas</h4>
+                      <h4 className={`${conthrax} text-[10px] text-white uppercase mb-4`}>Focus Areas</h4>
                       {activeOffice.focusAreas.map((area) => (
-                        <div key={area} className="mb-3 flex items-start gap-2 break-words text-xs leading-relaxed text-white/70 sm:text-sm">
-                          <Layers size={14} className="mt-0.5 shrink-0 text-cyan-500" /> {area}
+                        <div key={area} className="mb-3 flex items-start gap-2 break-words text-xs leading-relaxed text-white sm:text-sm">
+                          <Layers size={14} className="mt-0.5 shrink-0 text-amber-500" /> {area}
                         </div>
                       ))}
                     </div>
                     <div>
-                      <h4 className={`${conthrax} text-[10px] text-white/30 uppercase mb-4`}>Core Outcomes</h4>
+                      <h4 className={`${conthrax} text-[10px] text-white uppercase mb-4`}>Core Outcomes</h4>
                       {activeOffice.outcomes.map((outcome) => (
-                        <div key={outcome} className="mb-3 flex items-start gap-2 break-words text-xs leading-relaxed text-white/70 sm:text-sm">
+                        <div key={outcome} className="mb-3 flex items-start gap-2 break-words text-xs leading-relaxed text-white sm:text-sm">
                           <Target size={14} className="mt-0.5 shrink-0 text-emerald-500" /> {outcome}
                         </div>
                       ))}

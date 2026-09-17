@@ -140,7 +140,7 @@ export const domains = [
       "Stronger postgraduate applications",
       "Informed decision-making for higher education",
     ],
-    baseColor: "#0f766e",
+    baseColor: "#b7791f",
     accentColor: "#5eead4",
   },
 

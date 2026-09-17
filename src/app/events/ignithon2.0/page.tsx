@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useId, useRef, useState } from "react";
+import Image from "next/image";
 import { Check, ChevronDown, ChevronRight, Crown, Download, LogOut, Pencil, Plus, QrCode, Trash2, X } from "lucide-react";
 import BootSequence from "../../../components/boot/BootSequence";
 import SharedHeader from "../../../components/ui/SharedHeader";
@@ -10,8 +11,8 @@ import { isKiitEmailDomain } from "@/lib/ignithon-identity";
 
 const conthrax = "font-['Conthrax',_sans-serif]";
 const orbitron = "font-['Orbitron',_sans-serif]";
-const inputClass = "min-h-12 w-full min-w-0 rounded-[16px] border border-white/10 bg-[#020606]/80 px-4 py-3 text-base text-white outline-none transition-all placeholder:text-white/25 focus:border-cyan-400/70 focus:bg-cyan-500/[0.025] sm:text-sm";
-const closeButtonClass = "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/10 bg-black/25 text-white/45 transition-colors hover:border-cyan-300/40 hover:text-cyan-200";
+const inputClass = "min-h-12 w-full min-w-0 rounded-[16px] border border-amber-100/20 bg-[#062a33]/82 px-4 py-3 text-base text-white shadow-[inset_0_1px_0_rgba(255,213,108,0.05)] outline-none transition-all placeholder:text-amber-50/35 focus:border-amber-200/70 focus:bg-[#083b45]/92 focus:ring-2 focus:ring-amber-300/10 sm:text-sm";
+const closeButtonClass = "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/10 bg-black/25 text-white transition-colors hover:border-amber-300/40 hover:text-amber-200";
 type Member = { id: string; name: string; email: string; roll_no: string; hostel: string | null; phone: string; branch: string; year: number; team_id: string };
 type Portal = { team: { id: number; name: string; room: string | null; points: number; leader_email: string; member_count: number }; participants: Member[]; session: { email: string; role: "leader" | "member" } };
 type MemberDraft = { name: string; email: string; roll_no: string; hostel: string; phone: string; branch: string; year: string };
@@ -229,6 +230,21 @@ export default function IgnithonRegistrationPage() {
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-[#020202] text-white">
+      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
+        <picture className="absolute inset-0 block">
+          <source media="(max-width: 767px)" srcSet="/events/generated/ignithon2-registration-mobile.webp" />
+          <Image
+            src="/events/generated/ignithon2-registration-desktop.webp"
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-[50%_42%] opacity-95 md:object-center"
+          />
+        </picture>
+        <div className="absolute inset-0 bg-[#020202]/12" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#020202]/5 via-[#020b0e]/16 to-[#020202]/64" />
+      </div>
       <CubeBackground zIndex={0} disableLinesOnMobile />
       {booting && <BootSequence replay processComplete={bootProcessComplete} overlayOnly showProcessCompleteStatus={false} onReady={() => setBooting(null)} />}
       {!hydrated && !booting && <div className="fixed inset-0 z-[9998] bg-[#020202]" aria-label="Preparing portal" />}
@@ -236,13 +252,13 @@ export default function IgnithonRegistrationPage() {
       {message && <NotificationBox message={message} tone={messageTone} onDismiss={() => setMessage("")} />}
       <main className={`relative z-10 mx-auto w-full px-4 pb-20 pt-24 sm:px-6 sm:pb-24 sm:pt-28 md:px-10 md:pt-36 ${portal ? "max-w-7xl" : "max-w-5xl"}`}>
         <div className="mx-auto mb-8 w-full max-w-2xl sm:mb-10">
-          <p className="mb-3 text-[9px] uppercase tracking-[0.24em] text-cyan-300/60 sm:mb-4 sm:text-[10px] sm:tracking-[0.35em]">
+          <p className="mb-3 text-[9px] uppercase tracking-[0.24em] text-amber-300/60 sm:mb-4 sm:text-[10px] sm:tracking-[0.35em]">
             Ignithon 2.0 · 26th September 2026
           </p>
           <h1 className={`${conthrax} break-words text-[2rem] uppercase leading-[0.98] tracking-tight text-white sm:text-5xl md:text-6xl`}>
             {portal ? portal.team.name : "Team Registration"}
           </h1>
-          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/55 sm:mt-5 sm:text-base">
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white sm:mt-5 sm:text-base">
             {portal
               ? `${portal.participants[0]?.name ?? "Team leader"} leads this team. Team leaders manage membership; participants can update their own details.`
               : entryMode === "register"
@@ -254,62 +270,62 @@ export default function IgnithonRegistrationPage() {
         {portal ? (
           <PortalView portal={portal} member={member} setMember={setMember} addMember={addMember} removeMember={removeMember} transferLeadership={transferLeadership} refreshPortal={async () => { await loadPortal(String(portal.team.id)); }} logout={logout} loading={loading} notify={showMessage} requestConfirmation={(next) => setConfirmation(next)} />
         ) : (
-          <section ref={entryCardRef} className="mx-auto grid w-full max-w-5xl scroll-mt-24 gap-8 rounded-[24px] border border-white/10 bg-white/[0.025] p-4 shadow-[0_24px_80px_rgba(0,0,0,0.35)] backdrop-blur-xl sm:scroll-mt-28 sm:rounded-[28px] sm:p-8 md:grid-cols-[0.76fr_1.24fr] md:gap-10 md:p-10">
+          <section ref={entryCardRef} className="mx-auto grid w-full max-w-5xl scroll-mt-24 gap-8 rounded-[24px] border border-amber-100/25 bg-transparent p-4 shadow-[0_24px_80px_rgba(0,12,20,0.42),inset_0_1px_0_rgba(255,210,110,0.09)] backdrop-blur-sm sm:scroll-mt-28 sm:rounded-[28px] sm:p-8 md:grid-cols-[0.76fr_1.24fr] md:gap-10 md:p-10">
             <div className="flex flex-col justify-between border-b border-white/10 pb-6 md:border-b-0 md:border-r md:pb-0 md:pr-10">
               <div>
-                <p className={`${orbitron} text-[9px] uppercase tracking-[0.28em] text-cyan-300/55`}>Ignithon 2.0 access</p>
+                <p className={`${orbitron} text-[9px] uppercase tracking-[0.28em] text-amber-300/55`}>Ignithon 2.0 access</p>
                 <h2 className={`${conthrax} mt-3 text-xl uppercase leading-tight tracking-tight text-white sm:text-2xl`}>
                   {entryMode === "register" ? "Build your team" : "Return to your team"}
                 </h2>
-                <p className="mt-4 text-sm leading-relaxed text-white/45">
+                <p className="mt-4 text-sm leading-relaxed text-white">
                   {entryMode === "register" ? "Create the team record once, then use your portal to manage the roster." : "Use the roll number and Team ID already assigned to your registration."}
                 </p>
               </div>
-              <div className="mt-8 hidden rounded-[18px] border border-cyan-300/15 bg-cyan-400/[0.04] p-4 md:block">
-                <p className={`${orbitron} text-[8px] uppercase tracking-[0.24em] text-cyan-300/60`}>Event date</p>
-                <p className={`${conthrax} mt-2 text-xs uppercase tracking-[0.1em] text-white/70`}>26 September 2026</p>
+              <div className="mt-8 hidden rounded-[18px] border border-amber-300/15 bg-amber-400/[0.04] p-4 md:block">
+                <p className={`${orbitron} text-[8px] uppercase tracking-[0.24em] text-amber-300/60`}>Event date</p>
+                <p className={`${conthrax} mt-2 text-xs uppercase tracking-[0.1em] text-white`}>26 September 2026</p>
               </div>
             </div>
             <div className="min-w-0">
             {entryMode === "register" ? (
               <>
-                <h2 className={`${conthrax} text-sm uppercase tracking-wider text-cyan-300 sm:text-base`}>
+                <h2 className={`${conthrax} text-sm uppercase tracking-wider text-amber-300 sm:text-base`}>
                   Register New Team
                 </h2>
-                <p className="mt-3 text-sm leading-relaxed text-white/45">
+                <p className="mt-3 text-sm leading-relaxed text-white">
                   Create your team first. Your four-digit Team ID will be generated after registration.
                 </p>
                 <form onSubmit={handleCreate} className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                   <input className={`${inputClass} sm:col-span-2`} required minLength={2} value={teamName} onChange={(event) => setTeamName(event.target.value)} placeholder="Team name" aria-label="Team name" />
                   <MemberFields value={leader} setValue={setLeader} nameLabel="Team Leader Name" />
-                  <button disabled={loading} className={`${conthrax} flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-cyan-400 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-black transition-colors hover:bg-white disabled:opacity-50 sm:col-span-2 sm:text-[10px] sm:tracking-[0.22em]`}>
+                  <button disabled={loading} className={`${conthrax} flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-amber-400 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-black transition-colors hover:bg-white disabled:opacity-50 sm:col-span-2 sm:text-[10px] sm:tracking-[0.22em]`}>
                     Create team <ChevronRight size={14} />
                   </button>
                 </form>
                 <div className="mt-6 border-t border-white/10 pt-5 text-center">
-                  <p className="text-xs text-white/40">Already registered with a team?</p>
-                  <button type="button" onClick={() => switchEntryMode("login")} className={`${conthrax} mt-3 min-h-11 w-full rounded-full border border-cyan-400/35 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-cyan-300 transition-colors hover:bg-cyan-400 hover:text-black sm:w-auto`}>
+                  <p className="text-xs text-white">Already registered with a team?</p>
+                  <button type="button" onClick={() => switchEntryMode("login")} className={`${conthrax} mt-3 min-h-11 w-full rounded-full border border-amber-400/35 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-amber-300 transition-colors hover:bg-amber-400 hover:text-black sm:w-auto`}>
                     Existing Team Login
                   </button>
                 </div>
               </>
             ) : (
               <>
-                <p className="text-[9px] uppercase tracking-[0.25em] text-cyan-300/60 sm:text-[10px] sm:tracking-[0.3em]">Already registered</p>
+                <p className="text-[9px] uppercase tracking-[0.25em] text-amber-300/60 sm:text-[10px] sm:tracking-[0.3em]">Already registered</p>
                 <h2 className={`${conthrax} mt-3 text-lg uppercase leading-tight text-white sm:mt-4 sm:text-xl`}>
                   Existing Team Login
                 </h2>
                 <form onSubmit={handleAccess} className="mt-6 space-y-3 sm:mt-7 sm:space-y-4">
                   <input className={inputClass} required inputMode="numeric" value={access.rollNo} onChange={(event) => setAccess({ ...access, rollNo: event.target.value.replace(/\D/g, "") })} placeholder="Registered roll number" aria-label="Registered roll number" />
                   <input className={inputClass} required inputMode="numeric" pattern="[0-9]{4}" maxLength={4} value={access.teamId} onChange={(event) => setAccess({ ...access, teamId: event.target.value.replace(/\D/g, "") })} placeholder="Four-digit Team ID" aria-label="Four-digit Team ID" />
-                  <p className="-mt-1 px-1 text-[11px] leading-relaxed text-white/40">Forgot your Team ID? Check your previously logged device or contact support: <a className="text-cyan-300/80 hover:text-cyan-200" href="tel:7304693169">7304693169</a></p>
-                  <button disabled={loading} className={`${conthrax} flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-cyan-400 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-black transition-colors hover:bg-white disabled:opacity-50 sm:text-[10px] sm:tracking-[0.22em]`}>
+                  <p className="-mt-1 px-1 text-[11px] leading-relaxed text-white">Forgot your Team ID? Check your previously logged device or contact support: <a className="text-amber-300/80 hover:text-amber-200" href="tel:7304693169">7304693169</a></p>
+                  <button disabled={loading} className={`${conthrax} flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-amber-400 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-black transition-colors hover:bg-white disabled:opacity-50 sm:text-[10px] sm:tracking-[0.22em]`}>
                     Access portal <ChevronRight size={14} />
                   </button>
                 </form>
                 <div className="mt-6 border-t border-white/10 pt-5 text-center">
-                  <p className="text-xs text-white/40">Creating a team for the first time?</p>
-                  <button type="button" onClick={() => switchEntryMode("register")} className={`${conthrax} mt-3 min-h-11 w-full rounded-full border border-cyan-400/35 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-cyan-300 transition-colors hover:bg-cyan-400 hover:text-black sm:w-auto`}>
+                  <p className="text-xs text-white">Creating a team for the first time?</p>
+                  <button type="button" onClick={() => switchEntryMode("register")} className={`${conthrax} mt-3 min-h-11 w-full rounded-full border border-amber-400/35 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-amber-300 transition-colors hover:bg-amber-400 hover:text-black sm:w-auto`}>
                     Register New Team
                   </button>
                 </div>
@@ -349,18 +365,18 @@ function NotificationBox({ message, tone, onDismiss }: { message: string; tone: 
 function ConfirmationDialog({ confirmation, onClose }: { confirmation: Confirmation; onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-[220] flex items-center justify-center bg-black/70 px-4 py-6 backdrop-blur-sm" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
-      <div role="dialog" aria-modal="true" aria-labelledby="confirmation-title" className="w-full max-w-md rounded-[24px] border border-cyan-300/25 bg-[#050b0c]/[.98] p-5 shadow-[0_24px_90px_rgba(0,0,0,0.65),0_0_30px_rgba(0,247,255,0.08)] sm:p-7">
+      <div role="dialog" aria-modal="true" aria-labelledby="confirmation-title" className="w-full max-w-md rounded-[24px] border border-amber-300/25 bg-[#050b0c]/[.98] p-5 shadow-[0_24px_90px_rgba(0,0,0,0.65),0_0_30px_rgba(245, 174, 55,0.08)] sm:p-7">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className={`${orbitron} text-[9px] uppercase tracking-[0.24em] text-cyan-300/65`}>Confirmation required</p>
+            <p className={`${orbitron} text-[9px] uppercase tracking-[0.24em] text-amber-300/65`}>Confirmation required</p>
             <h2 id="confirmation-title" className={`${conthrax} mt-2 text-base uppercase tracking-wider text-white`}>{confirmation.title}</h2>
           </div>
           <button type="button" onClick={onClose} className={closeButtonClass} aria-label="Close confirmation dialog"><X size={16} /></button>
         </div>
-        <p className="mt-4 text-sm leading-relaxed text-white/60">{confirmation.message}</p>
+        <p className="mt-4 text-sm leading-relaxed text-white">{confirmation.message}</p>
         <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-          <button type="button" onClick={onClose} className={`${conthrax} min-h-11 rounded-full border border-white/10 px-5 py-3 text-[9px] uppercase tracking-[0.16em] text-white/55 transition-colors hover:border-white/25 hover:text-white`}>Cancel</button>
-          <button type="button" onClick={() => { onClose(); confirmation.onConfirm(); }} className={`${conthrax} min-h-11 rounded-full bg-cyan-400 px-5 py-3 text-[9px] uppercase tracking-[0.16em] text-black transition-colors hover:bg-white`}>{confirmation.confirmLabel}</button>
+          <button type="button" onClick={onClose} className={`${conthrax} min-h-11 rounded-full border border-white/10 px-5 py-3 text-[9px] uppercase tracking-[0.16em] text-white transition-colors hover:border-white/25 hover:text-white`}>Cancel</button>
+          <button type="button" onClick={() => { onClose(); confirmation.onConfirm(); }} className={`${conthrax} min-h-11 rounded-full bg-amber-400 px-5 py-3 text-[9px] uppercase tracking-[0.16em] text-black transition-colors hover:bg-white`}>{confirmation.confirmLabel}</button>
         </div>
       </div>
     </div>
@@ -449,38 +465,38 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
         <div className="flex flex-col gap-5 border-b border-white/10 pb-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="min-w-0">
             <div>
-              <p className="text-[9px] uppercase tracking-[0.28em] text-cyan-300/55">Team ID</p>
-              <p className={`${conthrax} mt-2 text-3xl text-cyan-300 sm:text-4xl`}>{portal.team.id}</p>
+              <p className="text-[9px] uppercase tracking-[0.28em] text-amber-300/55">Team ID</p>
+              <p className={`${conthrax} mt-2 text-3xl text-amber-300 sm:text-4xl`}>{portal.team.id}</p>
             </div>
-            <p className="mt-3 text-xs text-white/40">Team Leader · <span className="text-white/70">{leader?.name ?? "Not available"}</span></p>
+            <p className="mt-3 text-xs text-white">Team Leader · <span className="text-white">{leader?.name ?? "Not available"}</span></p>
             {isLeader && (
               <form onSubmit={saveTeamName} className="mt-4 flex max-w-xl flex-col gap-2 sm:flex-row">
                 <label className="sr-only" htmlFor="team-name-editor">Team name</label>
                 <input id="team-name-editor" className={`${inputClass} min-h-11 sm:max-w-sm`} value={teamNameDraft} onChange={(event) => setTeamNameDraft(event.target.value)} required aria-label="Team name" />
-                <button type="submit" disabled={savingTeamName || teamNameDraft.trim() === portal.team.name} className={`${conthrax} min-h-11 rounded-full border border-cyan-400/35 px-4 text-[9px] uppercase tracking-[0.14em] text-cyan-300 transition-colors hover:bg-cyan-400 hover:text-black disabled:opacity-35`}>{savingTeamName ? "Saving..." : "Update name"}</button>
+                <button type="submit" disabled={savingTeamName || teamNameDraft.trim() === portal.team.name} className={`${conthrax} min-h-11 rounded-full border border-amber-400/35 px-4 text-[9px] uppercase tracking-[0.14em] text-amber-300 transition-colors hover:bg-amber-400 hover:text-black disabled:opacity-35`}>{savingTeamName ? "Saving..." : "Update name"}</button>
               </form>
             )}
           </div>
           <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
-            <button type="button" aria-pressed={showPersonalQr} onClick={() => setShowPersonalQr((current) => !current)} className={`${conthrax} flex min-h-11 w-full items-center justify-center gap-2 rounded-full border px-5 py-3 text-[9px] uppercase tracking-[0.18em] transition-colors sm:w-auto ${showPersonalQr ? "border-cyan-300 bg-cyan-400 text-black shadow-[0_0_24px_rgba(0,247,255,0.18)]" : "border-cyan-400/30 text-cyan-300 hover:bg-cyan-400 hover:text-black"}`}>
+            <button type="button" aria-pressed={showPersonalQr} onClick={() => setShowPersonalQr((current) => !current)} className={`${conthrax} flex min-h-11 w-full items-center justify-center gap-2 rounded-full border px-5 py-3 text-[9px] uppercase tracking-[0.18em] transition-colors sm:w-auto ${showPersonalQr ? "border-amber-300 bg-amber-400 text-black shadow-[0_0_24px_rgba(245, 174, 55,0.18)]" : "border-amber-400/30 text-amber-300 hover:bg-amber-400 hover:text-black"}`}>
               <QrCode size={14} /> My QR
             </button>
-            <button type="button" onClick={logout} className={`${conthrax} flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-white/10 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-white/45 transition-colors hover:border-cyan-400/40 hover:text-cyan-300 sm:w-auto`}>
+            <button type="button" onClick={logout} className={`${conthrax} flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-white/10 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-white transition-colors hover:border-amber-400/40 hover:text-amber-300 sm:w-auto`}>
               <LogOut size={14} /> Log out
             </button>
           </div>
         </div>
 
         {showPersonalQr && signedInParticipant && (
-          <div className="mt-5 rounded-[22px] border border-cyan-300/45 bg-[#031011] p-4 shadow-[inset_0_0_32px_rgba(0,247,255,0.04)] sm:p-6">
+          <div className="mt-5 rounded-[22px] border border-amber-300/45 bg-[#031011] p-4 shadow-[inset_0_0_32px_rgba(245, 174, 55,0.04)] sm:p-6">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-[9px] uppercase tracking-[0.28em] text-cyan-300/55">Personal credential</p>
+                <p className="text-[9px] uppercase tracking-[0.28em] text-amber-300/55">Personal credential</p>
                 <h2 className={`${conthrax} mt-2 break-words text-sm uppercase tracking-wider text-white sm:text-base`}>{signedInParticipant.name}</h2>
               </div>
             </div>
             <div className="mt-5 flex justify-center">
-              <div className="shrink-0 overflow-hidden rounded-[20px] border border-white/15 bg-white p-3 shadow-[0_0_30px_rgba(0,247,255,0.12)]">
+              <div className="shrink-0 overflow-hidden rounded-[20px] border border-white/15 bg-white p-3 shadow-[0_0_30px_rgba(245, 174, 55,0.12)]">
                 <BrandedPersonalQr value={`${signedInParticipant.id}|${portal.team.id}`} name={signedInParticipant.name} />
               </div>
             </div>
@@ -489,10 +505,10 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
 
         <div className="mt-6 flex items-end justify-between gap-4 sm:mt-8">
           <div>
-            <p className="text-[9px] uppercase tracking-[0.28em] text-cyan-300/55">Player loadout</p>
+            <p className="text-[9px] uppercase tracking-[0.28em] text-amber-300/55">Player loadout</p>
             <h2 className={`${conthrax} mt-2 text-sm uppercase tracking-wider text-white sm:text-base`}>Team roster</h2>
           </div>
-          <p className={`${conthrax} shrink-0 text-[10px] text-white/35`}>{portal.participants.length}/4</p>
+          <p className={`${conthrax} shrink-0 text-[10px] text-white`}>{portal.participants.length}/4</p>
         </div>
 
         <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -515,28 +531,28 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
                     setEditingEmail((current) => current === participant.email ? null : participant.email);
                   }
                 } : undefined}
-                className={`group relative min-h-[210px] min-w-0 overflow-hidden rounded-[22px] border bg-gradient-to-br from-white/[0.045] to-transparent p-5 transition-colors ${canEditCard ? "cursor-pointer focus:border-cyan-300/60 focus:outline-none focus:ring-2 focus:ring-cyan-400/20" : ""} ${editingEmail === participant.email ? "border-cyan-300/55 bg-cyan-400/[0.07]" : "border-white/10 hover:border-cyan-400/30"}`}
+                className={`group relative min-h-[210px] min-w-0 overflow-hidden rounded-[22px] border bg-gradient-to-br from-white/[0.045] to-transparent p-5 transition-colors ${canEditCard ? "cursor-pointer focus:border-amber-300/60 focus:outline-none focus:ring-2 focus:ring-amber-400/20" : ""} ${editingEmail === participant.email ? "border-amber-300/55 bg-amber-400/[0.07]" : "border-white/10 hover:border-amber-400/30"}`}
               >
-                <div className="pointer-events-none absolute -right-8 -top-10 h-28 w-28 rounded-full bg-cyan-400/[0.055] blur-2xl transition-colors group-hover:bg-cyan-400/10" />
+                <div className="pointer-events-none absolute -right-8 -top-10 h-28 w-28 rounded-full bg-amber-400/[0.055] blur-2xl transition-colors group-hover:bg-amber-400/10" />
                 <div className="relative flex h-full flex-col">
                   <div className="flex items-start justify-between gap-3">
-                    <span className={`${conthrax} rounded-full border px-3 py-1.5 text-[8px] uppercase tracking-[0.16em] ${isTeamLeader ? "border-cyan-400/35 bg-cyan-400/10 text-cyan-200" : "border-white/10 bg-white/[0.035] text-white/45"}`}>
+                    <span className={`${conthrax} rounded-full border px-3 py-1.5 text-[8px] uppercase tracking-[0.16em] ${isTeamLeader ? "border-amber-400/35 bg-amber-400/10 text-amber-200" : "border-white/10 bg-white/[0.035] text-white"}`}>
                       {isTeamLeader ? "Team Leader" : `Member ${memberIndex}`}
                     </span>
-                    <span className={`${conthrax} text-xl text-white/10`}>{String(isTeamLeader ? 1 : memberIndex + 1)}</span>
+                    <span className={`${conthrax} text-xl text-white`}>{String(isTeamLeader ? 1 : memberIndex + 1)}</span>
                   </div>
                   <div className={`mt-auto min-w-0 pt-8 ${canEditCard ? "pb-12" : ""}`}>
                     <h3 className={`${conthrax} break-words text-base uppercase leading-snug text-white`}>{participant.name}</h3>
-                    <p className="mt-2 break-all text-xs leading-relaxed text-white/40">{participant.email}</p>
-                    <p className="mt-1 text-xs text-white/30">Roll {participant.roll_no} · Year {participant.year}</p>
+                    <p className="mt-2 break-all text-xs leading-relaxed text-white">{participant.email}</p>
+                    <p className="mt-1 text-xs text-white">Roll {participant.roll_no} · Year {participant.year}</p>
                   </div>
                   {canEditCard && (
                     <div className="absolute bottom-0 right-0 flex items-center gap-2">
-                      <button type="button" onClick={(event) => { event.stopPropagation(); setEditingEmail((current) => current === participant.email ? null : participant.email); }} className="flex h-10 min-w-10 items-center justify-center gap-1.5 rounded-full border border-cyan-400/20 bg-black/25 px-3 text-[9px] uppercase tracking-[0.12em] text-cyan-300/60 transition-colors hover:border-cyan-300/50 hover:text-cyan-200" aria-label={`Edit ${participant.name}`}>
+                      <button type="button" onClick={(event) => { event.stopPropagation(); setEditingEmail((current) => current === participant.email ? null : participant.email); }} className="flex h-10 min-w-10 items-center justify-center gap-1.5 rounded-full border border-amber-400/20 bg-black/25 px-3 text-[9px] uppercase tracking-[0.12em] text-amber-300/60 transition-colors hover:border-amber-300/50 hover:text-amber-200" aria-label={`Edit ${participant.name}`}>
                         <Pencil size={14} /> <span className="hidden sm:inline">Edit</span>
                       </button>
                       {isLeader && !isTeamLeader && (
-                        <button type="button" disabled={loading} onClick={(event) => { event.stopPropagation(); requestConfirmation({ title: "Remove team member?", message: `${participant.name} will be removed from this team and will have a five-minute cooling period before joining another team.`, confirmLabel: "Remove member", onConfirm: () => { void removeMember(participant.email); } }); }} className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-black/25 text-white/30 transition-colors hover:border-red-300/35 hover:bg-red-400/10 hover:text-red-300 disabled:opacity-40" aria-label={`Remove ${participant.name}`}>
+                        <button type="button" disabled={loading} onClick={(event) => { event.stopPropagation(); requestConfirmation({ title: "Remove team member?", message: `${participant.name} will be removed from this team and will have a five-minute cooling period before joining another team.`, confirmLabel: "Remove member", onConfirm: () => { void removeMember(participant.email); } }); }} className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-black/25 text-white transition-colors hover:border-red-300/35 hover:bg-red-400/10 hover:text-red-300 disabled:opacity-40" aria-label={`Remove ${participant.name}`}>
                           <Trash2 size={15} />
                         </button>
                       )}
@@ -548,23 +564,23 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
           })}
 
           {isLeader && registeredMembers.length < 3 && (
-            <button type="button" onClick={() => { const next = !showAddMember; setShowAddMember(next); if (next) requestAnimationFrame(() => addMemberFormRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })); }} aria-expanded={showAddMember} className={`group flex min-h-[210px] flex-col items-center justify-center rounded-[22px] border border-dashed p-5 text-center transition-all ${showAddMember ? "border-cyan-300/65 bg-cyan-400/[0.09]" : "border-cyan-400/25 bg-cyan-400/[0.025] hover:border-cyan-300/55 hover:bg-cyan-400/[0.07]"}`}>
-              <span className="flex h-14 w-14 items-center justify-center rounded-full border border-cyan-400/35 bg-cyan-400/10 text-cyan-300 transition-transform group-hover:scale-105">
+            <button type="button" onClick={() => { const next = !showAddMember; setShowAddMember(next); if (next) requestAnimationFrame(() => addMemberFormRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })); }} aria-expanded={showAddMember} className={`group flex min-h-[210px] flex-col items-center justify-center rounded-[22px] border border-dashed p-5 text-center transition-all ${showAddMember ? "border-amber-300/65 bg-amber-400/[0.09]" : "border-amber-400/25 bg-amber-400/[0.025] hover:border-amber-300/55 hover:bg-amber-400/[0.07]"}`}>
+              <span className="flex h-14 w-14 items-center justify-center rounded-full border border-amber-400/35 bg-amber-400/10 text-amber-300 transition-transform group-hover:scale-105">
                 <Plus size={24} />
               </span>
-              <span className={`${conthrax} mt-5 text-[11px] uppercase tracking-[0.16em] text-cyan-200`}>Add New Member</span>
-              <span className={`${conthrax} mt-2 text-[10px] text-white/35`}>({registeredMembers.length + 1}/3)</span>
+              <span className={`${conthrax} mt-5 text-[11px] uppercase tracking-[0.16em] text-amber-200`}>Add New Member</span>
+              <span className={`${conthrax} mt-2 text-[10px] text-white`}>({registeredMembers.length + 1}/3)</span>
             </button>
           )}
         </div>
       </section>
 
       {isLeader && showAddMember && registeredMembers.length < 3 && (
-        <form ref={addMemberFormRef} onSubmit={submitMember} className="scroll-mt-6 rounded-[24px] border border-cyan-400/25 bg-cyan-400/[0.035] p-4 backdrop-blur-xl sm:scroll-mt-8 sm:rounded-[28px] sm:p-6 md:p-8">
+        <form ref={addMemberFormRef} onSubmit={submitMember} className="scroll-mt-6 rounded-[24px] border border-amber-400/25 bg-amber-400/[0.035] p-4 backdrop-blur-xl sm:scroll-mt-8 sm:rounded-[28px] sm:p-6 md:p-8">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-[9px] uppercase tracking-[0.28em] text-cyan-300/55">New roster slot</p>
-              <h2 className={`${conthrax} mt-2 text-sm uppercase tracking-wider text-cyan-200 sm:text-base`}>Member {registeredMembers.length + 1} details</h2>
+              <p className="text-[9px] uppercase tracking-[0.28em] text-amber-300/55">New roster slot</p>
+              <h2 className={`${conthrax} mt-2 text-sm uppercase tracking-wider text-amber-200 sm:text-base`}>Member {registeredMembers.length + 1} details</h2>
             </div>
             <button type="button" onClick={() => setShowAddMember(false)} className={closeButtonClass} aria-label="Close new member form"><X size={15} /></button>
           </div>
@@ -572,8 +588,8 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
             <MemberFields value={member} setValue={setMember} />
           </div>
           <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-            <button type="button" onClick={() => setShowAddMember(false)} className={`${conthrax} min-h-12 w-full rounded-full border border-white/10 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-white/45 transition-colors hover:border-white/25 hover:text-white sm:w-auto`}>Cancel</button>
-            <button disabled={loading} className={`${conthrax} flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-cyan-400 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-black transition-colors hover:bg-white disabled:opacity-50 sm:w-auto sm:text-[10px] sm:tracking-[0.22em]`}>
+            <button type="button" onClick={() => setShowAddMember(false)} className={`${conthrax} min-h-12 w-full rounded-full border border-white/10 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-white transition-colors hover:border-white/25 hover:text-white sm:w-auto`}>Cancel</button>
+            <button disabled={loading} className={`${conthrax} flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-amber-400 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-black transition-colors hover:bg-white disabled:opacity-50 sm:w-auto sm:text-[10px] sm:tracking-[0.22em]`}>
               <Plus size={14} /> Add Member {registeredMembers.length + 1}
             </button>
           </div>
@@ -587,11 +603,11 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
             <div className="mt-7 border-t border-white/10 pt-6">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
-                  <p className="text-[9px] uppercase tracking-[0.28em] text-cyan-300/55">Team administration</p>
+                  <p className="text-[9px] uppercase tracking-[0.28em] text-amber-300/55">Team administration</p>
                   <h3 className={`${conthrax} mt-2 text-xs uppercase tracking-wider text-white sm:text-sm`}>Transfer leadership</h3>
-                  <p className="mt-2 max-w-xl text-xs leading-relaxed text-white/40">Promote {selectedMember.name} to team leader. Your account will become a regular team member immediately.</p>
+                  <p className="mt-2 max-w-xl text-xs leading-relaxed text-white">Promote {selectedMember.name} to team leader. Your account will become a regular team member immediately.</p>
                 </div>
-                <button type="button" disabled={loading} onClick={() => requestConfirmation({ title: "Transfer team leadership?", message: `Make ${selectedMember.name} the new team leader? Your account will become a regular team member immediately.`, confirmLabel: "Transfer leadership", onConfirm: () => { void submitLeadershipTransfer(selectedMember.email); } })} className={`${conthrax} flex min-h-12 w-full shrink-0 items-center justify-center gap-2 rounded-full border border-cyan-400/45 px-5 py-3 text-[9px] uppercase tracking-[0.16em] text-cyan-300 transition-colors hover:bg-cyan-400 hover:text-black disabled:opacity-50 sm:w-auto`}>
+                <button type="button" disabled={loading} onClick={() => requestConfirmation({ title: "Transfer team leadership?", message: `Make ${selectedMember.name} the new team leader? Your account will become a regular team member immediately.`, confirmLabel: "Transfer leadership", onConfirm: () => { void submitLeadershipTransfer(selectedMember.email); } })} className={`${conthrax} flex min-h-12 w-full shrink-0 items-center justify-center gap-2 rounded-full border border-amber-400/45 px-5 py-3 text-[9px] uppercase tracking-[0.16em] text-amber-300 transition-colors hover:bg-amber-400 hover:text-black disabled:opacity-50 sm:w-auto`}>
                   <Crown size={14} /> Make Team Leader
                 </button>
               </div>
@@ -669,7 +685,7 @@ function BrandedPersonalQr({ value, name }: { value: string; name: string }) {
         <div ref={containerRef} className={`flex h-full w-full items-center justify-center overflow-hidden rounded-[16px] bg-white [&_svg]:block [&_svg]:h-full [&_svg]:w-full ${ready ? "" : "animate-pulse"}`} />
         {!ready && <span className={`${conthrax} pointer-events-none absolute inset-0 flex items-center justify-center text-center text-[9px] uppercase tracking-[0.18em] text-black/45`}>Generating secure QR</span>}
       </div>
-      <button type="button" disabled={!ready} onClick={() => { void qrCodeRef.current?.download({ name: `k1000-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`, extension: "png" }); }} className={`${conthrax} flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-cyan-300/70 bg-cyan-400 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-black transition-colors hover:bg-white hover:text-black active:bg-white active:text-black disabled:cursor-wait disabled:opacity-40 sm:w-auto`}>
+      <button type="button" disabled={!ready} onClick={() => { void qrCodeRef.current?.download({ name: `k1000-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`, extension: "png" }); }} className={`${conthrax} flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-amber-300/70 bg-amber-400 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-black transition-colors hover:bg-white hover:text-black active:bg-white active:text-black disabled:cursor-wait disabled:opacity-40 sm:w-auto`}>
         <Download size={14} /> Download QR
       </button>
     </div>
@@ -698,7 +714,7 @@ function EditMyDetails({ member, onSaved, onClose, notify }: { member: Member; o
       setSaving(false);
     }
   };
-  return <form onSubmit={save}><div className="flex items-start justify-between gap-4"><div><p className="text-[9px] uppercase tracking-[0.28em] text-cyan-300/55">Selected player</p><h3 className={`${conthrax} mt-2 break-words text-sm uppercase tracking-wider text-cyan-300`}>Edit {member.name}</h3></div><button type="button" onClick={onClose} className={closeButtonClass} aria-label="Close member details"><X size={15} /></button></div><div className="mt-5 grid gap-3 sm:grid-cols-2"><input className={inputClass} value={draft.name} onChange={(e) => { setSaved(false); setDraft({ ...draft, name: e.target.value }); }} required minLength={2} placeholder="Full name" aria-label="Edit full name" /><input className={inputClass} value={draft.phone} onChange={(e) => { setSaved(false); setDraft({ ...draft, phone: e.target.value.replace(/\D/g, "").slice(0, 10) }); }} required maxLength={10} pattern="[0-9]{10}" inputMode="numeric" type="tel" placeholder="Phone number (10 digits)" aria-label="Edit phone number" /><InHouseSelect value={draft.branch} onChange={(branch) => { setSaved(false); setDraft({ ...draft, branch }); }} placeholder="Branch" ariaLabel="Edit branch" options={branchOptions.map((branch) => ({ value: branch, label: branch }))} /><InHouseSelect value={draft.year} onChange={(year) => { setSaved(false); setDraft({ ...draft, year }); }} placeholder="Year" ariaLabel="Edit academic year" options={academicYearOptions} /><input className={`${inputClass} sm:col-span-2`} value={draft.hostel} onChange={(e) => { setSaved(false); setDraft({ ...draft, hostel: e.target.value }); }} placeholder="Hostel (leave blank for day boarder)" aria-label="Edit hostel" /></div><div className="mt-4 flex flex-col-reverse gap-3 sm:flex-row sm:items-center"><button disabled={saving} className={`${conthrax} min-h-12 w-full rounded-full border border-cyan-400/50 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-cyan-300 transition-colors hover:bg-cyan-400 hover:text-black disabled:opacity-50 sm:w-auto sm:text-[10px] sm:tracking-[0.2em]`}>{saving ? "Saving..." : "Save details"}</button>{saved && <span role="status" className="text-center text-xs text-cyan-300 sm:text-left">Changes saved successfully.</span>}</div></form>;
+  return <form onSubmit={save}><div className="flex items-start justify-between gap-4"><div><p className="text-[9px] uppercase tracking-[0.28em] text-amber-300/55">Selected player</p><h3 className={`${conthrax} mt-2 break-words text-sm uppercase tracking-wider text-amber-300`}>Edit {member.name}</h3></div><button type="button" onClick={onClose} className={closeButtonClass} aria-label="Close member details"><X size={15} /></button></div><div className="mt-5 grid gap-3 sm:grid-cols-2"><input className={inputClass} value={draft.name} onChange={(e) => { setSaved(false); setDraft({ ...draft, name: e.target.value }); }} required minLength={2} placeholder="Full name" aria-label="Edit full name" /><input className={inputClass} value={draft.phone} onChange={(e) => { setSaved(false); setDraft({ ...draft, phone: e.target.value.replace(/\D/g, "").slice(0, 10) }); }} required maxLength={10} pattern="[0-9]{10}" inputMode="numeric" type="tel" placeholder="Phone number (10 digits)" aria-label="Edit phone number" /><InHouseSelect value={draft.branch} onChange={(branch) => { setSaved(false); setDraft({ ...draft, branch }); }} placeholder="Branch" ariaLabel="Edit branch" options={branchOptions.map((branch) => ({ value: branch, label: branch }))} /><InHouseSelect value={draft.year} onChange={(year) => { setSaved(false); setDraft({ ...draft, year }); }} placeholder="Year" ariaLabel="Edit academic year" options={academicYearOptions} /><input className={`${inputClass} sm:col-span-2`} value={draft.hostel} onChange={(e) => { setSaved(false); setDraft({ ...draft, hostel: e.target.value }); }} placeholder="Hostel (leave blank for day boarder)" aria-label="Edit hostel" /></div><div className="mt-4 flex flex-col-reverse gap-3 sm:flex-row sm:items-center"><button disabled={saving} className={`${conthrax} min-h-12 w-full rounded-full border border-amber-400/50 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-amber-300 transition-colors hover:bg-amber-400 hover:text-black disabled:opacity-50 sm:w-auto sm:text-[10px] sm:tracking-[0.2em]`}>{saving ? "Saving..." : "Save details"}</button>{saved && <span role="status" className="text-center text-xs text-amber-300 sm:text-left">Changes saved successfully.</span>}</div></form>;
 }
 
 function InHouseSelect({ value, onChange, placeholder, ariaLabel, options }: { value: string; onChange: (value: string) => void; placeholder: string; ariaLabel: string; options: { value: string; label: string }[] }) {
@@ -725,16 +741,16 @@ function InHouseSelect({ value, onChange, placeholder, ariaLabel, options }: { v
 
   return (
     <div ref={rootRef} className={`relative min-w-0 ${open ? "z-40" : "z-0"}`}>
-      <button type="button" role="combobox" aria-label={ariaLabel} aria-controls={menuId} aria-expanded={open} aria-haspopup="listbox" onClick={() => setOpen((current) => !current)} className={`${inputClass} flex items-center justify-between gap-3 text-left ${open ? "border-cyan-400/70 bg-cyan-500/[0.035]" : ""}`}>
-        <span className={`min-w-0 truncate ${selected ? "text-white" : "text-white/35"}`}>{selected?.label ?? placeholder}</span>
-        <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-white/10 text-cyan-300 transition-transform ${open ? "rotate-180 bg-cyan-400/10" : ""}`}><ChevronDown size={14} /></span>
+      <button type="button" role="combobox" aria-label={ariaLabel} aria-controls={menuId} aria-expanded={open} aria-haspopup="listbox" onClick={() => setOpen((current) => !current)} className={`${inputClass} flex items-center justify-between gap-3 text-left ${open ? "border-amber-400/70 bg-amber-500/[0.035]" : ""}`}>
+        <span className={`min-w-0 truncate ${selected ? "text-white" : "text-white"}`}>{selected?.label ?? placeholder}</span>
+        <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-white/10 text-amber-300 transition-transform ${open ? "rotate-180 bg-amber-400/10" : ""}`}><ChevronDown size={14} /></span>
       </button>
       {open && (
-        <div data-lenis-prevent id={menuId} role="listbox" aria-label={`${ariaLabel} options`} onWheel={(event) => event.stopPropagation()} onTouchMove={(event) => event.stopPropagation()} className="absolute left-0 right-0 top-full z-50 mt-2 max-h-56 touch-pan-y overflow-y-auto overscroll-contain rounded-[16px] border border-cyan-400/25 bg-[#030909]/98 p-1.5 shadow-[0_20px_55px_rgba(0,0,0,0.8),0_0_24px_rgba(0,247,255,0.08)] backdrop-blur-2xl [scrollbar-color:rgba(0,247,255,0.35)_transparent] [scrollbar-width:thin]">
+        <div data-lenis-prevent id={menuId} role="listbox" aria-label={`${ariaLabel} options`} onWheel={(event) => event.stopPropagation()} onTouchMove={(event) => event.stopPropagation()} className="absolute left-0 right-0 top-full z-50 mt-2 max-h-56 touch-pan-y overflow-y-auto overscroll-contain rounded-[16px] border border-amber-400/25 bg-[#030909]/98 p-1.5 shadow-[0_20px_55px_rgba(0,0,0,0.8),0_0_24px_rgba(245, 174, 55,0.08)] backdrop-blur-2xl [scrollbar-color:rgba(245, 174, 55,0.35)_transparent] [scrollbar-width:thin]">
           {options.map((option) => (
-            <button key={option.value} type="button" role="option" aria-selected={option.value === value} onClick={() => { onChange(option.value); setOpen(false); }} className={`flex min-h-11 w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-colors ${option.value === value ? "bg-cyan-400/12 text-cyan-200" : "text-white/55 hover:bg-white/[0.06] hover:text-white"}`}>
+            <button key={option.value} type="button" role="option" aria-selected={option.value === value} onClick={() => { onChange(option.value); setOpen(false); }} className={`flex min-h-11 w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-colors ${option.value === value ? "bg-amber-400/12 text-amber-200" : "text-white hover:bg-white/[0.06] hover:text-white"}`}>
               <span>{option.label}</span>
-              {option.value === value && <Check size={14} className="shrink-0 text-cyan-300" />}
+              {option.value === value && <Check size={14} className="shrink-0 text-amber-300" />}
             </button>
           ))}
         </div>

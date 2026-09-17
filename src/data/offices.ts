@@ -20,7 +20,7 @@ export const offices = [
       "Consistent execution standards",
       "Measurable long-term growth",
     ],
-    baseColor: "#0e7490",
+    baseColor: "#b7791f",
     accentColor: "#67e8f9",
     tag: "Strategic Operations & Planning",
     image:

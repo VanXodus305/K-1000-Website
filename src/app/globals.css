@@ -11,6 +11,7 @@
 
 /* THEME VARIABLES */
 :root {
+  --accent-gold: #f5ae37;
   --background: #ffffff;
   --foreground: #171717;
   /* Updated to Arial fallback */
@@ -23,7 +24,7 @@
   --color-foreground: var(--foreground);
   --font-sans: Arial, sans-serif; /* Forced Arial as the default sans */
   --font-mono: var(--font-geist-mono);
-  --font-conthrax: var(--font-conthrax); 
+  --font-conthrax: var(--font-conthrax);
   --font-orbitron: var(--font-orbitron);
 }
 
@@ -56,11 +57,11 @@ html.lenis, html.lenis body {
   background: #000;
 }
 ::-webkit-scrollbar-thumb {
-  background: #00f7ff33;
+  background: #f5ae3733;
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #00f7ff66;
+  background: #f5ae3766;
 }
 
 html, body {
@@ -107,7 +108,7 @@ html {
   background: rgba(255,255,255,0.05);
   backdrop-filter: blur(16px);
   border: 1px solid rgba(255,255,255,0.12);
-  box-shadow: 0 0 40px rgba(0,255,255,0.18);
+  box-shadow: 0 0 40px rgba(245, 174, 55,0.18);
 }
 .glass-nav {
   background: rgba(255,255,255,0.04);
@@ -118,6 +119,12 @@ html {
   background: radial-gradient(circle, transparent 50%, rgba(0,0,0,0.8));
   pointer-events: none;
 }
-.soft-glow { filter: drop-shadow(0 0 35px rgba(0,255,255,0.35)); }
+.soft-glow { filter: drop-shadow(0 0 35px rgba(245, 174, 55,0.35)); }
+
+/* Temporary Olympic festival palette: amber text uses the banner gold. */
+[class*="text-amber-"],
+[class*="text-[#f5ae37]"] {
+  color: var(--accent-gold) !important;
+}
 
 .dna-container, .dna-bar { display: none !important; }

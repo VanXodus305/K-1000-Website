@@ -113,7 +113,7 @@ export default function BranchesPage() {
               <img src={activeDomain.image} className="absolute inset-0 w-full h-full object-cover opacity-40" alt="Hero" />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
               <div className="relative z-10 flex flex-col justify-end p-8 md:p-12 h-full">
-                <span className="text-cyan-400 text-xs tracking-[0.3em] uppercase mb-2">{activeDomain.tag}</span>
+                <span className="text-amber-400 text-xs tracking-[0.3em] uppercase mb-2">{activeDomain.tag}</span>
                 <h1 className={`${conthrax} text-3xl md:text-6xl tracking-widest uppercase font-black`}>{activeDomain.title}</h1>
               </div>
             </div>
@@ -123,8 +123,8 @@ export default function BranchesPage() {
             {/* Added scrollable flex container for mobile navigation */}
             <aside className="w-full md:w-1/3 flex md:flex-col gap-4 overflow-x-auto pb-4 md:pb-0 scrollbar-hide">
               {branches.map((b) => (
-                <button key={b.key} onClick={() => setActiveTab(b.key)} className={`whitespace-nowrap w-full text-left px-8 py-5 rounded-2xl border transition-all ${activeTab === b.key ? "bg-white/10 border-cyan-500" : "border-white/10 hover:border-white/30"}`}>
-                  <span className={`${conthrax} text-xs uppercase ${activeTab === b.key ? "text-cyan-400" : "text-white/60"}`}>{b.title}</span>
+                <button key={b.key} onClick={() => setActiveTab(b.key)} className={`whitespace-nowrap w-full text-left px-8 py-5 rounded-2xl border transition-all ${activeTab === b.key ? "bg-white/10 border-amber-500" : "border-white/10 hover:border-white/30"}`}>
+                  <span className={`${conthrax} text-xs uppercase ${activeTab === b.key ? "text-amber-400" : "text-white"}`}>{b.title}</span>
                 </button>
               ))}
             </aside>
@@ -132,27 +132,27 @@ export default function BranchesPage() {
             <div className="w-full md:w-2/3">
               <AnimatePresence mode="wait">
                 <motion.div key={activeTab} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="p-8 md:p-10 rounded-[32px] bg-white/[0.03] border border-white/10">
-                  <p className="text-lg md:text-xl text-white/90 italic mb-8 border-l-2 border-cyan-500 pl-4 text-left">&quot;{activeDomain.missionStatement}&quot;</p>
-                  <p className="text-white/60 leading-relaxed mb-10 text-left">{activeDomain.description}</p>
-                  
+                  <p className="text-lg md:text-xl text-white italic mb-8 border-l-2 border-amber-500 pl-4 text-left">&quot;{activeDomain.missionStatement}&quot;</p>
+                  <p className="text-white leading-relaxed mb-10 text-left">{activeDomain.description}</p>
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8 border-y border-white/10 py-8 mb-10 text-left">
                     <div>
-                      <h4 className={`${conthrax} text-[10px] text-white/30 uppercase mb-4`}>Focus Areas</h4>
-                      {activeDomain.focusAreas.map((a, i) => <div key={i} className="text-sm mb-2 text-white/70 flex items-center gap-2"><Layers size={14} className="text-cyan-500"/> {a}</div>)}
+                      <h4 className={`${conthrax} text-[10px] text-white uppercase mb-4`}>Focus Areas</h4>
+                      {activeDomain.focusAreas.map((a, i) => <div key={i} className="text-sm mb-2 text-white flex items-center gap-2"><Layers size={14} className="text-amber-500"/> {a}</div>)}
                     </div>
                     <div>
-                      <h4 className={`${conthrax} text-[10px] text-white/30 uppercase mb-4`}>Core Outcomes</h4>
-                      {activeDomain.outcomes.map((o, i) => <div key={i} className="text-sm mb-2 text-white/70 flex items-center gap-2"><Target size={14} className="text-emerald-500"/> {o}</div>)}
+                      <h4 className={`${conthrax} text-[10px] text-white uppercase mb-4`}>Core Outcomes</h4>
+                      {activeDomain.outcomes.map((o, i) => <div key={i} className="text-sm mb-2 text-white flex items-center gap-2"><Target size={14} className="text-emerald-500"/> {o}</div>)}
                     </div>
                   </div>
 
-                  <h4 className={`${conthrax} text-[10px] text-white/30 uppercase mb-6 text-left`}>Unit Leadership</h4>
+                  <h4 className={`${conthrax} text-[10px] text-white uppercase mb-6 text-left`}>Unit Leadership</h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 text-left">
                     {[director, deputy].map((leader, i) => (
                       <div key={i} className="flex flex-col gap-4">
-                        <p className="text-[10px] uppercase text-white/40">{i === 0 ? "Director" : "Deputy Director"}</p>
+                        <p className="text-[10px] uppercase text-white">{i === 0 ? "Director" : "Deputy Director"}</p>
                         <div className="w-full h-72 rounded-2xl overflow-hidden border border-white/10 bg-white/5">
-                          {leader ? <img src={leader.image} alt={leader.name} className="w-full h-full object-cover object-[center_20%]" /> : <div className="h-full flex items-center justify-center text-white/10">TBD</div>}
+                          {leader ? <img src={leader.image} alt={leader.name} className="w-full h-full object-cover object-[center_20%]" /> : <div className="h-full flex items-center justify-center text-white">TBD</div>}
                         </div>
                         <p className={`${conthrax} text-sm`}>{leader?.name || "TBD"}</p>
                       </div>

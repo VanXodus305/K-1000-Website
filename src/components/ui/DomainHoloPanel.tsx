@@ -99,10 +99,10 @@ export default function DomainHoloPanel({
     const deputies =
       leadership.hierarchy.find((entry) => entry.level === 4)?.members ?? [];
     const domainTitleCleaned = cleanString(domain.title);
-  
+
     const branchMapping: Record<string, string> = {
       academicinternshipandplacement: "academicinternshipandplacementguidance",
-      eventmanagement: "eventmanagement", 
+      eventmanagement: "eventmanagement",
       researchandpublications: "researchandpublications",
       projectwing: "projectwing",
       trainingprogram: "trainingprogram",
@@ -139,15 +139,15 @@ export default function DomainHoloPanel({
           onClick={handleClose}
           className="absolute top-4 right-4 md:top-6 md:right-8 p-2 md:p-3 group flex items-center gap-3 border border-white/10 hover:border-white/20 transition-all z-[210] bg-black/50 backdrop-blur-md rounded-full"
         >
-          <X className="text-white/60 group-hover:text-white" size={16} />
+          <X className="text-white group-hover:text-white" size={16} />
         </button>
 
         {/* LEFT Sidebar */}
         <div className="w-full md:w-[280px] lg:w-[320px] border-b md:border-b-0 md:border-r border-white/5 bg-black flex flex-col shrink-0">
           <div className="p-5 md:p-6 border-b border-white/5 pr-14 md:pr-6">
             <div className="flex items-center gap-2 mb-2 md:mb-3">
-              <Shield size={10} className="text-cyan-500" />
-              <span className={`${conthrax} text-[7px] md:text-[9px] text-cyan-500 tracking-[0.3em] font-black uppercase`}>
+              <Shield size={10} className="text-amber-500" />
+              <span className={`${conthrax} text-[7px] md:text-[9px] text-amber-500 tracking-[0.3em] font-black uppercase`}>
                 Leadership
               </span>
             </div>
@@ -161,13 +161,13 @@ export default function DomainHoloPanel({
             className="flex md:flex-col overflow-x-auto md:overflow-y-auto p-4 md:p-5 gap-3 md:gap-6 custom-scroll scrollbar-hide"
           >
             <div className="min-w-[140px] flex-1 md:min-w-full">
-              <h3 className={`${conthrax} text-[7px] md:text-[9px] text-white/30 tracking-[0.2em] uppercase mb-2 font-black`}>
+              <h3 className={`${conthrax} text-[7px] md:text-[9px] text-white tracking-[0.2em] uppercase mb-2 font-black`}>
                 Director
               </h3>
               {director ? <LeaderCard leader={director} /> : <EmptySlot label="TBD" />}
             </div>
             <div className="min-w-[140px] flex-1 md:min-w-full">
-              <h3 className={`${conthrax} text-[7px] md:text-[9px] text-white/30 tracking-[0.2em] uppercase mb-2 font-black`}>
+              <h3 className={`${conthrax} text-[7px] md:text-[9px] text-white tracking-[0.2em] uppercase mb-2 font-black`}>
                 Deputy Director
               </h3>
               {deputy ? <LeaderCard leader={deputy} /> : <EmptySlot label="TBD" />}
@@ -183,29 +183,29 @@ export default function DomainHoloPanel({
           <div className="max-w-3xl space-y-8 md:space-y-12 pb-12 md:pb-0">
             <section className="space-y-4 md:space-y-6">
               <div className="flex items-center gap-4">
-                <Cpu size={14} className="text-cyan-500" />
-                <h2 className={`${conthrax} text-[8px] md:text-[10px] tracking-[0.4em] text-cyan-500 uppercase font-black`}>
+                <Cpu size={14} className="text-amber-500" />
+                <h2 className={`${conthrax} text-[8px] md:text-[10px] tracking-[0.4em] text-amber-500 uppercase font-black`}>
                   Domain Overview
                 </h2>
               </div>
-              <p className="text-white/80 text-xs md:text-lg leading-relaxed font-light pl-4 md:pl-6 border-l border-cyan-500/20">
+              <p className="text-white text-xs md:text-lg leading-relaxed font-light pl-4 md:pl-6 border-l border-amber-500/20">
                 {domain.overview}
               </p>
             </section>
 
             {domain.focusAreas && (
               <section>
-                <h2 className={`${conthrax} text-[8px] md:text-[10px] tracking-[0.4em] text-white/30 uppercase mb-4 font-black`}>
+                <h2 className={`${conthrax} text-[8px] md:text-[10px] tracking-[0.4em] text-white uppercase mb-4 font-black`}>
                   Focus Areas
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
                   {domain.focusAreas.map((area, i) => (
                     <div
                       key={i}
-                      className="p-3 md:p-4 bg-white/[0.02] border border-white/5 flex items-center gap-3 md:gap-4 hover:border-cyan-500/30 transition-all group"
+                      className="p-3 md:p-4 bg-white/[0.02] border border-white/5 flex items-center gap-3 md:gap-4 hover:border-amber-500/30 transition-all group"
                     >
-                      <Layers size={10} className="text-cyan-500/40 group-hover:text-cyan-500 transition-colors" />
-                      <span className={`${conthrax} text-[8px] md:text-[10px] text-white/70 uppercase tracking-[0.15em] font-black`}>
+                      <Layers size={10} className="text-amber-500/40 group-hover:text-amber-500 transition-colors" />
+                      <span className={`${conthrax} text-[8px] md:text-[10px] text-white uppercase tracking-[0.15em] font-black`}>
                         {area}
                       </span>
                     </div>
@@ -215,10 +215,10 @@ export default function DomainHoloPanel({
             )}
 
             <section className="p-5 md:p-6 bg-white/[0.01] border border-white/5 rounded-2xl relative">
-              <h2 className={`${conthrax} text-[7px] md:text-[9px] text-white/20 tracking-[0.3em] uppercase mb-3 font-black`}>
+              <h2 className={`${conthrax} text-[7px] md:text-[9px] text-white tracking-[0.3em] uppercase mb-3 font-black`}>
                 Operational Description
               </h2>
-              <p className="text-white/60 text-[11px] md:text-base leading-relaxed whitespace-pre-line font-light text-justify">
+              <p className="text-white text-[11px] md:text-base leading-relaxed whitespace-pre-line font-light text-justify">
                 {domain.description}
               </p>
             </section>
@@ -230,7 +230,7 @@ export default function DomainHoloPanel({
                   whileTap={{ scale: 0.98 }}
                   href={domain.applyLink}
                   target="_blank"
-                  className="w-full md:w-auto inline-flex items-center justify-between md:justify-start gap-6 md:gap-8 px-6 md:px-10 py-4 bg-cyan-500 text-black rounded-full shadow-[0_0_30px_rgba(0,247,255,0.2)]"
+                  className="w-full md:w-auto inline-flex items-center justify-between md:justify-start gap-6 md:gap-8 px-6 md:px-10 py-4 bg-amber-500 text-black rounded-full shadow-[0_0_30px_rgba(245, 174, 55,0.2)]"
                 >
                   <span className={`${conthrax} text-[9px] md:text-xs tracking-[0.2em] md:tracking-[0.4em] font-black uppercase`}>
                     Apply for Membership
@@ -248,8 +248,8 @@ export default function DomainHoloPanel({
 
 function LeaderCard({ leader }: { leader: LeadershipMember }) {
   return (
-    <div className="group relative w-full h-24 sm:h-32 md:h-48 overflow-hidden border border-white/10 rounded-xl md:rounded-2xl bg-[#080808] transition-all duration-500 hover:border-cyan-500/40 will-change-transform">
-      <div className="absolute inset-0 bg-cyan-950/5" />
+    <div className="group relative w-full h-24 sm:h-32 md:h-48 overflow-hidden border border-white/10 rounded-xl md:rounded-2xl bg-[#080808] transition-all duration-500 hover:border-amber-500/40 will-change-transform">
+      <div className="absolute inset-0 bg-amber-950/5" />
 
       {leader.image && (
         <img
@@ -262,10 +262,10 @@ function LeaderCard({ leader }: { leader: LeadershipMember }) {
 
       <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
       <div className="absolute bottom-0 left-0 w-full p-2.5 md:p-4">
-        <h4 className={`${conthrax} text-white text-[8px] md:text-[10px] tracking-wider uppercase mb-0.5 font-black group-hover:text-cyan-400 transition-colors truncate`}>
+        <h4 className={`${conthrax} text-white text-[8px] md:text-[10px] tracking-wider uppercase mb-0.5 font-black group-hover:text-amber-400 transition-colors truncate`}>
           {leader.name}
         </h4>
-        <p className={`${conthrax} text-[6px] md:text-[7.5px] text-white/40 uppercase tracking-widest font-black`}>
+        <p className={`${conthrax} text-[6px] md:text-[7.5px] text-white uppercase tracking-widest font-black`}>
           {leader.position}
         </p>
       </div>
@@ -276,7 +276,7 @@ function LeaderCard({ leader }: { leader: LeadershipMember }) {
 function EmptySlot({ label }: { label: string }) {
   return (
     <div className="h-24 sm:h-32 md:h-48 border border-dashed border-white/10 rounded-xl md:rounded-2xl flex items-center justify-center bg-white/[0.02]">
-      <span className={`${conthrax} text-[7px] text-white/10 uppercase tracking-widest font-black`}>
+      <span className={`${conthrax} text-[7px] text-white uppercase tracking-widest font-black`}>
         {label}
       </span>
     </div>
