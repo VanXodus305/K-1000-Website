@@ -20,7 +20,7 @@
         font-family: "Conthrax";
         font-style: normal;
         font-weight: 600;
-        src: url("https://k1000.kiit.ac.in/fonts/conthrax-sb.otf") format("opentype");
+        src: url("https://k1000-preview.vercel.app/fonts/conthrax-sb.otf") format("opentype");
       }
 
       html,
@@ -28,12 +28,23 @@
         margin: 0 !important;
         padding: 0 !important;
         width: 100% !important;
+        max-width: 100% !important;
         height: 100% !important;
       }
 
       table,
       td {
         border-collapse: collapse !important;
+        box-sizing: border-box !important;
+      }
+
+      table {
+        max-width: 100%;
+      }
+
+      .content-grid {
+        width: 100% !important;
+        table-layout: fixed !important;
       }
 
       img {
@@ -59,9 +70,43 @@
         mso-hide: all;
       }
 
+      @media screen and (min-width: 661px) {
+        .email-shell {
+          width: 100% !important;
+          max-width: 1200px !important;
+          table-layout: fixed !important;
+        }
+
+        .desktop-frame {
+          padding-left: 8px !important;
+          padding-right: 8px !important;
+        }
+      }
+
+      @media screen and (min-width: 661px) and (max-width: 960px) {
+        .content-grid {
+          table-layout: auto !important;
+        }
+
+        .mobile-stack,
+        .mobile-stack td {
+          display: block !important;
+          width: 100% !important;
+          box-sizing: border-box !important;
+        }
+
+        .mobile-gap {
+          height: 12px !important;
+        }
+      }
+
       @media screen and (max-width: 660px) {
         .email-shell {
           width: 100% !important;
+        }
+
+        .content-grid {
+          table-layout: auto !important;
         }
 
         .mobile-pad {
@@ -119,6 +164,14 @@
         .footer-k1000 {
           width: 115px !important;
         }
+
+        .social-item {
+          display: block !important;
+        }
+
+        .social-divider {
+          display: none !important;
+        }
       }
     </style>
   </head>
@@ -127,15 +180,15 @@
 
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width: 100%; background-color: #e9edf1;">
       <tr>
-        <td align="center" style="padding: 28px 12px;">
-          <table class="email-shell" role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width: 100%; max-width: 640px; background-color: #05080c;">
+        <td class="desktop-frame" align="center" style="padding: 28px 12px;">
+          <table class="email-shell" role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width: 100%; max-width: 1200px; table-layout: fixed; background-color: #05080c;">
             <tr>
               <td>
                 <img
-                  src="https://k1000.kiit.ac.in/email/ignithon2/hero.jpg"
-                  width="640"
+                  src="https://k1000-preview.vercel.app/email/ignithon2/hero.jpg"
+                  width="100%"
                   alt="IGNITHON 2.0 by KIIT, KSAC, and K-1000"
-                  style="width: 100%; max-width: 640px;"
+                  style="width: 100%; max-width: 100%;"
                 />
               </td>
             </tr>
@@ -159,7 +212,7 @@
 
             <tr>
               <td class="mobile-pad" style="padding: 20px 48px 10px;">
-                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                <table class="content-grid" role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                   <tr class="mobile-stack">
                     <td width="32%" valign="top" style="width: 32%; padding: 22px 16px; border: 1px solid #26303a; background-color: #0b1118; text-align: center;">
                       <p style="margin: 0 0 8px; color: #e4b448; font-family: 'Conthrax', Arial, Helvetica, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;">Teams</p>
@@ -191,7 +244,7 @@
 
             <tr>
               <td class="mobile-pad" style="padding: 14px 48px 12px;">
-                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                <table class="content-grid" role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                   <tr>
                     <td style="padding: 24px 24px; border-left: 4px solid #d94c43; background-color: #0b1118;">
                       <p style="margin: 0 0 6px; color: #e66a60; font-family: 'Conthrax', Arial, Helvetica, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;">Think</p>
@@ -202,7 +255,7 @@
                   <tr>
                     <td style="padding: 24px 24px; border-left: 4px solid #e4b448; background-color: #0b1118;">
                       <p style="margin: 0 0 6px; color: #e4b448; font-family: 'Conthrax', Arial, Helvetica, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;">Build</p>
-                      <h3 class="phase-title" style="margin: 0; color: #ffffff; font-family: 'Conthrax', Arial, Helvetica, sans-serif; font-size: 23px; line-height: 30px; font-weight: 800;">Development</h3>
+                      <h3 class="phase-title" style="margin: 0; color: #ffffff; font-family: 'Conthrax', Arial, Helvetica, sans-serif; font-size: 23px; line-height: 30px; font-weight: 800;">Development & Fixing</h3>
                     </td>
                   </tr>
                   <tr><td height="10" style="height: 10px; font-size: 1px; line-height: 1px;">&nbsp;</td></tr>
@@ -218,7 +271,7 @@
 
             <tr>
               <td class="mobile-pad" style="padding: 34px 48px 12px;">
-                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                <table class="content-grid" role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                   <tr class="mobile-stack">
                     <td width="49%" valign="top" style="width: 49%; padding: 22px; border: 1px solid #26303a;">
                       <p style="margin: 0 0 8px; color: #e4b448; font-family: 'Conthrax', Arial, Helvetica, sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;">Certificate</p>
@@ -227,7 +280,7 @@
                     <td class="mobile-gap" width="2%" style="width: 2%;">&nbsp;</td>
                     <td width="49%" valign="top" style="width: 49%; padding: 22px; border: 1px solid #26303a;">
                       <p style="margin: 0 0 8px; color: #e4b448; font-family: 'Conthrax', Arial, Helvetica, sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;">Opportunity</p>
-                      <p style="margin: 0; color: #ffffff; font-family: 'Conthrax', Arial, Helvetica, sans-serif; font-size: 16px; line-height: 24px; font-weight: 700;">Top teams can earn a chance to join K-1000</p>
+                      <p style="margin: 0; color: #ffffff; font-family: 'Conthrax', Arial, Helvetica, sans-serif; font-size: 16px; line-height: 24px; font-weight: 700;">Top teams earn a chance to join K-1000</p>
                     </td>
                   </tr>
                   <tr><td colspan="3" height="12" style="height: 12px; font-size: 1px; line-height: 1px;">&nbsp;</td></tr>
@@ -273,7 +326,7 @@
                   <tr>
                     <td align="center" style="padding: 18px;">
                       <img
-                        src="https://k1000.kiit.ac.in/email/ignithon2/registration-qr.png"
+                        src="https://k1000-preview.vercel.app/email/ignithon2/registration-qr.png"
                         width="264"
                         alt="QR code to register for IGNITHON 2.0"
                         style="width: 264px; max-width: 100%;"
@@ -299,20 +352,22 @@
 
             <tr>
               <td class="mobile-pad" style="padding: 32px 48px 38px; text-align: center;">
-                <table class="footer-logos" role="presentation" width="370" align="center" cellspacing="0" cellpadding="0" border="0" style="width: 370px; max-width: 100%;">
+                <table class="footer-logos" role="presentation" width="420" align="center" cellspacing="0" cellpadding="0" border="0" style="width: 420px; max-width: 100%; table-layout: fixed;">
                   <tr>
-                    <td align="center" valign="middle" style="padding: 0 14px;">
-                      <img class="footer-kiit" src="https://k1000.kiit.ac.in/email/ignithon2/kiit-logo.png" width="58" alt="KIIT" style="width: 58px;" />
+                    <td width="33.33%" align="center" valign="middle" style="width: 33.33%; padding: 0 8px;">
+                      <img class="footer-kiit" src="https://k1000-preview.vercel.app/email/ignithon2/kiit-logo.png" width="58" alt="KIIT" style="width: 58px; margin: 0 auto;" />
                     </td>
-                    <td align="center" valign="middle" style="padding: 0 14px;">
-                      <img class="footer-ksac" src="https://k1000.kiit.ac.in/email/ignithon2/ksac-logo.png" width="78" alt="KSAC" style="width: 78px;" />
+                    <td width="33.33%" align="center" valign="middle" style="width: 33.33%; padding: 0 8px;">
+                      <img class="footer-ksac" src="https://k1000-preview.vercel.app/email/ignithon2/ksac-logo.png" width="78" alt="KSAC" style="width: 78px; margin: 0 auto;" />
                     </td>
-                    <td align="center" valign="middle" style="padding: 0 14px;">
-                      <img class="footer-k1000" src="https://k1000.kiit.ac.in/email/ignithon2/k1000-logo.png" width="150" alt="K-1000" style="width: 150px;" />
+                    <td width="33.33%" align="center" valign="middle" style="width: 33.33%; padding: 0 8px;">
+                      <img class="footer-k1000" src="https://k1000-preview.vercel.app/email/ignithon2/k1000-logo.png" width="150" alt="K-1000" style="width: 150px; max-width: 100%; margin: 0 auto;" />
                     </td>
                   </tr>
                 </table>
-                <p style="margin: 22px 0 5px; color: #c5ced7; font-family: 'Conthrax', Arial, Helvetica, sans-serif; font-size: 13px; line-height: 21px;">Instagram: @k1000-kiit &nbsp; | &nbsp; LinkedIn: k1000-kiit</p>
+                <p style="margin: 22px 0 5px; color: #c5ced7; font-family: 'Conthrax', Arial, Helvetica, sans-serif; font-size: 13px; line-height: 21px;">
+                  <span class="social-item">Instagram: @k1000-kiit</span><span class="social-divider"> &nbsp;|&nbsp; </span><span class="social-item">LinkedIn: k1000-kiit</span>
+                </p>
                 <p style="margin: 0; color: #6f7a84; font-family: 'Conthrax', Arial, Helvetica, sans-serif; font-size: 11px; line-height: 18px;">K-1000, KIIT Deemed to be University</p>
               </td>
             </tr>
