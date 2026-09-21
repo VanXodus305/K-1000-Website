@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useId, useRef, useState } from "react";
 import Image from "next/image";
-import { Check, ChevronDown, ChevronRight, Crown, Download, LoaderCircle, LogOut, Pencil, Plus, QrCode, Trash2, X } from "lucide-react";
+import { Check, ChevronDown, ChevronRight, Crown, Download, LoaderCircle, LogOut, MessageCircle, Pencil, Plus, QrCode, Trash2, X } from "lucide-react";
 import BootSequence from "../../../components/boot/BootSequence";
 import SharedHeader from "../../../components/ui/SharedHeader";
 import Footer from "../../../components/footer/Footer";
@@ -41,6 +41,8 @@ const academicYearOptions = [
   { value: "3", label: "3rd Year" },
   { value: "4", label: "4th Year" },
 ];
+const supportContacts = ["+918617785546", "+917304693169", "+919341488391"] as const;
+const whatsappGroupUrl = "https://chat.whatsapp.com/Js237YhquV62dElsc5wEGA?s=cl&p=i&mlu=4&ilr=4";
 
 function validateClientParticipant(value: MemberDraft) {
   if (value.name.trim().length < 2) return "Name must contain at least 2 characters.";
@@ -280,6 +282,7 @@ export default function IgnithonRegistrationPage() {
                 <p className="mt-4 text-sm leading-relaxed text-white">
                   {entryMode === "register" ? "Create the team record once, then use your portal to manage the roster." : "Use the roll number and Team ID already assigned to your registration."}
                 </p>
+                <SupportContacts className="mt-5" />
               </div>
               <div className="mt-8 hidden rounded-[18px] border border-amber-300/15 bg-amber-400/[0.04] p-4 md:block">
                 <p className={`${orbitron} text-[8px] uppercase tracking-[0.24em] text-amber-300/60`}>Event date</p>
@@ -318,7 +321,8 @@ export default function IgnithonRegistrationPage() {
                 <form onSubmit={handleAccess} className="mt-6 space-y-3 sm:mt-7 sm:space-y-4">
                   <input className={inputClass} required inputMode="numeric" value={access.rollNo} onChange={(event) => setAccess({ ...access, rollNo: event.target.value.replace(/\D/g, "") })} placeholder="Registered roll number" aria-label="Registered roll number" />
                   <input className={inputClass} required inputMode="numeric" pattern="[0-9]{4}" maxLength={4} value={access.teamId} onChange={(event) => setAccess({ ...access, teamId: event.target.value.replace(/\D/g, "") })} placeholder="Four-digit Team ID" aria-label="Four-digit Team ID" />
-                  <p className="-mt-1 px-1 text-[11px] leading-relaxed text-white">Forgot your Team ID? Check your previously logged device or contact support: <a className="text-amber-300/80 hover:text-amber-200" href="tel:7304693169">7304693169</a></p>
+                  <p className="-mt-1 px-1 text-[11px] leading-relaxed text-white">Forgot your Team ID? Check your previously logged device or contact the event team.</p>
+                  <SupportContacts className="px-1" />
                   <button disabled={loading} aria-busy={loading} className={`${conthrax} flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-amber-400 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-black transition-colors hover:bg-white hover:text-black active:bg-white active:text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 disabled:cursor-wait disabled:opacity-50 sm:text-[10px] sm:tracking-[0.22em]`}>
                     {loading ? <><LoaderCircle size={15} className="animate-spin" /> Opening portal…</> : <>Access portal <ChevronRight size={14} /></>}
                   </button>
@@ -359,6 +363,23 @@ function NotificationBox({ message, tone, onDismiss }: { message: string; tone: 
         <button type="button" onClick={onDismiss} className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-white/10 hover:text-white ${success ? "text-emerald-100/60" : "text-red-100/60"}`} aria-label="Dismiss notification"><X size={16} /></button>
       </div>
     </div>
+  );
+}
+
+function SupportContacts({ className = "" }: { className?: string }) {
+  return (
+    <p className={`text-xs leading-relaxed text-white/80 ${className}`}>
+      For assistance, please contact any of the following numbers:{" "}
+      {supportContacts.map((phone, index) => (
+        <span key={phone}>
+          {index > 0 ? (index === supportContacts.length - 1 ? ", or " : ", ") : ""}
+          <a className="text-amber-300 underline decoration-amber-300/35 underline-offset-2 transition-colors hover:text-white" href={`tel:${phone}`}>
+            {phone.replace(/^(\+\d{2})(\d{5})(\d{5})$/, "$1 $2 $3")}
+          </a>
+        </span>
+      ))}
+      .
+    </p>
   );
 }
 
@@ -511,6 +532,7 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
               <p className={`${conthrax} mt-2 text-3xl text-amber-300 sm:text-4xl`}>{portal.team.id}</p>
             </div>
             <p className="mt-3 text-xs text-white">Team Leader · <span className="text-white">{leader?.name ?? "Not available"}</span></p>
+            <SupportContacts className="mt-3 max-w-xl" />
             {isLeader && (
               <form onSubmit={saveTeamName} className="mt-4 flex max-w-xl flex-col gap-2 sm:flex-row">
                 <label className="sr-only" htmlFor="team-name-editor">Team name</label>
@@ -520,9 +542,14 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
             )}
           </div>
           <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
-            <button type="button" aria-pressed={showPersonalQr} onClick={() => setShowPersonalQr((current) => !current)} className={`${conthrax} flex min-h-11 w-full items-center justify-center gap-2 rounded-full border px-5 py-3 text-[9px] uppercase tracking-[0.18em] transition-colors sm:w-auto ${showPersonalQr ? "border-amber-300 bg-amber-400 text-black shadow-[0_0_24px_rgba(245, 174, 55,0.18)] hover:bg-white hover:text-black active:bg-white active:text-black" : "border-amber-400/30 text-amber-300 hover:bg-white hover:text-black active:bg-white active:text-black"}`}>
-              <QrCode size={14} /> My QR
-            </button>
+            <div className="flex w-full flex-col gap-2 sm:w-auto">
+              <button type="button" aria-pressed={showPersonalQr} onClick={() => setShowPersonalQr((current) => !current)} className={`${conthrax} flex min-h-11 w-full items-center justify-center gap-2 rounded-full border px-5 py-3 text-[9px] uppercase tracking-[0.18em] transition-colors sm:w-auto ${showPersonalQr ? "border-amber-300 bg-amber-400 text-black shadow-[0_0_24px_rgba(245, 174, 55,0.18)] hover:bg-white hover:text-black active:bg-white active:text-black" : "border-amber-400/30 text-amber-300 hover:bg-white hover:text-black active:bg-white active:text-black"}`}>
+                <QrCode size={14} /> My QR
+              </button>
+              <a href={whatsappGroupUrl} target="_blank" rel="noreferrer" className={`${conthrax} flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-emerald-300/35 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-emerald-200 transition-colors hover:border-white hover:bg-white hover:text-black active:bg-white active:text-black sm:w-auto`}>
+                <MessageCircle size={14} /> Join WhatsApp group
+              </a>
+            </div>
             <button type="button" disabled={loggingOut} aria-busy={loggingOut} onClick={handleLogout} className={`${conthrax} flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-white/10 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-white transition-colors hover:border-white hover:bg-white hover:text-black active:bg-white active:text-black disabled:cursor-wait disabled:opacity-50 sm:w-auto`}>
               {loggingOut ? <><LoaderCircle size={14} className="animate-spin" /> Logging out…</> : <><LogOut size={14} /> Log out</>}
             </button>
