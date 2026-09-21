@@ -30,7 +30,7 @@ const branchOptions = [
   "Construction Technology", "Electrical and Computer Engineering", "Electrical Engineering", "Electronics & Electrical Engineering",
   "Electronics & Tele-Communication Engineering", "Electronics and Computer Science Engineering", "Electronics and Instrumentation",
   "Electronics Engineering VLSI Design and Technology", "Information Technology", "Law", "MCA", "Mechanical Engineering",
-  "Mechanical Engineering (Automobile)", "Mechatronics Engineering", "Others",
+  "Mechanical Engineering (Automobile)", "Mechatronics Engineering", "M.Tech","Others",
 ];
 const RETURNING_IDENTITY_COOKIE = "ignithon_returning_identity";
 const PORTAL_CACHE_KEY = "ignithon-portal-cache";
