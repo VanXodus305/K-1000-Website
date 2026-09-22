@@ -1,6 +1,6 @@
 import type { Collection, WithId } from "mongodb";
 import { getMongoDb } from "./mongodb";
-import type { IgnithonParticipant, IgnithonTeam } from "./ignithon-types";
+import type { IgnithonEvaluationAlert, IgnithonParticipant, IgnithonTeam } from "./ignithon-types";
 
 declare global {
   var __k1000IgnithonIndexesPromise: Promise<void> | undefined;
@@ -10,14 +10,19 @@ export async function getIgnithonCollections() {
   const db = await getMongoDb();
   const teams = db.collection<IgnithonTeam>("ignithon-teams");
   const participants = db.collection<IgnithonParticipant>("ignithon-participants");
+  const evaluationAlerts = db.collection<IgnithonEvaluationAlert>("ignithon-evaluation-alerts");
   global.__k1000IgnithonIndexesPromise ??= Promise.all([
     teams.createIndex({ id: 1 }, { unique: true, name: "unique_team_id" }),
     participants.createIndex({ roll_no: 1 }, { unique: true, name: "unique_participant_roll_no" }),
     participants.createIndex({ email: 1 }, { unique: true, name: "unique_participant_email" }),
     participants.createIndex({ team_id: 1, status: 1 }, { name: "team_members" }),
+    evaluationAlerts.createIndex(
+      { team_id: 1, scope: 1 },
+      { unique: true, name: "unique_active_evaluation_alert", partialFilterExpression: { status: "ACTIVE" } },
+    ),
   ]).then(() => undefined);
   await global.__k1000IgnithonIndexesPromise;
-  return { teams, participants };
+  return { teams, participants, evaluationAlerts };
 }
 
 export function serializeParticipant(participant: WithId<IgnithonParticipant>) {

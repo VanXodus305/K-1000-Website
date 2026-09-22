@@ -4,6 +4,7 @@ import { getIgnithonCollections } from "@/lib/ignithon-db";
 import { getMongoClient } from "@/lib/mongodb";
 import { checkStrictRateLimit, rateLimitResponse } from "@/lib/ignithon-rate-limit";
 import { triggerIgnithonSheetsSync } from "@/lib/ignithon-sheets";
+import { IGNITHON_PORTAL_MUTATIONS_OPEN } from "@/lib/ignithon-feature-flags";
 
 class LeadershipUpdateError extends Error {
   constructor(public status: 409 | 500, message: string) {
@@ -12,6 +13,7 @@ class LeadershipUpdateError extends Error {
 }
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ teamId: string }> }) {
+  if (!IGNITHON_PORTAL_MUTATIONS_OPEN) return NextResponse.json({ error: "Portal leadership updates are currently closed for the event." }, { status: 403 });
   const session = await getIgnithonSession();
   const teamId = Number((await params).teamId);
   if (!session || session.teamId !== teamId) return NextResponse.json({ error: "Only the current team leader can transfer leadership." }, { status: 403 });

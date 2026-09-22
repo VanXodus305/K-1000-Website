@@ -76,13 +76,13 @@ export default function RecruitmentLiveModal() {
                 </div>
                 <div className="min-w-0 pt-1">
                   <h2 id="recruitment-live-title" className={`${conthrax} mt-3 max-w-[420px] text-xl uppercase leading-[1.12] tracking-tight text-white sm:text-3xl`}>
-                    Ignithon 2.0 registration is live
+                    Ignithon 2.0 is live now
                   </h2>
                 </div>
               </div>
 
               <p className="mt-6 max-w-[500px] text-sm leading-relaxed text-white sm:text-base">
-                Register your team, receive your Team ID, and manage your participant roster from the Ignithon 2.0 portal.
+                Open the Ignithon 2.0 portal to access your team and event information.
               </p>
 
               <div className="mt-6 rounded-[20px] border border-amber-300/18 bg-amber-400/[0.045] px-4 py-4 sm:px-5">
@@ -92,17 +92,14 @@ export default function RecruitmentLiveModal() {
                 </p>
               </div>
 
-              <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center">
+              <div className="mt-7 flex">
                 <Link
                   href="/events/ignithon2.0"
                   onClick={dismissNotice}
                   className={`${conthrax} inline-flex min-h-12 items-center justify-center rounded-full border border-amber-300 bg-amber-300 px-6 py-3 text-[10px] uppercase tracking-[0.22em] text-black transition-all hover:border-white hover:bg-white`}
                 >
-                  Register Now
+                  Open Portal
                 </Link>
-                <button type="button" onClick={dismissNotice} className={`${conthrax} min-h-12 rounded-full border border-white/10 px-6 py-3 text-[10px] uppercase tracking-[0.22em] text-white transition-all hover:border-amber-300/35 hover:text-amber-100`}>
-                  Continue browsing
-                </button>
               </div>
             </div>
           </motion.div>

@@ -6,6 +6,7 @@ import { normalizeEmail, setIgnithonSession } from "@/lib/ignithon-auth";
 import type { ParticipantInput } from "@/lib/ignithon-types";
 import { triggerIgnithonSheetsSync } from "@/lib/ignithon-sheets";
 import { validateParticipantFields } from "@/lib/ignithon-validation";
+import { IGNITHON_REGISTRATION_OPEN } from "@/lib/ignithon-feature-flags";
 
 function badRequest(message: string, status = 400) {
   return NextResponse.json({ error: message }, { status });
@@ -20,6 +21,7 @@ async function generateTeamId(teams: Awaited<ReturnType<typeof getIgnithonCollec
 }
 
 export async function POST(request: NextRequest) {
+  if (!IGNITHON_REGISTRATION_OPEN) return NextResponse.json({ error: "Team registration is currently closed. Use Existing Team Login to access your portal." }, { status: 403 });
   const deviceId = getClientDeviceId(request);
   if (deviceId && !(await checkStrictRateLimit(`create:${deviceId}`))) return rateLimitResponse("Too many registration attempts from this browser. Try again in 1 minute.") as NextResponse;
 

@@ -3,6 +3,7 @@ import { getIgnithonSession, normalizeEmail, setIgnithonSession } from "@/lib/ig
 import { findTeamAndParticipants, getIgnithonCollections, serializeParticipant } from "@/lib/ignithon-db";
 import { checkStrictRateLimit, rateLimitResponse } from "@/lib/ignithon-rate-limit";
 import { triggerIgnithonSheetsSync } from "@/lib/ignithon-sheets";
+import { IGNITHON_PORTAL_MUTATIONS_OPEN } from "@/lib/ignithon-feature-flags";
 
 export async function GET(_request: Request, { params }: { params: Promise<{ teamId: string }> }) {
   const session = await getIgnithonSession();
@@ -28,6 +29,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ tea
 }
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ teamId: string }> }) {
+  if (!IGNITHON_PORTAL_MUTATIONS_OPEN) return NextResponse.json({ error: "Portal updates are currently closed for the event." }, { status: 403 });
   const session = await getIgnithonSession();
   const teamId = Number((await params).teamId);
   if (!session || session.teamId !== teamId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
