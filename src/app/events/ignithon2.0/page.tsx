@@ -42,7 +42,7 @@ const academicYearOptions = [
   { value: "4", label: "4th Year" },
 ];
 const supportContacts = ["+918617785546", "+917304693169", "+919341488391"] as const;
-const whatsappGroupUrl = "https://chat.whatsapp.com/Js237YhquV62dElsc5wEGA?s=cl&p=i&mlu=4&ilr=4";
+const whatsappGroupUrl = "https://chat.whatsapp.com/DMGvp6F0ZzIKXL2Dx1Hwk1";
 
 function validateClientParticipant(value: MemberDraft) {
   if (value.name.trim().length < 2) return "Name must contain at least 2 characters.";
