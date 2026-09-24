@@ -40,7 +40,7 @@ const StatCard = ({ icon: Icon, title, description }: SocialCard) => (
 const ApplicationForm = () => {
   const LINKED_IN = "https://www.linkedin.com/company/k1000-kiit";
   const INSTAGRAM = "https://www.instagram.com/k1000_kiit";
-  const WHATSAPP = "https://chat.whatsapp.com/CAM4B9Qf0mN6i4CvJaVKi3";
+  const WHATSAPP = "https://chat.whatsapp.com/DMGvp6F0ZzIKXL2Dx1Hwk1";
 
   const socialsData = [
     {

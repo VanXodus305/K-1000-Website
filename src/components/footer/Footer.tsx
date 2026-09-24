@@ -132,7 +132,7 @@ const Footer = () => {
               <a href="https://www.instagram.com/k1000_kiit" target="_blank" className="hover:scale-110 transition-transform group">
                 <FaInstagram className="text-white text-xl group-hover:text-amber-400 transition-all" />
               </a>
-              <a href="https://chat.whatsapp.com/CAM4B9Qf0mN6i4CvJaVKi3" target="_blank" className="hover:scale-110 transition-transform group">
+              <a href="https://chat.whatsapp.com/DMGvp6F0ZzIKXL2Dx1Hwk1" target="_blank" className="hover:scale-110 transition-transform group">
                 <FaWhatsapp className="text-white text-xl group-hover:text-amber-400 transition-all" />
               </a>
             </div>
