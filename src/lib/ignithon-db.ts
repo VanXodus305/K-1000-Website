@@ -17,8 +17,8 @@ export async function getIgnithonCollections() {
     participants.createIndex({ email: 1 }, { unique: true, name: "unique_participant_email" }),
     participants.createIndex({ team_id: 1, status: 1 }, { name: "team_members" }),
     evaluationAlerts.createIndex(
-      { team_id: 1, scope: 1 },
-      { unique: true, name: "unique_active_evaluation_alert", partialFilterExpression: { status: "ACTIVE" } },
+      { team_id: 1, raised_by_participant_id: 1 },
+      { unique: true, name: "unique_canonical_active_evaluation_alert", partialFilterExpression: { status: "active" } },
     ),
   ]).then(() => undefined);
   await global.__k1000IgnithonIndexesPromise;

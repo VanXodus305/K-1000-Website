@@ -579,7 +579,7 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
     try {
       const body = evaluationAlertActive
         ? { teamId: evaluationTeamId, action: "dismiss" }
-        : { teamId: evaluationTeamId };
+        : { teamId: evaluationTeamId, action: "raise" };
       const data = await readJson(await fetch("/api/evaluation/alerts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }));
       const active = Boolean(data.active);
       setEvaluationAlertActive(active);
