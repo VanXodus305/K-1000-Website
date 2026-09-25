@@ -4,10 +4,12 @@ import { getIgnithonCollections } from "@/lib/ignithon-db";
 import { getMongoClient } from "@/lib/mongodb";
 import { checkStrictRateLimit, rateLimitResponse } from "@/lib/ignithon-rate-limit";
 import { triggerIgnithonSheetsSync } from "@/lib/ignithon-sheets";
+import { IGNITHON_PORTAL_MUTATIONS_OPEN } from "@/lib/ignithon-feature-flags";
 
 const COOLING_PERIOD_MS = 5 * 60 * 1000;
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ teamId: string; email: string }> }) {
+  if (!IGNITHON_PORTAL_MUTATIONS_OPEN) return NextResponse.json({ error: "Portal roster updates are currently closed for the event." }, { status: 403 });
   const session = await getIgnithonSession();
   const { teamId: rawTeamId, email: rawEmail } = await params;
   const teamId = Number(rawTeamId);
@@ -46,6 +48,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 }
 
 export async function DELETE(_request: Request, { params }: { params: Promise<{ teamId: string; email: string }> }) {
+  if (!IGNITHON_PORTAL_MUTATIONS_OPEN) return NextResponse.json({ error: "Portal roster updates are currently closed for the event." }, { status: 403 });
   const session = await getIgnithonSession();
   const { teamId: rawTeamId, email: rawEmail } = await params;
   const teamId = Number(rawTeamId);

@@ -29,3 +29,17 @@ export type IgnithonParticipant = {
 };
 
 export type ParticipantInput = Omit<IgnithonParticipant, "team_id" | "status" | "removed_at">;
+
+export type EvaluationAlertHall = "A" | "B" | "C";
+export type EvaluationAlertStatus = "active" | "dismissed" | "resolved";
+
+export type IgnithonEvaluationAlert = {
+  team_id: ObjectId;
+  hall: EvaluationAlertHall;
+  status: EvaluationAlertStatus;
+  raised_by_participant_id: ObjectId | null;
+  resolved_by_oc_id: ObjectId | null;
+  resolved_at: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+};

@@ -6,6 +6,7 @@ import { MongoServerError, type ObjectId } from "mongodb";
 import type { ParticipantInput } from "@/lib/ignithon-types";
 import { validateParticipantFields } from "@/lib/ignithon-validation";
 import { triggerIgnithonSheetsSync } from "@/lib/ignithon-sheets";
+import { IGNITHON_PORTAL_MUTATIONS_OPEN } from "@/lib/ignithon-feature-flags";
 
 const MAX_TEAM_SIZE = 4;
 const COOLING_PERIOD_MS = 5 * 60 * 1000;
@@ -15,6 +16,7 @@ class RegistrationError extends Error {
 }
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ teamId: string }> }) {
+  if (!IGNITHON_PORTAL_MUTATIONS_OPEN) return NextResponse.json({ error: "Portal roster updates are currently closed for the event." }, { status: 403 });
   const session = await getIgnithonSession();
   const teamId = Number((await params).teamId);
   if (!session || session.teamId !== teamId) return NextResponse.json({ error: "Only the team leader can add participants." }, { status: 403 });

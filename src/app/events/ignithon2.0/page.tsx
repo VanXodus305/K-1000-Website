@@ -2,12 +2,13 @@
 
 import { FormEvent, useEffect, useId, useRef, useState } from "react";
 import Image from "next/image";
-import { Check, ChevronDown, ChevronRight, Crown, Download, LoaderCircle, LogOut, MessageCircle, Pencil, Plus, QrCode, Trash2, X } from "lucide-react";
+import { BellRing, Check, ChevronDown, ChevronRight, Crown, Download, LoaderCircle, LogOut, MessageCircle, Pencil, Plus, QrCode, Trash2, X } from "lucide-react";
 import BootSequence from "../../../components/boot/BootSequence";
 import SharedHeader from "../../../components/ui/SharedHeader";
 import Footer from "../../../components/footer/Footer";
 import CubeBackground from "../../../components/ui/CubeBackground";
 import { isKiitEmailDomain } from "@/lib/ignithon-identity";
+import { IGNITHON_PORTAL_MUTATIONS_OPEN, IGNITHON_REGISTRATION_OPEN } from "@/lib/ignithon-feature-flags";
 
 const conthrax = "font-['Conthrax',_sans-serif]";
 const orbitron = "font-['Orbitron',_sans-serif]";
@@ -92,7 +93,7 @@ async function readJson(response: Response) {
 
 export default function IgnithonRegistrationPage() {
   const [portal, setPortal] = useState<Portal | null>(null);
-  const [entryMode, setEntryMode] = useState<"register" | "login">("register");
+  const [entryMode, setEntryMode] = useState<"register" | "login">("login");
   const entryCardRef = useRef<HTMLElement>(null);
   const [message, setMessage] = useState("");
   const [messageTone, setMessageTone] = useState<"error" | "success">("error");
@@ -222,7 +223,7 @@ export default function IgnithonRegistrationPage() {
     }
   };
 
-  const logout = async () => { await fetch("/api/ignithon/session/logout", { method: "POST" }); clearBrowserAuthArtifacts(); setPortal(null); setAccess({ rollNo: "", teamId: "" }); setTeamName(""); setLeader(blankMember); setMember(blankMember); setEntryMode("register"); setMessage(""); };
+  const logout = async () => { await fetch("/api/ignithon/session/logout", { method: "POST" }); clearBrowserAuthArtifacts(); setPortal(null); setAccess({ rollNo: "", teamId: "" }); setTeamName(""); setLeader(blankMember); setMember(blankMember); setEntryMode("login"); setMessage(""); };
 
   const switchEntryMode = (mode: "register" | "login") => {
     setEntryMode(mode);
@@ -258,14 +259,14 @@ export default function IgnithonRegistrationPage() {
             Ignithon 2.0 · 26th September 2026
           </p>
           <h1 className={`${conthrax} break-words text-[2rem] uppercase leading-[0.98] tracking-tight text-white sm:text-5xl md:text-6xl`}>
-            {portal ? portal.team.name : "Team Registration"}
+            {portal ? portal.team.name : IGNITHON_REGISTRATION_OPEN ? "Team Registration" : "Existing Team Login"}
           </h1>
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white sm:mt-5 sm:text-base">
             {portal
-              ? `${portal.participants[0]?.name ?? "Team leader"} leads this team. Team leaders manage membership; participants can update their own details.`
-              : entryMode === "register"
+              ? `${portal.participants[0]?.name ?? "Team leader"} leads this team. ${IGNITHON_PORTAL_MUTATIONS_OPEN ? "Team leaders manage membership; participants can update their own details." : "Team roster updates are currently closed for the event."}`
+              : IGNITHON_REGISTRATION_OPEN && entryMode === "register"
                 ? "Register as the team leader to create your team and receive a four-digit Team ID."
-                : "Enter your registered roll number and four-digit Team ID to return to your team portal."}
+                : "Registration is closed. Enter your registered roll number and four-digit Team ID to return to your team portal."}
           </p>
         </div>
 
@@ -277,10 +278,10 @@ export default function IgnithonRegistrationPage() {
               <div>
                 <p className={`${orbitron} text-[9px] uppercase tracking-[0.28em] text-amber-300/55`}>Ignithon 2.0 access</p>
                 <h2 className={`${conthrax} mt-3 text-xl uppercase leading-tight tracking-tight text-white sm:text-2xl`}>
-                  {entryMode === "register" ? "Build your team" : "Return to your team"}
+                  {IGNITHON_REGISTRATION_OPEN && entryMode === "register" ? "Build your team" : "Return to your team"}
                 </h2>
                 <p className="mt-4 text-sm leading-relaxed text-white">
-                  {entryMode === "register" ? "Create the team record once, then use your portal to manage the roster." : "Use the roll number and Team ID already assigned to your registration."}
+                  {IGNITHON_REGISTRATION_OPEN && entryMode === "register" ? "Create the team record once, then use your portal to manage the roster." : "New team registration is closed. Use the roll number and Team ID already assigned to your team."}
                 </p>
                 <SupportContacts className="mt-5" />
               </div>
@@ -290,7 +291,7 @@ export default function IgnithonRegistrationPage() {
               </div>
             </div>
             <div className="min-w-0">
-            {entryMode === "register" ? (
+            {IGNITHON_REGISTRATION_OPEN && entryMode === "register" ? (
               <>
                 <h2 className={`${conthrax} text-sm uppercase tracking-wider text-amber-300 sm:text-base`}>
                   Register New Team
@@ -318,6 +319,7 @@ export default function IgnithonRegistrationPage() {
                 <h2 className={`${conthrax} mt-3 text-lg uppercase leading-tight text-white sm:mt-4 sm:text-xl`}>
                   Existing Team Login
                 </h2>
+                <p className="mt-3 text-sm leading-relaxed text-white">New team registration is closed. Use the roll number and Team ID already assigned to your team.</p>
                 <form onSubmit={handleAccess} className="mt-6 space-y-3 sm:mt-7 sm:space-y-4">
                   <input className={inputClass} required inputMode="numeric" value={access.rollNo} onChange={(event) => setAccess({ ...access, rollNo: event.target.value.replace(/\D/g, "") })} placeholder="Registered roll number" aria-label="Registered roll number" />
                   <input className={inputClass} required inputMode="numeric" pattern="[0-9]{4}" maxLength={4} value={access.teamId} onChange={(event) => setAccess({ ...access, teamId: event.target.value.replace(/\D/g, "") })} placeholder="Four-digit Team ID" aria-label="Four-digit Team ID" />
@@ -327,12 +329,12 @@ export default function IgnithonRegistrationPage() {
                     {loading ? <><LoaderCircle size={15} className="animate-spin" /> Opening portal…</> : <>Access portal <ChevronRight size={14} /></>}
                   </button>
                 </form>
-                <div className="mt-6 border-t border-white/10 pt-5 text-center">
+                {IGNITHON_REGISTRATION_OPEN && <div className="mt-6 border-t border-white/10 pt-5 text-center">
                   <p className="text-xs text-white">Creating a team for the first time?</p>
                   <button type="button" onClick={() => switchEntryMode("register")} className={`${conthrax} mt-3 min-h-11 w-full rounded-full border border-amber-400/35 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-amber-300 transition-colors hover:bg-white hover:text-black active:bg-white active:text-black sm:w-auto`}>
                     Register New Team
                   </button>
-                </div>
+                </div>}
               </>
             )}
             </div>
@@ -457,13 +459,62 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
   const [teamNameDraft, setTeamNameDraft] = useState(portal.team.name);
   const [savingTeamName, setSavingTeamName] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [evaluationAlertActive, setEvaluationAlertActive] = useState(false);
+  const [evaluationPollingEnabled, setEvaluationPollingEnabled] = useState(false);
+  const [evaluationLoading, setEvaluationLoading] = useState(false);
   const leaderEmail = portal.team.leader_email;
   const leader = portal.participants[0];
   const signedInParticipant = portal.participants.find((participant) => participant.email === portal.session.email);
+  const evaluationTeamId = signedInParticipant?.team_id ?? leader?.team_id ?? null;
   const registeredMembers = portal.participants.filter((participant) => participant.email !== leaderEmail);
   const selectedMember = portal.participants.find((participant) => participant.email === editingEmail);
+  const evaluationStatusCheckedRef = useRef<string | null>(null);
 
   useEffect(() => setTeamNameDraft(portal.team.name), [portal.team.name]);
+
+  useEffect(() => {
+    if (!evaluationTeamId || evaluationStatusCheckedRef.current === evaluationTeamId) return;
+    evaluationStatusCheckedRef.current = evaluationTeamId;
+    let cancelled = false;
+    void (async () => {
+      const data = await readJson(await fetch(`/api/evaluation/alerts?teamId=${encodeURIComponent(evaluationTeamId)}`, { cache: "no-store" }));
+      if (!cancelled) {
+        const active = Boolean(data.active);
+        setEvaluationAlertActive(active);
+        setEvaluationPollingEnabled(active);
+      }
+    })()
+      .catch(() => { if (!cancelled) setEvaluationAlertActive(false); });
+    return () => { cancelled = true; };
+  }, [evaluationTeamId]);
+
+  useEffect(() => {
+    if (!evaluationPollingEnabled || !evaluationTeamId) return;
+    let cancelled = false;
+    let requestInFlight = false;
+
+    const checkEvaluationAlert = async () => {
+      if (cancelled || requestInFlight) return;
+      requestInFlight = true;
+      try {
+        const data = await readJson(await fetch(`/api/evaluation/alerts?teamId=${encodeURIComponent(evaluationTeamId)}`, { cache: "no-store" }));
+        if (!cancelled && !Boolean(data.active)) {
+          setEvaluationAlertActive(false);
+          setEvaluationPollingEnabled(false);
+        }
+      } catch {
+        // Keep polling through transient background refresh failures.
+      } finally {
+        requestInFlight = false;
+      }
+    };
+
+    const intervalId = window.setInterval(() => { void checkEvaluationAlert(); }, 5000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(intervalId);
+    };
+  }, [evaluationPollingEnabled, evaluationTeamId]);
 
   useEffect(() => {
     if (!editingEmail || !window.matchMedia("(max-width: 639px)").matches) return;
@@ -522,6 +573,25 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
     }
   };
 
+  const toggleEvaluationAlert = async () => {
+    if (!evaluationTeamId || evaluationLoading) return;
+    setEvaluationLoading(true);
+    try {
+      const body = evaluationAlertActive
+        ? { teamId: evaluationTeamId, action: "dismiss" }
+        : { teamId: evaluationTeamId, action: "raise" };
+      const data = await readJson(await fetch("/api/evaluation/alerts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }));
+      const active = Boolean(data.active);
+      setEvaluationAlertActive(active);
+      setEvaluationPollingEnabled(active);
+      notify(data.active ? "Evaluation call sent to the event team." : "Evaluation call dismissed.", "success");
+    } catch (error) {
+      notify(error instanceof Error ? error.message : "Unable to update the evaluation call.");
+    } finally {
+      setEvaluationLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-5 sm:space-y-6">
       <section ref={rosterSectionRef} className="scroll-mt-24 rounded-[24px] border border-white/10 bg-white/[0.025] p-4 shadow-[0_24px_80px_rgba(0,0,0,0.3)] backdrop-blur-xl sm:rounded-[28px] sm:p-6 md:p-8">
@@ -533,7 +603,7 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
             </div>
             <p className="mt-3 text-xs text-white">Team Leader · <span className="text-white">{leader?.name ?? "Not available"}</span></p>
             <SupportContacts className="mt-3 max-w-xl" />
-            {isLeader && (
+            {isLeader && IGNITHON_PORTAL_MUTATIONS_OPEN && (
               <form onSubmit={saveTeamName} className="mt-4 flex max-w-xl flex-col gap-2 sm:flex-row">
                 <label className="sr-only" htmlFor="team-name-editor">Team name</label>
                 <input id="team-name-editor" className={`${inputClass} min-h-11 sm:max-w-sm`} value={teamNameDraft} onChange={(event) => setTeamNameDraft(event.target.value)} required aria-label="Team name" />
@@ -541,18 +611,19 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
               </form>
             )}
           </div>
-          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
-            <div className="flex w-full flex-col gap-2 sm:w-auto">
-              <button type="button" aria-pressed={showPersonalQr} onClick={() => setShowPersonalQr((current) => !current)} className={`${conthrax} flex min-h-11 w-full items-center justify-center gap-2 rounded-full border px-5 py-3 text-[9px] uppercase tracking-[0.18em] transition-colors sm:w-auto ${showPersonalQr ? "border-amber-300 bg-amber-400 text-black shadow-[0_0_24px_rgba(245, 174, 55,0.18)] hover:bg-white hover:text-black active:bg-white active:text-black" : "border-amber-400/30 text-amber-300 hover:bg-white hover:text-black active:bg-white active:text-black"}`}>
+          <div className="grid w-full grid-cols-1 gap-2 sm:w-[min(100%,42rem)] sm:grid-cols-2 sm:gap-3">
+              <button type="button" aria-pressed={showPersonalQr} onClick={() => setShowPersonalQr((current) => !current)} className={`${conthrax} flex min-h-11 w-full items-center justify-center gap-2 rounded-full border px-5 py-3 text-[9px] uppercase tracking-[0.18em] transition-colors ${showPersonalQr ? "border-amber-300 bg-amber-400 text-black shadow-[0_0_24px_rgba(245, 174, 55,0.18)] hover:bg-white hover:text-black active:bg-white active:text-black" : "border-amber-400/30 text-amber-300 hover:bg-white hover:text-black active:bg-white active:text-black"}`}>
                 <QrCode size={14} /> My QR
               </button>
-              <a href={whatsappGroupUrl} target="_blank" rel="noreferrer" className={`${conthrax} flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-emerald-300/35 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-emerald-200 transition-colors hover:border-white hover:bg-white hover:text-black active:bg-white active:text-black sm:w-auto`}>
+              <a href={whatsappGroupUrl} target="_blank" rel="noreferrer" className={`${conthrax} flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-emerald-300/35 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-emerald-200 transition-colors hover:border-white hover:bg-white hover:text-black active:bg-white active:text-black`}>
                 <MessageCircle size={14} /> Join WhatsApp group
               </a>
-            </div>
-            <button type="button" disabled={loggingOut} aria-busy={loggingOut} onClick={handleLogout} className={`${conthrax} flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-white/10 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-white transition-colors hover:border-white hover:bg-white hover:text-black active:bg-white active:text-black disabled:cursor-wait disabled:opacity-50 sm:w-auto`}>
+              <button type="button" disabled={!evaluationTeamId || evaluationLoading} aria-busy={evaluationLoading} aria-pressed={evaluationAlertActive} onClick={() => { void toggleEvaluationAlert(); }} className={`${conthrax} flex min-h-11 w-full items-center justify-center gap-2 rounded-full border px-5 py-3 text-[9px] uppercase tracking-[0.18em] transition-colors disabled:cursor-wait disabled:opacity-50 ${evaluationAlertActive ? "border-red-300/45 bg-red-400/15 text-red-100 hover:bg-white hover:text-black active:bg-white active:text-black" : "border-amber-300/35 text-amber-200 hover:bg-white hover:text-black active:bg-white active:text-black"}`}>
+                {evaluationLoading ? <><LoaderCircle size={14} className="animate-spin" /> Updating…</> : <><BellRing size={14} /> {evaluationAlertActive ? "Dismiss evaluation call" : "Call for evaluation"}</>}
+              </button>
+              <button type="button" disabled={loggingOut} aria-busy={loggingOut} onClick={handleLogout} className={`${conthrax} flex min-h-11 w-full items-center justify-center gap-2 rounded-full border border-white/10 px-5 py-3 text-[9px] uppercase tracking-[0.18em] text-white transition-colors hover:border-white hover:bg-white hover:text-black active:bg-white active:text-black disabled:cursor-wait disabled:opacity-50`}>
               {loggingOut ? <><LoaderCircle size={14} className="animate-spin" /> Logging out…</> : <><LogOut size={14} /> Log out</>}
-            </button>
+              </button>
           </div>
         </div>
 
@@ -584,7 +655,7 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
           {portal.participants.map((participant) => {
             const isTeamLeader = participant.email === leaderEmail;
             const memberIndex = registeredMembers.findIndex((entry) => entry.email === participant.email) + 1;
-            const canEditCard = isLeader || participant.email === portal.session.email;
+            const canEditCard = IGNITHON_PORTAL_MUTATIONS_OPEN && (isLeader || participant.email === portal.session.email);
 
             return (
               <article
@@ -632,7 +703,7 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
             );
           })}
 
-          {isLeader && registeredMembers.length < 3 && (
+          {isLeader && IGNITHON_PORTAL_MUTATIONS_OPEN && registeredMembers.length < 3 && (
             <button type="button" onClick={() => { const next = !showAddMember; setShowAddMember(next); if (next) requestAnimationFrame(() => addMemberFormRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })); }} aria-expanded={showAddMember} className={`group flex min-h-[210px] flex-col items-center justify-center rounded-[22px] border border-dashed p-5 text-center transition-all active:bg-amber-400/[0.1] ${showAddMember ? "border-amber-300/65 bg-amber-400/[0.09]" : "border-amber-400/25 bg-amber-400/[0.025] hover:border-amber-300/55 hover:bg-amber-400/[0.07]"}`}>
               <span className="flex h-14 w-14 items-center justify-center rounded-full border border-amber-400/35 bg-amber-400/10 text-amber-300 transition-transform group-hover:scale-105">
                 <Plus size={24} />
@@ -644,7 +715,7 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
         </div>
       </section>
 
-      {isLeader && showAddMember && registeredMembers.length < 3 && (
+      {isLeader && IGNITHON_PORTAL_MUTATIONS_OPEN && showAddMember && registeredMembers.length < 3 && (
         <form ref={addMemberFormRef} onSubmit={submitMember} className="scroll-mt-6 rounded-[24px] border border-amber-400/25 bg-amber-400/[0.035] p-4 backdrop-blur-xl sm:scroll-mt-8 sm:rounded-[28px] sm:p-6 md:p-8">
           <div className="flex items-center justify-between gap-4">
             <div>
@@ -665,7 +736,7 @@ function PortalView({ portal, member, setMember, addMember, removeMember, transf
         </form>
       )}
 
-      {selectedMember && (
+      {selectedMember && IGNITHON_PORTAL_MUTATIONS_OPEN && (
         <section ref={memberDetailsRef} className="scroll-mt-6 rounded-[24px] border border-white/10 bg-white/[0.025] p-4 backdrop-blur-xl sm:scroll-mt-8 sm:rounded-[28px] sm:p-6 md:p-8">
           <EditMyDetails key={selectedMember.id} member={selectedMember} teamId={portal.team.id} onSaved={refreshPortal} onClose={() => setEditingEmail(null)} notify={notify} />
           {isLeader && selectedMember.email !== leaderEmail && (
