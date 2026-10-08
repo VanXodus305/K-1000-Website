@@ -42,7 +42,7 @@ export default function RecruitmentLiveModal() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="recruitment-live-title"
-            className="relative w-full max-w-[600px] overflow-hidden rounded-[28px] border border-amber-300/25 bg-[#020707]/95 p-5 text-left text-white shadow-[0_0_80px_rgba(245, 174, 55,0.16)] sm:rounded-[32px] sm:p-8"
+            className="relative max-h-[calc(100dvh-3rem)] w-full max-w-[600px] overflow-y-auto overscroll-contain rounded-[28px] border border-amber-300/25 bg-[#020707]/95 p-5 text-left text-white shadow-[0_0_80px_rgba(245, 174, 55,0.16)] sm:rounded-[32px] sm:p-8"
             initial={{ opacity: 0, y: 24, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 16, scale: 0.97 }}
@@ -66,7 +66,7 @@ export default function RecruitmentLiveModal() {
             </button>
 
             <div className="relative z-10">
-              <div className="flex items-start gap-4 pr-10">
+              <div className="flex flex-col items-start gap-4 sm:flex-row sm:pr-10">
                 <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-[24px] border border-amber-300/20 bg-black/45 shadow-[inset_0_0_26px_rgba(245, 174, 55,0.08),0_0_36px_rgba(245, 174, 55,0.12)] sm:h-28 sm:w-28 sm:rounded-[28px]">
                 <img
                   src="/k1000-small.png"
@@ -75,31 +75,38 @@ export default function RecruitmentLiveModal() {
                 />
                 </div>
                 <div className="min-w-0 pt-1">
-                  <h2 id="recruitment-live-title" className={`${conthrax} mt-3 max-w-[420px] text-xl uppercase leading-[1.12] tracking-tight text-white sm:text-3xl`}>
-                    Ignithon 2.0 is live now
+                  <h2 id="recruitment-live-title" className={`${conthrax} max-w-[420px] break-words text-xl uppercase leading-[1.2] tracking-tight text-white sm:mt-3 sm:text-3xl`}>
+                    R&amp;D Recruitment is now open
                   </h2>
                 </div>
               </div>
 
               <p className="mt-6 max-w-[500px] text-sm leading-relaxed text-white sm:text-base">
-                Open the Ignithon 2.0 portal to access your team and event information.
+                Join K-1000&apos;s Research and Development team to build, explore, and contribute to meaningful campus research.
               </p>
 
               <div className="mt-6 rounded-[20px] border border-amber-300/18 bg-amber-400/[0.045] px-4 py-4 sm:px-5">
-                <p className={`${orbitron} text-[9px] uppercase tracking-[0.28em] text-white`}>Event date</p>
-                <p className={`${conthrax} mt-2 text-lg uppercase tracking-[0.08em] text-amber-200 sm:text-xl`}>
-                  26th September 2026
+                <p className={`${orbitron} text-[9px] uppercase tracking-[0.28em] text-white`}>Recruitment form</p>
+                <p className={`${conthrax} mt-2 text-sm uppercase leading-relaxed tracking-[0.04em] text-amber-200 sm:text-xl sm:tracking-[0.08em]`}>
+                  Applications are now open
                 </p>
               </div>
 
-              <div className="mt-7 flex">
+              <div className="mt-7 flex flex-col gap-3 sm:flex-row">
                 <Link
-                  href="/events/ignithon2.0"
+                  href="/apply"
                   onClick={dismissNotice}
                   className={`${conthrax} inline-flex min-h-12 items-center justify-center rounded-full border border-amber-300 bg-amber-300 px-6 py-3 text-[10px] uppercase tracking-[0.22em] text-black transition-all hover:border-white hover:bg-white`}
                 >
-                  Open Portal
+                  Apply for R&amp;D
                 </Link>
+                <button
+                  type="button"
+                  onClick={dismissNotice}
+                  className={`${conthrax} inline-flex min-h-12 items-center justify-center rounded-full border border-white/20 bg-white/5 px-6 py-3 text-[10px] uppercase tracking-[0.22em] text-white transition-all hover:border-amber-300/35 hover:bg-white/10`}
+                >
+                  Close
+                </button>
               </div>
             </div>
           </motion.div>

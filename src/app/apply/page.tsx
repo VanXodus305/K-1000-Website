@@ -10,6 +10,7 @@ import Footer from "../../components/footer/Footer";
 import CubeBackground from "../../components/ui/CubeBackground";
 
 const conthrax = "font-['Conthrax',_sans-serif]";
+const RECRUITMENT_FORM_URL = "https://forms.gle/P2o3T2NgagabqzY36";
 
 type SocialCard = {
   title: string;
@@ -94,17 +95,18 @@ const ApplicationForm = () => {
           </p>
 
           <div className="flex justify-center pt-4">
-            <motion.div
+            <motion.a
+              href={RECRUITMENT_FORM_URL}
+              target="_blank"
+              rel="noreferrer"
               initial={{ opacity: 0.8 }}
-              className={`${conthrax} inline-flex items-center gap-3 md:gap-4 bg-white/5 border border-white/10 text-white px-8 py-4 md:px-12 md:py-5 rounded-full font-black text-[10px] md:text-sm uppercase tracking-[0.2em] md:tracking-[0.3em] cursor-not-allowed transition-all duration-500 shadow-[inset_0_0_20px_rgba(255,255,255,0.02)]`}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className={`${conthrax} inline-flex items-center gap-3 md:gap-4 bg-amber-400 border border-amber-300 text-black px-8 py-4 md:px-12 md:py-5 rounded-full font-black text-[10px] md:text-sm uppercase tracking-[0.2em] md:tracking-[0.3em] transition-all duration-500 shadow-[0_0_30px_rgba(245,174,55,0.25)] hover:bg-white`}
             >
-              <div className="relative flex items-center justify-center">
-                <span className="absolute w-2 h-2 bg-white/20 rounded-full animate-ping" />
-                <span className="relative w-1.5 h-1.5 md:w-2 md:h-2 bg-white/40 rounded-full" />
-              </div>
-              <span>Applications Open Soon</span>
-              <ArrowRight size={14} className="opacity-50 md:block hidden" />
-            </motion.div>
+              <span>Apply for R&amp;D</span>
+              <ArrowRight size={14} className="md:block hidden" />
+            </motion.a>
           </div>
         </motion.div>
 
