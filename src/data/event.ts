@@ -17,6 +17,22 @@ export interface K1000Event {
 
 export const EVENTS: K1000Event[] = [
   {
+    id: "ignithon-2-2026",
+    title: "Ignithon 2.0",
+    date: "26th September 2026",
+    description: "Ignithon 2.0 is a 12-hour offline sprint focused on rapid prototyping from ideation to deployment. Participants compete across tiered Development and DSA tracks, earning scores through performance across all three challenge rounds while strengthening innovation, problem-solving, software development, teamwork, and practical technical skills.",
+    category: "Hackathon",
+    link: "",
+    status: "COMPLETED",
+    highlights: [
+      "12-Hour Offline Sprint: Rapid prototyping from ideation to deployment.",
+      "Tiered tracks across both Development and DSA.",
+      "Earn scores based on performance across all three challenge rounds.",
+      "Focus on innovation, problem-solving, software development, teamwork, and practical technical skills."
+    ],
+    gallery: ["/events/ignithon2-banner.webp"]
+  },
+  {
     id: "open-source-forge-2026",
     title: "Open Source Forge",
     date: "March 2026",
@@ -111,22 +127,6 @@ export const EVENTS: K1000Event[] = [
       "Felicitation by the Vice Chancellor and Registrar of KIIT."
     ],
     gallery: ["/events/ignithon.webp"]
-  },
-  {
-    id: "ignithon-2-2026",
-    title: "Ignithon 2.0",
-    date: "26th September 2026",
-    description: "Ignithon 2.0 is a 12-hour offline sprint focused on rapid prototyping from ideation to deployment. Participants compete across tiered Development and DSA tracks, earning scores through performance across all three challenge rounds while strengthening innovation, problem-solving, software development, teamwork, and practical technical skills.",
-    category: "Hackathon",
-    link: "/events/ignithon2.0",
-    status: "UPCOMING",
-    highlights: [
-      "12-Hour Offline Sprint: Rapid prototyping from ideation to deployment.",
-      "Tiered tracks across both Development and DSA.",
-      "Earn scores based on performance across all three challenge rounds.",
-      "Focus on innovation, problem-solving, software development, teamwork, and practical technical skills."
-    ],
-    gallery: ["/events/ignithon2-banner.webp"]
   }
 ];
 

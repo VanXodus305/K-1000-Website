@@ -197,7 +197,7 @@ const Events = () => {
                           <ChevronRight size={12} />
                         </Link>
                       </motion.div>
-                    ) : (
+                    ) : selectedEvent.link ? (
                     <motion.a
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.97 }}
@@ -209,6 +209,10 @@ const Events = () => {
                       <span>Launch Report</span>
                       <ExternalLink size={12} />
                     </motion.a>
+                    ) : (
+                      <div className={`${conthrax} self-start sm:self-auto flex-shrink-0 rounded-full border border-white/20 bg-black/35 px-5 sm:px-7 lg:px-8 py-3 sm:py-4 text-[9px] sm:text-[10px] uppercase tracking-widest text-white/70`}>
+                        Event Completed
+                      </div>
                     )}
                   </div>
                 </div>
